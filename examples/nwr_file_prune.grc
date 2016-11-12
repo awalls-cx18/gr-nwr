@@ -18,11 +18,16 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>NOAA Weather Radio Receiver File Pruner
+(C) 2016 Andy Walls &lt;awalls.cx18@gmail.com&gt;
+This flowgraph and grc data file were generated
+by Andy Walls using the GNU Radio Companion
+application.
+See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>description</key>
-      <value>NOAA Weather Radio Receiver File Pruner, (C) 2016 Andy Walls &lt;awalls.cx18@gmail.com</value>
+      <value></value>
     </param>
     <param>
       <key>_enabled</key>
