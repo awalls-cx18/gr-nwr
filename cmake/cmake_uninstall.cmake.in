@@ -1,4 +1,9 @@
 # http://www.vtk.org/Wiki/CMake_FAQ#Can_I_do_.22make_uninstall.22_with_CMake.3F
+# Copyright (c) Kitware Public wiki authors
+# The KitWarePublic wiki page licenses the code in this file under the
+# Creative Commons Attribution 2.5 license:
+# https://creativecommons.org/licenses/by/2.5/
+# https://creativecommons.org/licenses/by/2.5/legalcode
 
 IF(NOT EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
   MESSAGE(FATAL_ERROR "Cannot find install manifest: \"@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt\"")

@@ -1,5 +1,7 @@
 # http://www.cmake.org/pipermail/cmake/2006-October/011446.html
 # Modified to use pkg config and use standard var names
+# That mailing list message is Copyright (C) 2006 Anton Deguet, of which
+# this file is an apparent derivative work.
 
 #
 # Find the CppUnit includes and library

@@ -1,10 +1,10 @@
 /*! \mainpage
 
-Welcome to the GNU Radio NWR Block
+Welcome to the NWR Out of Tree GNURadio MOdule Block
 
 This is the intro page for the Doxygen manual generated for the NWR
 block (docs/doxygen/other/main_page.dox). Edit it to add more detailed
-documentation about the new GNU Radio modules contained in this
+documentation about the new modules contained in this
 project.
 
 */
