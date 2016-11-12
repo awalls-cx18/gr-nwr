@@ -1,4 +1,16 @@
-It is considered good practice to add examples in here to demonstrate the
-functionality of your OOT module. Python scripts, GRC flow graphs or other
-code can go here.
+Example flowgraphs and data files for NWR:
 
+1. nwr.grc
+   The example flowgraph for NWR audio and SAME demodulation.
+   Depends on the gr-reveng OOT module for the Pattern Dump block.
+
+2. nwr_file_prune.grc
+   A utility flowgraph for snipping out segments of a large I/Q capture file.
+
+3. nwr_band_162487500Hz_250ksps_201611091145.c32.gz
+   A gzip compressed file containing 32 bit float complex I and Q and
+   metadata headers.  It is an approximately 1 minute 15 second capture
+   of the NWR band stations on 9 Nov 2016 at about 11:45 a.m. EST.  It
+   captures a Required Weekly TEST of EAS with SAME data modulation and
+   EAS tone from WXM57 Heathsville, VA on WX2 (162.400 MHz):
+   http://www.nws.noaa.gov/nwr/coverage/site2.php?State=VA&Site=WXM57
