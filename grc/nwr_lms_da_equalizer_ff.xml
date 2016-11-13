@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!--
+  Copyright (C) 2016  Andy Walls awalls.cx18@gmail.com
+ -->
+<block>
+  <name>LMS Data-Aided Equalizer</name>
+  <key>nwr_lms_da_equalizer_ff</key>
+  <category>[nwr]</category>
+  <import>import nwr</import>
+  <make>nwr.lms_da_equalizer_ff($training_samples, $sync_tag, $num_taps, $mu)</make>
+  <callback>set_gain($mu)</callback>
+  <param>
+    <name>Training samples</name>
+    <key>training_samples</key>
+    <type>float_vector</type>
+  </param>
+  <param>
+    <name>Sync tag name</name>
+    <key>sync_tag</key>
+    <type>string</type>
+  </param>
+  <param>
+    <name>Equalizer filter length</name>
+    <key>num_taps</key>
+    <value></value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>LMS DA update step gain</name>
+    <key>mu</key>
+    <type>float</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>float</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>float</type>
+  </source>
+</block>

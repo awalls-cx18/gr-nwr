@@ -32,3 +32,4 @@ include(GrTest)
 
 set(GR_TEST_TARGET_DEPS gnuradio-nwr)
 set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig)
+GR_ADD_TEST(qa_lms_da_equalizer_ff ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_lms_da_equalizer_ff.py)

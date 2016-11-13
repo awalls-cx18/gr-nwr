@@ -17,6 +17,9 @@
 %include "nwr_swig_doc.i"
 
 %{
+#include "nwr/lms_da_equalizer_ff.h"
 %}
 
 
+%include "nwr/lms_da_equalizer_ff.h"
+GR_SWIG_BLOCK_MAGIC2(nwr, lms_da_equalizer_ff);

@@ -13,5 +13,5 @@
 ########################################################################
 install(FILES
     api.h
-    DESTINATION include/nwr
+    lms_da_equalizer_ff.h DESTINATION include/nwr
 )

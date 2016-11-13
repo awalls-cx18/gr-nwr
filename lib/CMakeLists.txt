@@ -17,6 +17,7 @@ include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 
 list(APPEND nwr_sources
+    lms_da_equalizer_ff_impl.cc
 )
 
 set(nwr_sources "${nwr_sources}" PARENT_SCOPE)
