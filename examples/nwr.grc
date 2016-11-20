@@ -110,7 +110,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>value</key>
-      <value>firdes.low_pass_2(1, aud_fs, 2.0*same_fd, same_fd/2.0, 20, firdes.WIN_BLACKMAN)</value>
+      <value>firdes.low_pass_2(1, fm_fs, 2.0*same_fd, same_fd/2.0, 20, firdes.WIN_BLACKMAN_HARRIS)</value>
     </param>
   </block>
   <block>
@@ -233,7 +233,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2104, 156)</value>
+      <value>(2384, 172)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -416,7 +416,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>value</key>
-      <value>firdes.low_pass_2(1, samp_rate, 10000, 2000, 40, firdes.WIN_BLACKMAN)</value>
+      <value>firdes.low_pass_2(1, samp_rate, 10000, 2000, 40, firdes.WIN_BLACKMAN_HARRIS)</value>
     </param>
   </block>
   <block>
@@ -458,7 +458,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2224, 380)</value>
+      <value>(1872, 364)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -562,7 +562,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>value</key>
-      <value>0.175</value>
+      <value>0.073</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -789,33 +789,6 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(808, 717)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>mark_pulse_filter_taps</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>[cmath.exp(-1j*math.pi/4.0)*1/round(sps)]*int(round(sps))</value>
-    </param>
-  </block>
-  <block>
     <key>variable_qtgui_range</key>
     <param>
       <key>comment</key>
@@ -890,7 +863,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(808, 653)</value>
+      <value>(1376, 732)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1088,7 +1061,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(152, 140)</value>
+      <value>(472, 548)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1096,11 +1069,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>id</key>
-      <value>samp_rate</value>
+      <value>same_fs</value>
     </param>
     <param>
       <key>value</key>
-      <value>250e3</value>
+      <value>fm_fs/8.0</value>
     </param>
   </block>
   <block>
@@ -1115,7 +1088,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(808, 925)</value>
+      <value>(152, 140)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1123,11 +1096,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>id</key>
-      <value>space_pulse_filter_taps</value>
+      <value>samp_rate</value>
     </param>
     <param>
       <key>value</key>
-      <value>[cmath.exp(1j*math.pi/4.0)*1/round(sps)]*int(round(sps))</value>
+      <value>250e3</value>
     </param>
   </block>
   <block>
@@ -1154,7 +1127,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>value</key>
-      <value>aud_fs * symbol_period</value>
+      <value>same_fs * symbol_period</value>
     </param>
   </block>
   <block>
@@ -1223,7 +1196,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2224, 444)</value>
+      <value>(1872, 428)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1250,7 +1223,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2328, 444)</value>
+      <value>(1976, 428)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1262,7 +1235,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>value</key>
-      <value>2.0*aud_fs*math.tan((1.0/tau)/(aud_fs * 2.0))</value>
+      <value>2.0*fm_fs*math.tan((1.0/tau)/(fm_fs * 2.0))</value>
     </param>
   </block>
   <block>
@@ -1603,7 +1576,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1648, 793)</value>
+      <value>(1272, 792)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1701,7 +1674,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1432, 793)</value>
+      <value>(1096, 792)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1744,7 +1717,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1032, 873)</value>
+      <value>(776, 872)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1854,7 +1827,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>file</key>
-      <value>/home/andy/grcs/nwr_band_162487500Hz_250ksps_201611091145.c32</value>
+      <value>/home/andy/grcs/nwr_wng706_162487500Hz_250ksps_201611161109.c32</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2050,7 +2023,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1272, 793)</value>
+      <value>(984, 792)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2156,7 +2129,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(560, 1124)</value>
+      <value>(560, 1140)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2180,7 +2153,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>samples_per_second</key>
-      <value>wav_fs</value>
+      <value>fm_fs</value>
     </param>
     <param>
       <key>type</key>
@@ -2266,7 +2239,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>file</key>
-      <value>/home/andy/work/lpybombs/Same.wav</value>
+      <value>/home/andy/grcs/Same.wav</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2329,11 +2302,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>w</key>
-      <value>4.0*same_fd*0.10*math.pi/(aud_fs/2.0)</value>
+      <value>4.0*same_fd*0.10*math.pi/(same_fs/2.0)</value>
     </param>
     <param>
       <key>max_freq</key>
-      <value>(same_fc - same_fd*0.90)*math.pi/(aud_fs/2.0)</value>
+      <value>(same_fc - same_fd*0.90)*math.pi/(same_fs/2.0)</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2341,7 +2314,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>min_freq</key>
-      <value>(same_fc - same_fd*1.10)*math.pi/(aud_fs/2.0)</value>
+      <value>(same_fc - same_fd*1.10)*math.pi/(same_fs/2.0)</value>
     </param>
     <param>
       <key>minoutbuf</key>
@@ -2380,11 +2353,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>w</key>
-      <value>4.0*same_fd*0.10*math.pi/(aud_fs/2.0)</value>
+      <value>4.0*same_fd*0.10*math.pi/(same_fs/2.0)</value>
     </param>
     <param>
       <key>max_freq</key>
-      <value>(same_fc+same_fd*1.1)*math.pi/(aud_fs/2.0)</value>
+      <value>(same_fc+same_fd*1.1)*math.pi/(same_fs/2.0)</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2392,7 +2365,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>min_freq</key>
-      <value>(same_fc+same_fd*0.90)*math.pi/(aud_fs/2.0)</value>
+      <value>(same_fc+same_fd*0.90)*math.pi/(same_fs/2.0)</value>
     </param>
     <param>
       <key>minoutbuf</key>
@@ -2490,7 +2463,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>omega_relative_limit</key>
-      <value>0.05</value>
+      <value>1/sps</value>
     </param>
     <param>
       <key>omega</key>
@@ -2576,7 +2549,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(808, 781)</value>
+      <value>(1376, 796)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2604,62 +2577,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>type</key>
-      <value>ccf</value>
-    </param>
-  </block>
-  <block>
-    <key>fir_filter_xxx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>decim</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(808, 861)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>fir_filter_xxx_0_0_0_4</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>samp_delay</key>
-      <value>int((len(pulse_filter_taps)-1)/2.0)</value>
-    </param>
-    <param>
-      <key>taps</key>
-      <value>pulse_filter_taps</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>ccf</value>
+      <value>fff</value>
     </param>
   </block>
   <block>
@@ -2682,7 +2600,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1912, 264)</value>
+      <value>(2208, 264)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2757,7 +2675,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>resamp_ratio</key>
-      <value>float(wav_fs)/float(aud_fs)</value>
+      <value>float(wav_fs)/float(fm_fs)</value>
     </param>
     <param>
       <key>type</key>
@@ -2847,7 +2765,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>decim</key>
-      <value>1</value>
+      <value>int(fm_fs/same_fs)</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -2883,7 +2801,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>samp_rate</key>
-      <value>aud_fs</value>
+      <value>fm_fs</value>
     </param>
     <param>
       <key>taps</key>
@@ -2910,15 +2828,15 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>fftaps</key>
-      <value>[(w_n/(2.0*aud_fs))/(1.0 + (w_n/(2.0*aud_fs))), (w_n/(2.0*aud_fs))/(1.0 + (w_n/(2.0*aud_fs)))]</value>
+      <value>[(w_n/(2.0*fm_fs))/(1.0 + (w_n/(2.0*fm_fs))), (w_n/(2.0*fm_fs))/(1.0 + (w_n/(2.0*fm_fs)))]</value>
     </param>
     <param>
       <key>fbtaps</key>
-      <value>[1, -(1.0 - (w_n/(2.0*aud_fs)))/(1.0 + (w_n/(2.0*aud_fs)))]</value>
+      <value>[1, -(1.0 - (w_n/(2.0*fm_fs)))/(1.0 + (w_n/(2.0*fm_fs)))]</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2224, 268)</value>
+      <value>(1872, 252)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3078,7 +2996,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2224, 220)</value>
+      <value>(1872, 204)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3109,7 +3027,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2224, 332)</value>
+      <value>(1872, 316)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3140,7 +3058,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(752, 588)</value>
+      <value>(752, 644)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4838,7 +4756,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1424, 885)</value>
+      <value>(1112, 884)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -4870,7 +4788,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>label1</key>
-      <value>SAME I/Q</value>
+      <value>Unfiltered SAME I/Q</value>
     </param>
     <param>
       <key>marker1</key>
@@ -5110,7 +5028,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>size</key>
-      <value>1024</value>
+      <value>160*3</value>
     </param>
     <param>
       <key>tr_chan</key>
@@ -5118,7 +5036,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>tr_level</key>
-      <value>0.1</value>
+      <value>0.15</value>
     </param>
     <param>
       <key>tr_mode</key>
@@ -5883,7 +5801,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>label1</key>
-      <value>Input</value>
+      <value>After Deepmhasis</value>
     </param>
     <param>
       <key>width1</key>
@@ -5915,7 +5833,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>label2</key>
-      <value>After Deepmhasis</value>
+      <value>After Audio LPF</value>
     </param>
     <param>
       <key>width2</key>
@@ -5931,7 +5849,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>label3</key>
-      <value>After Audio LPF</value>
+      <value>After Final Gain</value>
     </param>
     <param>
       <key>width3</key>
@@ -5947,7 +5865,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>label4</key>
-      <value>After Final Gain</value>
+      <value></value>
     </param>
     <param>
       <key>width4</key>
@@ -6047,7 +5965,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>nconnections</key>
-      <value>4</value>
+      <value>3</value>
     </param>
     <param>
       <key>showports</key>
@@ -6469,7 +6387,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>label1</key>
-      <value>Prefiltering</value>
+      <value>Before Audio LPF</value>
     </param>
     <param>
       <key>marker1</key>
@@ -7072,11 +6990,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>size</key>
-      <value>40960</value>
+      <value>8192</value>
     </param>
     <param>
       <key>srate</key>
-      <value>aud_fs</value>
+      <value>same_fs</value>
     </param>
     <param>
       <key>tr_chan</key>
@@ -7088,7 +7006,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>tr_level</key>
-      <value>0.1</value>
+      <value>0.15</value>
     </param>
     <param>
       <key>tr_mode</key>
@@ -7435,11 +7353,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>size</key>
-      <value>1024*3</value>
+      <value>1024</value>
     </param>
     <param>
       <key>srate</key>
-      <value>aud_fs/sps</value>
+      <value>same_fs/sps</value>
     </param>
     <param>
       <key>tr_chan</key>
@@ -7518,7 +7436,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1912, 336)</value>
+      <value>(2216, 368)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -7747,25 +7665,13 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>analog_pll_freqdet_cf_0</source_block_id>
-    <sink_block_id>fractional_resampler_xx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>analog_quadrature_demod_cf_0</source_block_id>
-    <sink_block_id>fractional_resampler_xx_0</sink_block_id>
+    <sink_block_id>iir_filter_xxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_add_xx_0</source_block_id>
-    <sink_block_id>digital_clock_recovery_mm_xx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_add_xx_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0_0</sink_block_id>
+    <sink_block_id>fir_filter_xxx_0_0_0_3</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -7827,7 +7733,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <source_block_id>blocks_multiply_const_vxx_0_0</source_block_id>
     <sink_block_id>qtgui_freq_sink_x_0_0_0_0</sink_block_id>
     <source_key>0</source_key>
-    <sink_key>3</sink_key>
+    <sink_key>2</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_multiply_const_vxx_0_0</source_block_id>
@@ -7873,13 +7779,13 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>coherent_mark_pll</source_block_id>
-    <sink_block_id>fir_filter_xxx_0_0_0_4</sink_block_id>
+    <sink_block_id>blocks_conjugate_cc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>coherent_space_pll</source_block_id>
-    <sink_block_id>fir_filter_xxx_0_0_0_3</sink_block_id>
+    <sink_block_id>blocks_sub_xx_0_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -7927,19 +7833,19 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>fir_filter_xxx_0_0_0_3</source_block_id>
-    <sink_block_id>blocks_sub_xx_0_1</sink_block_id>
+    <sink_block_id>digital_clock_recovery_mm_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fir_filter_xxx_0_0_0_4</source_block_id>
-    <sink_block_id>blocks_conjugate_cc_0</sink_block_id>
+    <source_block_id>fir_filter_xxx_0_0_0_3</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>fractional_resampler_xx_0</source_block_id>
-    <sink_block_id>iir_filter_xxx_0</sink_block_id>
+    <sink_block_id>iir_filter_xxx_0_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -7993,15 +7899,9 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>iir_filter_xxx_0</source_block_id>
-    <sink_block_id>iir_filter_xxx_0_0_0</sink_block_id>
+    <sink_block_id>fractional_resampler_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>iir_filter_xxx_0</source_block_id>
-    <sink_block_id>qtgui_freq_sink_x_0_0_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>1</sink_key>
   </connection>
   <connection>
     <source_block_id>iir_filter_xxx_0_0_0</source_block_id>
@@ -8013,7 +7913,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <source_block_id>iir_filter_xxx_0_0_0</source_block_id>
     <sink_block_id>qtgui_freq_sink_x_0_0_0_0</sink_block_id>
     <source_key>0</source_key>
-    <sink_key>2</sink_key>
+    <sink_key>1</sink_key>
   </connection>
   <connection>
     <source_block_id>osmosdr_source_0</source_block_id>
