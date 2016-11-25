@@ -51,7 +51,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>id</key>
-      <value>nwr</value>
+      <value>nwr_fg</value>
     </param>
     <param>
       <key>max_nouts</key>
