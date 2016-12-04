@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<!--
+  Copyright (C) 2016  Andy Walls awalls.cx18@gmail.com
+ -->
+<block>
+  <name>Burst Detect and Tag</name>
+  <key>nwr_burst_detect_and_tag</key>
+  <category>[nwr]</category>
+  <import>import nwr</import>
+  <make>nwr.burst_detect_and_tag($type.size, $sample_rate, $thresh_db, $init_floor_est, $declare_dur, $max_dur, $sob_amp_frac, $sob_key, $eob_key, $eob_delay, $guard_interval)</make>
+
+  <param>
+    <name>IO Type</name>
+    <key>type</key>
+    <type>enum</type>
+    <option>
+      <name>Complex</name>
+      <key>complex</key>
+      <opt>size:gr.sizeof_gr_complex</opt>
+    </option>
+    <option>
+      <name>Float</name>
+      <key>float</key>
+      <opt>size:gr.sizeof_float</opt>
+    </option>
+    <option>
+      <name>Int</name>
+      <key>int</key>
+      <opt>size:gr.sizeof_int</opt>
+    </option>
+    <option>
+      <name>Short</name>
+      <key>short</key>
+      <opt>size:gr.sizeof_short</opt>
+    </option>
+    <option>
+      <name>Byte</name>
+      <key>byte</key>
+      <opt>size:gr.sizeof_char</opt>
+    </option>
+  </param>
+
+  <param>
+    <name>Sample Rate</name>
+    <key>sample_rate</key>
+    <value>samp_rate</value>
+    <type>float</type>
+    <hide>part</hide>
+  </param>
+
+  <param>
+    <name>Threshold (dB)</name>
+    <key>thresh_db</key>
+    <value>0.0</value>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>Initial Floor Estimate</name>
+    <key>init_floor_est</key>
+    <value>100e-6</value>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>Declaration Duration (s)</name>
+    <key>declare_dur</key>
+    <value>1.920e-3*8.0*16.0</value>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>Maximum Duration (s)</name>
+    <key>max_dur</key>
+    <value>1.920e-3*8.0*268.0</value>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>SOB Amplitude Fraction</name>
+    <key>sob_amp_frac</key>
+    <value>0.2</value>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>Start Tag Name</name>
+    <key>sob_key</key>
+    <value>"rx_sob"</value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>End Tag Name</name>
+    <key>eob_key</key>
+    <value>"rx_eob"</value>
+    <type>string</type>
+  </param>
+
+   <param>
+    <name>EOB Delay</name>
+    <key>eob_delay</key>
+    <value>0.0</value>
+    <type>float</type>
+  </param>
+
+   <param>
+    <name>Burst Guard Interval</name>
+    <key>guard_interval</key>
+    <value>0.9</value>
+    <type>float</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>$type</type>
+  </sink>
+  <sink>
+    <name>mag</name>
+    <type>float</type>
+  </sink>
+  <sink>
+    <name>floor_msg</name>
+    <type>message</type>
+    <optional>1</optional>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>$type</type>
+  </source>
+</block>

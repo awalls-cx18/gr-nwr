@@ -34,7 +34,11 @@ foreach(incdir ${GNURADIO_RUNTIME_INCLUDE_DIRS})
     list(APPEND GR_SWIG_INCLUDE_DIRS ${incdir}/gnuradio/swig)
 endforeach(incdir)
 
-set(GR_SWIG_LIBRARIES gnuradio-nwr)
+list(APPEND GR_SWIG_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
+list(APPEND GR_SWIG_INCLUDE_DIRS ${UHD_INCLUDE_DIRS})
+
+link_directories(${UHD_LIBRARY_DIRS})
+set(GR_SWIG_LIBRARIES gnuradio-nwr ${UHD_LIBRARIES})
 set(GR_SWIG_DOC_FILE ${CMAKE_CURRENT_BINARY_DIR}/nwr_swig_doc.i)
 set(GR_SWIG_DOC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
