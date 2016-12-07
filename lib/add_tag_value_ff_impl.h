@@ -35,10 +35,10 @@ namespace gr {
       pmt::pmt_t d_tag_key;
       float d_k;
 
-      notvolk_32f_s32f_add_32f(float* cVector,
-                               const float* aVector,
-                               const float scalar,
-                               unsigned int num_points);
+      void notvolk_32f_s32f_add_32f(float* cVector,
+                                    const float* aVector,
+                                    const float scalar,
+                                    unsigned int num_points);
 
     public:
       add_tag_value_ff_impl(const std::string& tag_name, size_t vlen);
