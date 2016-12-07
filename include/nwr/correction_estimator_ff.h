@@ -46,7 +46,7 @@ namespace gr {
        * \param peak_ref          Expected peak level
        * \param trough_ref        Expected trough level
        * \param offset_corr_key   Tag name to use for the offset correction
-       * \param scaling_corr_key  Tag name to use for the scaling correction
+       * \param scale_corr_key    Tag name to use for the scaling correction
        * \param scale_eob_zero    Set scaling correction to 0.0 vs 1.0 at end
        * \param sob_key           Tag name that indicates the start of a burst
        * \param eob_key           Tag name that indicates the end of a burst
