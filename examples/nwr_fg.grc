@@ -1784,6 +1784,61 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
+    <key>blocks_delay</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>delay</key>
+      <value>int(sps/2)</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1744, 804)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_delay_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_ports</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_file_meta_sink</key>
     <param>
       <key>alias</key>
@@ -2180,7 +2235,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1856, 956)</value>
+      <value>(2096, 916)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2200,7 +2255,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>name</key>
-      <value>Detector Out</value>
+      <value>Correction Estimator Out</value>
     </param>
     <param>
       <key>num_inputs</key>
@@ -3561,7 +3616,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1784, 780)</value>
+      <value>(1848, 780)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3606,6 +3661,77 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>thresh_db</key>
       <value>0.0</value>
+    </param>
+  </block>
+  <block>
+    <key>nwr_correction_estimator_ff</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>eob_key</key>
+      <value>"rx_eob"</value>
+    </param>
+    <param>
+      <key>peak_ref</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>trough_ref</key>
+      <value>-0.72</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(2104, 816)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>nwr_correction_estimator_ff_0</value>
+    </param>
+    <param>
+      <key>inspection_length</key>
+      <value>int(sps*8*4)</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>offset_corr_key</key>
+      <value>"offset_corr"</value>
+    </param>
+    <param>
+      <key>scale_corr_key</key>
+      <value>"scale_corr"</value>
+    </param>
+    <param>
+      <key>scale_eob_zero</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>sob_key</key>
+      <value>"rx_sob"</value>
     </param>
   </block>
   <block>
@@ -7005,7 +7131,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1800, 664)</value>
+      <value>(1944, 664)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -7999,6 +8125,12 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <sink_key>1</sink_key>
   </connection>
   <connection>
+    <source_block_id>blocks_delay_0</source_block_id>
+    <sink_block_id>nwr_burst_detect_and_tag_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>blocks_file_meta_source_0</source_block_id>
     <sink_block_id>blocks_throttle_1</sink_block_id>
     <source_key>0</source_key>
@@ -8150,7 +8282,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>fir_filter_xxx_0_0_0_3</source_block_id>
-    <sink_block_id>nwr_burst_detect_and_tag_0</sink_block_id>
+    <sink_block_id>blocks_delay_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -8228,18 +8360,24 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>nwr_burst_detect_and_tag_0</source_block_id>
+    <sink_block_id>nwr_correction_estimator_ff_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>nwr_correction_estimator_ff_0</source_block_id>
     <sink_block_id>blocks_tag_debug_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>nwr_burst_detect_and_tag_0</source_block_id>
+    <source_block_id>nwr_correction_estimator_ff_0</source_block_id>
     <sink_block_id>digital_clock_recovery_mm_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>nwr_burst_detect_and_tag_0</source_block_id>
+    <source_block_id>nwr_correction_estimator_ff_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
