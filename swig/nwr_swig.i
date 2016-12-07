@@ -21,6 +21,7 @@
 #include "nwr/burst_detect_and_tag.h"
 #include "nwr/correction_estimator_ff.h"
 #include "nwr/multiply_by_tag_value_ff.h"
+#include "nwr/add_tag_value_ff.h"
 %}
 
 
@@ -32,3 +33,5 @@ GR_SWIG_BLOCK_MAGIC2(nwr, burst_detect_and_tag);
 GR_SWIG_BLOCK_MAGIC2(nwr, correction_estimator_ff);
 %include "nwr/multiply_by_tag_value_ff.h"
 GR_SWIG_BLOCK_MAGIC2(nwr, multiply_by_tag_value_ff);
+%include "nwr/add_tag_value_ff.h"
+GR_SWIG_BLOCK_MAGIC2(nwr, add_tag_value_ff);

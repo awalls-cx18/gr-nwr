@@ -21,6 +21,7 @@ list(APPEND nwr_sources
     burst_detect_and_tag_impl.cc
     correction_estimator_ff_impl.cc
     multiply_by_tag_value_ff_impl.cc
+    add_tag_value_ff_impl.cc
 )
 
 set(nwr_sources "${nwr_sources}" PARENT_SCOPE)
