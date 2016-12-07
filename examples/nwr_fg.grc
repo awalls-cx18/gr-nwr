@@ -10,7 +10,7 @@
     </param>
     <param>
       <key>window_size</key>
-      <value>3200, 1200</value>
+      <value>4096, 1200</value>
     </param>
     <param>
       <key>category</key>
@@ -570,7 +570,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2352, 912)</value>
+      <value>(2824, 912)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1576,7 +1576,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1504, 936)</value>
+      <value>(1760, 872)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1674,7 +1674,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2664, 1084)</value>
+      <value>(3536, 1084)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1807,7 +1807,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1744, 804)</value>
+      <value>(1856, 804)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2031,7 +2031,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2840, 968)</value>
+      <value>(3712, 968)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2074,7 +2074,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1600, 916)</value>
+      <value>(1856, 852)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2235,7 +2235,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2096, 916)</value>
+      <value>(2312, 916)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2651,7 +2651,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2592, 808)</value>
+      <value>(3464, 808)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2690,7 +2690,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2344, 808)</value>
+      <value>(2816, 808)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2757,7 +2757,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2744, 788)</value>
+      <value>(3616, 788)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3616,7 +3616,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1848, 780)</value>
+      <value>(2064, 780)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3695,7 +3695,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2104, 816)</value>
+      <value>(2320, 816)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3732,6 +3732,53 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>sob_key</key>
       <value>"rx_sob"</value>
+    </param>
+  </block>
+  <block>
+    <key>nwr_multiply_by_tag_value_ff</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(2576, 828)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>nwr_multiply_by_tag_value_ff_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>tagname</key>
+      <value>"scale_corr"</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
     </param>
   </block>
   <block>
@@ -5516,7 +5563,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3016, 964)</value>
+      <value>(3888, 964)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -7131,7 +7178,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1944, 664)</value>
+      <value>(2112, 648)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -7235,7 +7282,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>label3</key>
-      <value></value>
+      <value>Corrected SAME BB</value>
     </param>
     <param>
       <key>marker3</key>
@@ -7399,7 +7446,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>nconnections</key>
-      <value>2</value>
+      <value>3</value>
     </param>
     <param>
       <key>size</key>
@@ -7494,7 +7541,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3016, 1048)</value>
+      <value>(3888, 1048)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -7782,7 +7829,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>tr_level</key>
-      <value>0.1</value>
+      <value>0.35</value>
     </param>
     <param>
       <key>tr_mode</key>
@@ -7908,7 +7955,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3000, 768)</value>
+      <value>(3872, 768)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -8372,7 +8419,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>nwr_correction_estimator_ff_0</source_block_id>
-    <sink_block_id>digital_clock_recovery_mm_xx_0</sink_block_id>
+    <sink_block_id>nwr_multiply_by_tag_value_ff_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -8381,6 +8428,18 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <sink_block_id>qtgui_time_sink_x_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>nwr_multiply_by_tag_value_ff_0</source_block_id>
+    <sink_block_id>digital_clock_recovery_mm_xx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>nwr_multiply_by_tag_value_ff_0</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>2</sink_key>
   </connection>
   <connection>
     <source_block_id>osmosdr_source_0</source_block_id>
