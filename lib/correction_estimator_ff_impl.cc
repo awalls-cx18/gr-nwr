@@ -146,7 +146,7 @@ namespace gr {
                              d_src_id);
                 add_item_tag(0, t->offset,
                              d_scale_corr_key,
-                             pmt::from_dobule(scale_corr),
+                             pmt::from_double(scale_corr),
                              d_src_id);
 
                 // Plan to process the rest of the items in this call to work()
