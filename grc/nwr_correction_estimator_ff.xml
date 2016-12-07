@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!--
+  Copyright (C) 2016  Andy Walls awalls.cx18@gmail.com
+ -->
+<block>
+  <name>Correction Estimator</name>
+  <key>nwr_correction_estimator_ff</key>
+  <category>[nwr]</category>
+  <import>import nwr</import>
+  <make>nwr.correction_estimator_ff($inspection_length, $peak_ref, $trough_ref, $offset_corr_key, $scale_corr_key, $scale_eob_zero, $sob_key, $eob_key)</make>
+
+  <param>
+    <name>Inspection Length</name>
+    <key>inspection_length</key>
+    <value></value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Expected Peak Level</name>
+    <key>peak_ref</key>
+    <value>1.0</value>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Expected Trough Level</name>
+    <key>trough_ref</key>
+    <value>-1.0</value>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>Offset Corr Tag Name</name>
+    <key>offset_corr_key</key>
+    <value>"offset_corr"</value>
+    <type>string</type>
+    <hide>part</hide>
+  </param>
+  <param>
+    <name>Scale Corr Tag Name</name>
+    <key>scale_corr_key</key>
+    <value>"scale_corr"</value>
+    <type>string</type>
+    <hide>part</hide>
+  </param>
+
+  <param>
+    <name>Scale Corr at End</name>
+    <key>scale_eob_zero</key>
+    <value>False</value>
+    <type>bool</type>
+    <option>
+        <name>1.0</name>
+        <key>False</key>
+    </option>
+    <option>
+        <name>0.0</name>
+        <key>True</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Start Tag Name</name>
+    <key>sob_key</key>
+    <value>"rx_sob"</value>
+    <type>string</type>
+    <hide>part</hide>
+  </param>
+  <param>
+    <name>End Tag Name</name>
+    <key>eob_key</key>
+    <value>"rx_eob"</value>
+    <type>string</type>
+    <hide>part</hide>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>float</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>float</type>
+  </source>
+</block>

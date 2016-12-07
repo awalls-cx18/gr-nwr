@@ -19,6 +19,7 @@ link_directories(${Boost_LIBRARY_DIRS} ${UHD_LIBRARY_DIRS})
 list(APPEND nwr_sources
     lms_da_equalizer_ff_impl.cc
     burst_detect_and_tag_impl.cc
+    correction_estimator_ff_impl.cc
 )
 
 set(nwr_sources "${nwr_sources}" PARENT_SCOPE)

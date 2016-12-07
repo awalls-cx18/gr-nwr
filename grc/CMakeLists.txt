@@ -11,5 +11,5 @@
 install(FILES
     nwr_lms_da_equalizer_ff.xml
     nwr_burst_detect_and_tag.xml
-    DESTINATION share/gnuradio/grc/blocks
+    nwr_correction_estimator_ff.xml DESTINATION share/gnuradio/grc/blocks
 )

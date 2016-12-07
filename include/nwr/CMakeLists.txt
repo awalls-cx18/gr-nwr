@@ -15,5 +15,5 @@ install(FILES
     api.h
     lms_da_equalizer_ff.h
     burst_detect_and_tag.h
-    DESTINATION include/nwr
+    correction_estimator_ff.h DESTINATION include/nwr
 )

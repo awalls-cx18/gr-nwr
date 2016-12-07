@@ -19,6 +19,7 @@
 %{
 #include "nwr/lms_da_equalizer_ff.h"
 #include "nwr/burst_detect_and_tag.h"
+#include "nwr/correction_estimator_ff.h"
 %}
 
 
@@ -26,3 +27,5 @@
 GR_SWIG_BLOCK_MAGIC2(nwr, lms_da_equalizer_ff);
 %include "nwr/burst_detect_and_tag.h"
 GR_SWIG_BLOCK_MAGIC2(nwr, burst_detect_and_tag);
+%include "nwr/correction_estimator_ff.h"
+GR_SWIG_BLOCK_MAGIC2(nwr, correction_estimator_ff);
