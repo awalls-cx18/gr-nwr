@@ -2671,69 +2671,6 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
-    <key>digital_clock_recovery_mm_xx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(2968, 808)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>gain_mu</key>
-      <value>2*(math.exp(2*math.pi*fn_norm)-1)</value>
-    </param>
-    <param>
-      <key>gain_omega</key>
-      <value>((2*(math.exp(2*math.pi*fn_norm)-1))**2)/4.0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>digital_clock_recovery_mm_xx_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>mu</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>omega_relative_limit</key>
-      <value>1/sps</value>
-    </param>
-    <param>
-      <key>omega</key>
-      <value>sps</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-  </block>
-  <block>
     <key>digital_correlate_access_code_tag_bb</key>
     <param>
       <key>access_code</key>
@@ -3708,6 +3645,65 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>thresh_db</key>
       <value>0.0</value>
+    </param>
+  </block>
+  <block>
+    <key>nwr_clock_recovery_mm_ff</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(2968, 808)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>gain_mu</key>
+      <value>2*(math.exp(2*math.pi*fn_norm)-1)</value>
+    </param>
+    <param>
+      <key>gain_omega</key>
+      <value>((2*(math.exp(2*math.pi*fn_norm)-1))**2)/4.0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>nwr_clock_recovery_mm_ff_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>mu</key>
+      <value>0.5</value>
+    </param>
+    <param>
+      <key>omega_relative_limit</key>
+      <value>1.0/sps</value>
+    </param>
+    <param>
+      <key>omega</key>
+      <value>sps</value>
     </param>
   </block>
   <block>
@@ -8339,24 +8335,6 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>digital_clock_recovery_mm_xx_0</source_block_id>
-    <sink_block_id>blocks_float_to_complex_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>digital_clock_recovery_mm_xx_0</source_block_id>
-    <sink_block_id>digital_binary_slicer_fb_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>digital_clock_recovery_mm_xx_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>digital_correlate_access_code_tag_bb_0</source_block_id>
     <sink_block_id>blocks_char_to_float_0</sink_block_id>
     <source_key>0</source_key>
@@ -8465,6 +8443,24 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>nwr_clock_recovery_mm_ff_0</source_block_id>
+    <sink_block_id>blocks_float_to_complex_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>nwr_clock_recovery_mm_ff_0</source_block_id>
+    <sink_block_id>digital_binary_slicer_fb_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>nwr_clock_recovery_mm_ff_0</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_0_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>nwr_correction_estimator_ff_0</source_block_id>
     <sink_block_id>blocks_tag_debug_1</sink_block_id>
     <source_key>0</source_key>
@@ -8484,7 +8480,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>nwr_multiply_by_tag_value_ff_0</source_block_id>
-    <sink_block_id>digital_clock_recovery_mm_xx_0</sink_block_id>
+    <sink_block_id>nwr_clock_recovery_mm_ff_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
