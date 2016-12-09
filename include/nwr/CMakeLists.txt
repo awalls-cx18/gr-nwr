@@ -17,5 +17,6 @@ install(FILES
     burst_detect_and_tag.h
     correction_estimator_ff.h
     multiply_by_tag_value_ff.h
-    add_tag_value_ff.h DESTINATION include/nwr
+    add_tag_value_ff.h
+    clock_recovery_mm_ff.h DESTINATION include/nwr
 )

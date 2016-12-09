@@ -22,6 +22,7 @@ list(APPEND nwr_sources
     correction_estimator_ff_impl.cc
     multiply_by_tag_value_ff_impl.cc
     add_tag_value_ff_impl.cc
+    clock_recovery_mm_ff_impl.cc
 )
 
 set(nwr_sources "${nwr_sources}" PARENT_SCOPE)

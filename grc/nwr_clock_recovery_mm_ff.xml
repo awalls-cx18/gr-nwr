@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!--
+  Copyright (C) 2016  Free Software Foundation, Inc. 
+  Copyright (C) 2016  Andy Walls awalls.cx18@gmail.com
+
+  GNU Radio is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3, or (at your option)
+  any later version.
+  
+  GNU Radio is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with GNU Radio; see the file COPYING.  If not, write to
+  the Free Software Foundation, Inc., 51 Franklin Street,
+  Boston, MA 02110-1301, USA.
+ -->
+
+<block>
+    <name>Clock Recovery MM</name>
+    <key>nwr_clock_recovery_mm_xx</key>
+    <import>import nwr</import>
+    <make>nwr.clock_recovery_mm_ff($omega, $gain_omega, $mu, $gain_mu, $omega_relative_limit)</make>
+    <callback>set_omega($omega)</callback>
+    <callback>set_gain_omega($gain_omega)</callback>
+    <callback>set_mu($mu)</callback>
+    <callback>set_gain_mu($gain_mu)</callback>
+    <param>
+        <name>Omega</name>
+        <key>omega</key>
+        <value>sps</value>
+        <type>real</type>
+    </param>
+    <param>
+        <name>Gain Omega</name>
+        <key>gain_omega</key>
+        <value>((2*(math.exp(2*math.pi*fn_norm)-1))**2)/4.0</value>
+        <type>real</type>
+    </param>
+    <param>
+        <name>Mu</name>
+        <key>mu</key>
+        <value>0.5</value>
+        <type>real</type>
+    </param>
+    <param>
+        <name>Gain Mu</name>
+        <key>gain_mu</key>
+        <value>2*(math.exp(2*math.pi*fn_norm)-1)</value>
+        <type>real</type>
+    </param>
+    <param>
+        <name>Omega Relative Limit</name>
+        <key>omega_relative_limit</key>
+        <value>1.0/sps</value>
+        <type>real</type>
+    </param>
+    <sink>
+        <name>in</name>
+        <type>float</type>
+    </sink>
+    <source>
+        <name>out</name>
+        <type>float</type>
+    </source>
+</block>
