@@ -62,10 +62,16 @@ namespace gr {
       float d_omega_mid;            // average omega
       float d_omega_lim;            // actual omega clipping limit
 
-      float d_last_sample;
+      float d_prev_y;
+      float d_prev_decision;
       filter::mmse_fir_interpolator_ff *d_interp;
 
       bool d_verbose;
+
+      float timing_error_detector(float curr_y);
+      void symbol_period_limit();
+      void advance_loop(float error);
+      int clock_sample_phase_wrap();
     };
 
   } /* namespace nwr */

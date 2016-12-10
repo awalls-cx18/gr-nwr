@@ -51,7 +51,9 @@ namespace gr {
               io_signature::make(1, 1, sizeof(float))),
         d_mu(mu), d_gain_mu(gain_mu), d_gain_omega(gain_omega),
         d_omega_relative_limit(omega_relative_limit),
-        d_last_sample(0), d_interp(new filter::mmse_fir_interpolator_ff())
+        d_prev_y(0.0f),
+        d_prev_decision(1.0f), // consistent with slice(d_prev_y)
+        d_interp(new filter::mmse_fir_interpolator_ff())
     {
       if(omega <  1)
         throw std::out_of_range("clock rate must be > 0");
@@ -92,6 +94,42 @@ namespace gr {
       d_omega_lim = d_omega_mid * d_omega_relative_limit;
     }
 
+    float
+    clock_recovery_mm_ff_impl::timing_error_detector(float curr_y)
+    {
+        float error;
+        float curr_decision = slice(curr_y);
+
+        error = d_prev_decision * curr_y - curr_decision * d_prev_y;
+
+        d_prev_y = curr_y;
+        d_prev_decision = curr_decision;
+
+        return error;
+    }
+
+    void
+    clock_recovery_mm_ff_impl::symbol_period_limit()
+    {
+        d_omega = d_omega_mid
+		  + gr::branchless_clip(d_omega-d_omega_mid, d_omega_lim);
+    }
+
+    void
+    clock_recovery_mm_ff_impl::advance_loop(float error)
+    {
+        d_omega = d_omega + d_gain_omega * error;
+        d_mu = d_mu + d_omega + d_gain_mu * error;
+    }
+
+    int
+    clock_recovery_mm_ff_impl::clock_sample_phase_wrap()
+    {
+        float whole_samples_until_clock = floorf(d_mu);
+        d_mu = d_mu - whole_samples_until_clock;
+        return static_cast<int>(whole_samples_until_clock);
+    }
+
     int
     clock_recovery_mm_ff_impl::general_work(
                                          int noutput_items,
@@ -105,20 +143,20 @@ namespace gr {
       int ii = 0; // input index
       int oo = 0; // output index
       int ni = ninput_items[0] - d_interp->ntaps(); // don't use more input than this
-      float mm_val;
+      float error;
+      int n;
 
       while(oo < noutput_items && ii < ni ) {
         // produce output sample
         out[oo] = d_interp->interpolate(&in[ii], d_mu);
-        mm_val = slice(d_last_sample) * out[oo] - slice(out[oo]) * d_last_sample;
-        d_last_sample = out[oo];
 
-        d_omega = d_omega + d_gain_omega * mm_val;
-        d_omega = d_omega_mid + gr::branchless_clip(d_omega-d_omega_mid, d_omega_lim);
-        d_mu = d_mu + d_omega + d_gain_mu * mm_val;
+        error = timing_error_detector(out[oo]);
 
-        ii += (int)floor(d_mu);
-        d_mu = d_mu - floor(d_mu);
+        advance_loop(error);
+        n = clock_sample_phase_wrap();
+        symbol_period_limit();
+
+        ii += n;
         oo++;
       }
 
