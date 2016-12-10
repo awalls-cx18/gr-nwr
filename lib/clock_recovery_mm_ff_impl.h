@@ -32,15 +32,15 @@ namespace gr {
     {
     public:
       clock_recovery_mm_ff_impl(float omega, float gain_omega,
-				float mu, float gain_mu,
-				float omega_relative_limi);
+                                float mu, float gain_mu,
+                                float omega_relative_limit);
       ~clock_recovery_mm_ff_impl();
 
       void forecast(int noutput_items, gr_vector_int &ninput_items_required);
       int general_work(int noutput_items,
-		       gr_vector_int &ninput_items,
-		       gr_vector_const_void_star &input_items,
-		       gr_vector_void_star &output_items);
+                       gr_vector_int &ninput_items,
+                       gr_vector_const_void_star &input_items,
+                       gr_vector_void_star &output_items);
 
       float mu() const { return d_mu;}
       float omega() const { return d_omega;}
