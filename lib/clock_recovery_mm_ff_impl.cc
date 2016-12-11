@@ -48,7 +48,7 @@ namespace gr {
                                                   float omega_relative_limit)
       : block("clock_recovery_mm_ff",
               io_signature::make(1, 1, sizeof(float)),
-              io_signature::make(1, 1, sizeof(float))),
+              io_signature::makev(1, 4, std::vector<int>(4, sizeof(float)))),
         d_mu(mu), d_gain_mu(gain_mu), d_gain_omega(gain_omega),
         d_omega_relative_limit(omega_relative_limit),
         d_prev_y(0.0f),
@@ -168,12 +168,22 @@ namespace gr {
                                          gr_vector_const_void_star &input_items,
                                          gr_vector_void_star &output_items)
     {
-      const float *in = (const float *)input_items[0];
-      float *out = (float *)output_items[0];
-
       int ni = ninput_items[0] - d_interp->ntaps(); // max input to consume
       if (ni <= 0)
           return 0;
+
+      const float *in = (const float *)input_items[0];
+      float *out = (float *)output_items[0];
+
+      float *out_error = NULL;
+      float *out_instantaneous_clock_period = NULL;
+      float *out_average_clock_period = NULL;
+      if (output_items.size() > 1)
+          out_error = (float *) output_items[1];
+      if (output_items.size() > 2)
+          out_instantaneous_clock_period = (float *) output_items[2];
+      if (output_items.size() > 3)
+          out_average_clock_period = (float *) output_items[3];
 
       int ii = 0; // input index
       int oo = 0; // output index
@@ -185,8 +195,15 @@ namespace gr {
         out[oo] = d_interp->interpolate(&in[ii], d_mu);
 
         error = timing_error_detector(out[oo]);
+        if (output_items.size() > 1)
+            out_error[oo] = error;
 
         advance_loop(error);
+        if (output_items.size() > 2)
+            out_instantaneous_clock_period[oo] = d_mu;
+        if (output_items.size() > 3)
+            out_average_clock_period[oo] = d_omega;
+
         n = clock_sample_phase_wrap();
         symbol_period_limit();
 

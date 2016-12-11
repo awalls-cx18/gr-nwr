@@ -67,4 +67,19 @@
         <name>out</name>
         <type>float</type>
     </source>
+    <source>
+        <name>error</name>
+        <type>float</type>
+        <optional>1</optional>
+    </source>
+    <source>
+        <name>T_inst</name>
+        <type>float</type>
+        <optional>1</optional>
+    </source>
+    <source>
+        <name>T_avg</name>
+        <type>float</type>
+        <optional>1</optional>
+    </source>
 </block>
