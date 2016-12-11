@@ -74,6 +74,7 @@ namespace gr {
       float d_prev2_y;
       float d_prev2_decision;
 
+      float slice(float x);
       float timing_error_detector(float curr_y);
       void symbol_period_limit();
       void advance_loop(float error);

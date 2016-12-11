@@ -90,8 +90,8 @@ namespace gr {
                      + d_interp->ntaps()));
     }
 
-    static inline float
-    slice(float x)
+    float
+    clock_recovery_mm_ff_impl::slice(float x)
     {
       return x < 0 ? -1.0F : 1.0F;
     }
@@ -197,7 +197,7 @@ namespace gr {
             // symbol is greater than d_interp->ntaps() (normally 8);
             // otherwise we would consume() more input than we were
             // given.
-            revert_loop_state()
+            revert_loop_state();
             revert_timing_error_detector_state();
             ii -= n;
             oo--;
