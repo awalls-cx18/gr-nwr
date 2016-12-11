@@ -52,8 +52,9 @@ namespace gr {
         d_mu(mu), d_gain_mu(gain_mu), d_gain_omega(gain_omega),
         d_omega_relative_limit(omega_relative_limit),
         d_prev_y(0.0f),
-        d_prev_decision(1.0f), // consistent with slice(d_prev_y)
-        d_interp(new filter::mmse_fir_interpolator_ff())
+        d_interp(new filter::mmse_fir_interpolator_ff()),
+        d_prev_mu(mu),
+        d_prev2_y(0.0f)
     {
       if(omega <  1)
         throw std::out_of_range("clock rate must be > 0");
@@ -61,6 +62,8 @@ namespace gr {
         throw std::out_of_range("Gains must be non-negative");
 
       set_omega(omega); // also sets min and max omega
+      d_prev_decision = slice(d_prev_y);
+      d_prev2_decision = slice(d_prev2_y);
       set_relative_rate (1.0 / omega);
       enable_update_rate(true);  // fixes tag propagation through variable rate block
     }
@@ -75,9 +78,16 @@ namespace gr {
                                         gr_vector_int &ninput_items_required)
     {
       unsigned ninputs = ninput_items_required.size();
+      // The '+ 2' in the expression below is an effort to always have at least
+      // one output sample, even if the main loop decides it has to revert
+      // one computed sample and wait for the next call to general_work().
+      // The d_omega_mid + d_omega_lim is also an effort to do the same,
+      // in case we have the worst case allowable clock timing deviation on
+      // input.
       for(unsigned i=0; i < ninputs; i++)
-        ninput_items_required[i] =
-          (int) ceil((noutput_items * d_omega) + d_interp->ntaps());
+        ninput_items_required[i] = static_cast<int>(
+                     ceil((noutput_items + 2) * (d_omega_mid + d_omega_lim)
+                     + d_interp->ntaps()));
     }
 
     static inline float
@@ -89,6 +99,7 @@ namespace gr {
     void
     clock_recovery_mm_ff_impl::set_omega (float omega)
     {
+      d_prev_omega = omega;
       d_omega = omega;
       d_omega_mid = omega;
       d_omega_lim = d_omega_mid * d_omega_relative_limit;
@@ -102,6 +113,9 @@ namespace gr {
 
         error = d_prev_decision * curr_y - curr_decision * d_prev_y;
 
+        d_prev2_y = d_prev_y;
+        d_prev2_decision = d_prev_decision;
+
         d_prev_y = curr_y;
         d_prev_decision = curr_decision;
 
@@ -109,17 +123,34 @@ namespace gr {
     }
 
     void
+    clock_recovery_mm_ff_impl::revert_timing_error_detector_state()
+    {
+        d_prev_y = d_prev2_y;
+        d_prev_decision = d_prev2_decision;
+    }
+
+    void
     clock_recovery_mm_ff_impl::symbol_period_limit()
     {
         d_omega = d_omega_mid
-		  + gr::branchless_clip(d_omega-d_omega_mid, d_omega_lim);
+                  + gr::branchless_clip(d_omega-d_omega_mid, d_omega_lim);
     }
 
     void
     clock_recovery_mm_ff_impl::advance_loop(float error)
     {
+        d_prev_omega = d_omega;
+        d_prev_mu = d_mu;
+
         d_omega = d_omega + d_gain_omega * error;
         d_mu = d_mu + d_omega + d_gain_mu * error;
+    }
+
+    void
+    clock_recovery_mm_ff_impl::revert_loop_state()
+    {
+        d_omega = d_prev_omega;
+        d_mu = d_prev_mu;
     }
 
     int
@@ -140,13 +171,16 @@ namespace gr {
       const float *in = (const float *)input_items[0];
       float *out = (float *)output_items[0];
 
+      int ni = ninput_items[0] - d_interp->ntaps(); // max input to consume
+      if (ni <= 0)
+          return 0;
+
       int ii = 0; // input index
       int oo = 0; // output index
-      int ni = ninput_items[0] - d_interp->ntaps(); // don't use more input than this
       float error;
       int n;
 
-      while(oo < noutput_items && ii < ni ) {
+      while (oo < noutput_items) {
         // produce output sample
         out[oo] = d_interp->interpolate(&in[ii], d_mu);
 
@@ -158,6 +192,17 @@ namespace gr {
 
         ii += n;
         oo++;
+        if (ii >= ni) {
+            // This check and revert is needed when the samples per
+            // symbol is greater than d_interp->ntaps() (normally 8);
+            // otherwise we would consume() more input than we were
+            // given.
+            revert_loop_state()
+            revert_timing_error_detector_state();
+            ii -= n;
+            oo--;
+            break;
+        }
       }
 
       consume_each(ii);

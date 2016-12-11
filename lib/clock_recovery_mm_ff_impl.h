@@ -68,10 +68,19 @@ namespace gr {
 
       bool d_verbose;
 
+      // For reverting the process state back one interation
+      float d_prev_mu;
+      float d_prev_omega;
+      float d_prev2_y;
+      float d_prev2_decision;
+
       float timing_error_detector(float curr_y);
       void symbol_period_limit();
       void advance_loop(float error);
       int clock_sample_phase_wrap();
+
+      void revert_loop_state();
+      void revert_timing_error_detector_state();
     };
 
   } /* namespace nwr */
