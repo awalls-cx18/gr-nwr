@@ -562,7 +562,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>value</key>
-      <value>0.073</value>
+      <value>0.073*0+0.059*0+0.055*1</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -2526,7 +2526,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>repeat</key>
-      <value>False</value>
+      <value>True</value>
     </param>
   </block>
   <block>
@@ -8267,11 +8267,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>ymax</key>
-      <value>1</value>
+      <value>8</value>
     </param>
     <param>
       <key>ymin</key>
-      <value>-1</value>
+      <value>-2</value>
     </param>
   </block>
   <block>
