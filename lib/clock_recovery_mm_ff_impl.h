@@ -43,7 +43,10 @@ namespace gr {
                        gr_vector_void_star &output_items);
 
       float mu() const { return d_mu;}
-      float omega() const { return d_omega;}
+      // d_omega is the tracked samples/symbol - 0.5, because the
+      // sample phase wrapped d_mu ranges in
+      // [0.0f, 1.0f] instead of [-0.5f, 0.5f]
+      float omega() const { return d_omega + 0.5f;}
       float gain_mu() const { return d_gain_mu;}
       float gain_omega() const { return d_gain_omega;}
 
@@ -56,7 +59,7 @@ namespace gr {
     private:
       float d_mu;                   // fractional sample position [0.0, 1.0]
       float d_gain_mu;              // gain for adjusting mu
-      float d_omega;                // nominal frequency
+      float d_omega;                // nominal frequency - 0.5f
       float d_gain_omega;           // gain for adjusting omega
       float d_omega_relative_limit; // used to compute min and max omega
       float d_omega_mid;            // average omega
@@ -64,6 +67,7 @@ namespace gr {
 
       float d_prev_y;
       float d_prev_decision;
+      float d_interp_fraction;
       filter::mmse_fir_interpolator_ff *d_interp;
 
       bool d_verbose;
@@ -73,13 +77,16 @@ namespace gr {
       float d_prev_omega;
       float d_prev2_y;
       float d_prev2_decision;
+      float d_prev_interp_fraction;
 
       float slice(float x);
       float timing_error_detector(float curr_y);
       void symbol_period_limit();
       void advance_loop(float error);
       int clock_sample_phase_wrap();
+      int distance_from_current_input(int mu_int);
 
+      void revert_distance_state();
       void revert_loop_state();
       void revert_timing_error_detector_state();
     };

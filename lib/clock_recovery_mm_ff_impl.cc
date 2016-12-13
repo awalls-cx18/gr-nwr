@@ -52,12 +52,14 @@ namespace gr {
         d_mu(mu), d_gain_mu(gain_mu), d_gain_omega(gain_omega),
         d_omega_relative_limit(omega_relative_limit),
         d_prev_y(0.0f),
+        d_interp_fraction(mu),
+        d_prev_interp_fraction(0.0f),
         d_interp(new filter::mmse_fir_interpolator_ff()),
-        d_prev_mu(mu),
+        d_prev_mu(0.0f),
         d_prev2_y(0.0f)
     {
       if(omega <  1)
-        throw std::out_of_range("clock rate must be > 0");
+        throw std::out_of_range("clock rate must be > 1");
       if(gain_mu <  0  || gain_omega < 0)
         throw std::out_of_range("Gains must be non-negative");
 
@@ -81,13 +83,13 @@ namespace gr {
       // The '+ 2' in the expression below is an effort to always have at least
       // one output sample, even if the main loop decides it has to revert
       // one computed sample and wait for the next call to general_work().
-      // The d_omega_mid + d_omega_lim is also an effort to do the same,
+      // The d_omega_mid + 0.5f + d_omega_lim is also an effort to do the same,
       // in case we have the worst case allowable clock timing deviation on
       // input.
       for(unsigned i=0; i < ninputs; i++)
         ninput_items_required[i] = static_cast<int>(
-                     ceil((noutput_items + 2) * (d_omega_mid + d_omega_lim)
-                     + d_interp->ntaps()));
+                   ceil((noutput_items + 2) * (d_omega_mid + 0.5f + d_omega_lim)
+                   + d_interp->ntaps()));
     }
 
     float
@@ -99,10 +101,14 @@ namespace gr {
     void
     clock_recovery_mm_ff_impl::set_omega (float omega)
     {
-      d_prev_omega = omega;
-      d_omega = omega;
-      d_omega_mid = omega;
-      d_omega_lim = d_omega_mid * d_omega_relative_limit;
+      // omega is the user's specified nominal samples/symbol.
+      // d_omega is the tracked samples/symbol - 0.5, because the
+      // sample phase wrapped d_mu ranges in
+      // [0.0f, 1.0f] instead of [-0.5f, 0.5f]
+      d_omega = omega - 0.5f;
+      d_prev_omega = d_omega;
+      d_omega_mid = d_omega;
+      d_omega_lim = omega * d_omega_relative_limit;
     }
 
     float
@@ -162,6 +168,25 @@ namespace gr {
     }
 
     int
+    clock_recovery_mm_ff_impl::distance_from_current_input(int mu_int)
+    {
+        float d = d_interp_fraction + static_cast<float>(mu_int) + d_mu;
+        float whole_samples_until_clock = floorf(d);
+
+        d_prev_interp_fraction = d_interp_fraction;
+
+        d_interp_fraction = d - whole_samples_until_clock;
+
+        return static_cast<int>(whole_samples_until_clock);
+    }
+
+    void
+    clock_recovery_mm_ff_impl::revert_distance_state()
+    {
+        d_interp_fraction = d_prev_interp_fraction;
+    }
+
+    int
     clock_recovery_mm_ff_impl::general_work(
                                          int noutput_items,
                                          gr_vector_int &ninput_items,
@@ -188,11 +213,11 @@ namespace gr {
       int ii = 0; // input index
       int oo = 0; // output index
       float error;
-      int n;
+      int m, n;
 
       while (oo < noutput_items) {
         // produce output sample
-        out[oo] = d_interp->interpolate(&in[ii], d_mu);
+        out[oo] = d_interp->interpolate(&in[ii], d_interp_fraction);
 
         error = timing_error_detector(out[oo]);
         if (output_items.size() > 1)
@@ -201,12 +226,16 @@ namespace gr {
         advance_loop(error);
         if (output_items.size() > 2)
             out_instantaneous_clock_period[oo] = d_mu;
+        // d_omega is the tracked samples/symbol - 0.5, because the
+        // sample phase wrapped d_mu ranges in
+        // [0.0f, 1.0f] instead of [-0.5f, 0.5f]
         if (output_items.size() > 3)
-            out_average_clock_period[oo] = d_omega;
+            out_average_clock_period[oo] = d_omega + 0.5f;
 
-        n = clock_sample_phase_wrap();
+        m = clock_sample_phase_wrap();
         symbol_period_limit();
 
+        n = distance_from_current_input(m);
         ii += n;
         oo++;
         if (ii >= ni) {
@@ -214,6 +243,7 @@ namespace gr {
             // symbol is greater than d_interp->ntaps() (normally 8);
             // otherwise we would consume() more input than we were
             // given.
+            revert_distance_state();
             revert_loop_state();
             revert_timing_error_detector_state();
             ii -= n;
