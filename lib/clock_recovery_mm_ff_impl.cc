@@ -55,6 +55,8 @@ namespace gr {
         d_interp_fraction(mu),
         d_prev_interp_fraction(0.0f),
         d_interp(new filter::mmse_fir_interpolator_ff()),
+        d_new_tags(),
+        d_tags(),
         d_prev_mu(0.0f),
         d_prev2_y(0.0f)
     {
@@ -66,8 +68,11 @@ namespace gr {
       set_omega(omega); // also sets min and max omega
       d_prev_decision = slice(d_prev_y);
       d_prev2_decision = slice(d_prev2_y);
+
       set_relative_rate (1.0 / omega);
-      enable_update_rate(true);  // fixes tag propagation through variable rate block
+
+      set_tag_propagation_policy(TPP_DONT);
+      d_filter_delay = (d_interp->ntaps() + 1) / 2;
     }
 
     clock_recovery_mm_ff_impl::~clock_recovery_mm_ff_impl()
@@ -213,7 +218,19 @@ namespace gr {
       int ii = 0; // input index
       int oo = 0; // output index
       float error;
-      int m, n;
+      int i, m, n;
+
+      uint64_t nitems_rd = nitems_read(0);
+      uint64_t nitems_wr = nitems_written(0);
+      uint64_t mid_period_offset;
+      uint64_t output_offset;
+      std::vector<tag_t>::iterator t;
+
+      // Get all the tags in offset order
+      d_new_tags.clear();
+      get_tags_in_range(d_new_tags, 0, nitems_rd, nitems_rd + ni);
+      d_tags.insert(d_tags.end(), d_new_tags.begin(), d_new_tags.end());
+      std::sort(d_tags.begin(), d_tags.end(), tag_t::offset_compare);
 
       while (oo < noutput_items) {
         // produce output sample
@@ -236,9 +253,7 @@ namespace gr {
         symbol_period_limit();
 
         n = distance_from_current_input(m);
-        ii += n;
-        oo++;
-        if (ii >= ni) {
+        if (ii + n >= ni) {
             // This check and revert is needed when the samples per
             // symbol is greater than d_interp->ntaps() (normally 8);
             // otherwise we would consume() more input than we were
@@ -246,10 +261,41 @@ namespace gr {
             revert_distance_state();
             revert_loop_state();
             revert_timing_error_detector_state();
-            ii -= n;
-            oo--;
             break;
         }
+
+        // Onto this output sample, place all the remaining tags that
+        // came before the interpolated input sample, and all the tags
+        // on and after the interpolated input sample, up to half way to
+        // the next interpolated input sample.
+        mid_period_offset = nitems_rd + d_filter_delay
+            + static_cast<uint64_t>(ii)
+            + static_cast<uint64_t>(llroundf(
+                static_cast<float>(n) + d_interp_fraction  // loc. of next clock
+                - (static_cast<float>(m) + d_mu)/2.0f));  // half the clock back
+        output_offset = nitems_wr + static_cast<uint64_t>(oo);
+
+        for (t = d_tags.begin();
+             t != d_tags.end() and t->offset <= mid_period_offset;
+             t = d_tags.erase(t)) {
+            t->offset = output_offset;
+            for (i = 0; i < output_items.size(); i++)
+                add_item_tag(i, *t);
+        }
+
+        ii += n;
+        oo++;
+      }
+
+      // Only save away input tags that will not be available
+      // in the next call to general_work().  Otherwise we would
+      // create duplicate tags next time around.
+      uint64_t consumed_offset = nitems_rd + static_cast<uint64_t>(ii);
+      for (t = d_tags.begin(); t != d_tags.end(); ) {
+          if (t->offset < consumed_offset)
+              ++t;
+          else
+              t = d_tags.erase(t);
       }
 
       consume_each(ii);

@@ -72,6 +72,10 @@ namespace gr {
 
       bool d_verbose;
 
+      std::vector<tag_t> d_new_tags;
+      std::vector<tag_t> d_tags;
+      uint64_t d_filter_delay;
+
       // For reverting the process state back one interation
       float d_prev_mu;
       float d_prev_omega;
