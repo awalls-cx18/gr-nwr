@@ -90,6 +90,12 @@ namespace gr {
       int clock_sample_phase_wrap();
       int distance_from_current_input(int mu_int);
 
+      void sample_distance_phase_wrap(float d, int &n, float &f);
+
+      float sample_distance_phase_unwrap(int n, float f) {
+          return static_cast<float>(n) + f;
+      }
+
       void revert_distance_state();
       void revert_loop_state();
       void revert_timing_error_detector_state();

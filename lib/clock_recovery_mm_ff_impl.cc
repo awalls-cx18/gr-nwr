@@ -164,25 +164,37 @@ namespace gr {
         d_mu = d_prev_mu;
     }
 
+    void
+    clock_recovery_mm_ff_impl::sample_distance_phase_wrap(float d,
+                                                          int &n, float &f)
+    {
+        float whole_samples = floorf(d);
+        f = d - whole_samples;
+        n = static_cast<int>(whole_samples);
+    }
+
+
     int
     clock_recovery_mm_ff_impl::clock_sample_phase_wrap()
     {
-        float whole_samples_until_clock = floorf(d_mu);
-        d_mu = d_mu - whole_samples_until_clock;
-        return static_cast<int>(whole_samples_until_clock);
+        int whole_samples_until_clock;
+        sample_distance_phase_wrap(d_mu, whole_samples_until_clock, d_mu);
+        return whole_samples_until_clock;
     }
 
     int
     clock_recovery_mm_ff_impl::distance_from_current_input(int mu_int)
     {
-        float d = d_interp_fraction + static_cast<float>(mu_int) + d_mu;
-        float whole_samples_until_clock = floorf(d);
+        float d;
+        int whole_samples_until_clock;
 
         d_prev_interp_fraction = d_interp_fraction;
 
-        d_interp_fraction = d - whole_samples_until_clock;
+        d = d_interp_fraction + sample_distance_phase_unwrap(mu_int, d_mu);
 
-        return static_cast<int>(whole_samples_until_clock);
+        sample_distance_phase_wrap(d, whole_samples_until_clock,
+                                   d_interp_fraction);
+        return whole_samples_until_clock;
     }
 
     void
@@ -271,8 +283,9 @@ namespace gr {
         mid_period_offset = nitems_rd + d_filter_delay
             + static_cast<uint64_t>(ii)
             + static_cast<uint64_t>(llroundf(
-                static_cast<float>(n) + d_interp_fraction  // loc. of next clock
-                - (static_cast<float>(m) + d_mu)/2.0f));  // half the clock back
+               sample_distance_phase_unwrap(n, d_interp_fraction) // next clock
+               - sample_distance_phase_unwrap(m, d_mu)/2.0f));  // - half period
+
         output_offset = nitems_wr + static_cast<uint64_t>(oo);
 
         for (t = d_tags.begin();
