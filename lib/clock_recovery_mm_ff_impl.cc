@@ -57,6 +57,7 @@ namespace gr {
         d_interp(new filter::mmse_fir_interpolator_ff()),
         d_new_tags(),
         d_tags(),
+        d_time_est_key(pmt::intern("time_est")),
         d_prev_mu(0.0f),
         d_prev2_y(0.0f)
     {
@@ -230,41 +231,55 @@ namespace gr {
       int ii = 0; // input index
       int oo = 0; // output index
       float error;
+      float inst_clock_period; // between interpolated samples
+      float inst_clock_distance; // from an input sample's position
+      float avg_clock_period;
       int i, m, n;
 
       uint64_t nitems_rd = nitems_read(0);
       uint64_t nitems_wr = nitems_written(0);
+      std::vector<tag_t>::iterator t;
+      uint64_t soffset, eoffset;
+      float time_est_val;
       uint64_t mid_period_offset;
       uint64_t output_offset;
-      std::vector<tag_t>::iterator t;
 
+      // Tag Propagation & PLL Reset/Resynchronization to "time_est" tags
       // Get all the tags in offset order
       d_new_tags.clear();
       get_tags_in_range(d_new_tags, 0, nitems_rd, nitems_rd + ni);
+      std::sort(d_new_tags.begin(), d_new_tags.end(), tag_t::offset_compare);
       d_tags.insert(d_tags.end(), d_new_tags.begin(), d_new_tags.end());
       std::sort(d_tags.begin(), d_tags.end(), tag_t::offset_compare);
 
       while (oo < noutput_items) {
+        // Application of Clock Timing Recovery PLL Result (2nd part)
+        //
         // produce output sample
         out[oo] = d_interp->interpolate(&in[ii], d_interp_fraction);
 
+        // Clock Timing Recovery PLL
         error = timing_error_detector(out[oo]);
-        if (output_items.size() > 1)
-            out_error[oo] = error;
-
         advance_loop(error);
-        if (output_items.size() > 2)
-            out_instantaneous_clock_period[oo] = d_mu;
-        // d_omega is the tracked samples/symbol - 0.5, because the
-        // sample phase wrapped d_mu ranges in
-        // [0.0f, 1.0f] instead of [-0.5f, 0.5f]
-        if (output_items.size() > 3)
-            out_average_clock_period[oo] = d_omega + 0.5f;
-
+        // d_omega is the tracked samples/symbol - 0.5f, because the sample
+        // phase wrapped d_mu ranges in [0.0f, 1.0f] instead of [-0.5f, 0.5f]
+        avg_clock_period = d_omega + 0.5f;
+        inst_clock_period = d_mu;
         m = clock_sample_phase_wrap();
         symbol_period_limit();
 
+        // Diagnostic Output of PLL cycle results
+        if (output_items.size() > 1)
+            out_error[oo] = error;
+        if (output_items.size() > 2)
+            out_instantaneous_clock_period[oo] = inst_clock_period;
+        if (output_items.size() > 3)
+            out_average_clock_period[oo] = avg_clock_period;
+
+        // Application of Clock Timing Recovery PLL Result (1st part)
         n = distance_from_current_input(m);
+        inst_clock_distance = sample_distance_phase_unwrap(n,
+                                                           d_interp_fraction);
         if (ii + n >= ni) {
             // This check and revert is needed when the samples per
             // symbol is greater than d_interp->ntaps() (normally 8);
@@ -276,15 +291,81 @@ namespace gr {
             break;
         }
 
+        // PLL Reset/Resynchronization to "time_est" tags (1st part)
+        //
+        // Look for a time_est tag between the current interpolated input sample
+        // and the next predicted interpolated input sample. (both rounded up)
+        soffset = nitems_rd + d_filter_delay + static_cast<uint64_t>(ii + 1);
+        eoffset = nitems_rd + d_filter_delay + static_cast<uint64_t>(ii + n +1);
+        for (t = d_new_tags.begin();
+             t != d_new_tags.end();
+             t = d_new_tags.erase(t)) {
+            if (t->offset > eoffset) // search finished
+                break;
+            if (t->offset < soffset) // tag is in the past of what we care about
+                continue;
+            if (not pmt::eq(t->key, d_time_est_key)) // not a time_est tag
+                continue;
+            time_est_val = static_cast<float>(pmt::to_double(t->value));
+            if (not(time_est_val >= -1.0f and time_est_val <= 1.0f)) {
+                // the time_est tag's payload is invalid
+                GR_LOG_WARN(d_logger,
+                            boost::format("ignoring time_est tag with value "
+                                          "%.2f, outside of allowed range [-1.0"
+                                          ", 1.0]") % time_est_val);
+                continue;
+            }
+            if (t->offset == soffset and time_est_val < 0.0f) // already handled
+                continue;
+            if (t->offset == eoffset and time_est_val >= 0.0f) // handle later
+                break;
+
+            // Adjust this instantaneous clock period to land right where
+            // time_est indicates.  Fix up PLL state as necessary.
+            revert_distance_state();
+
+            inst_clock_distance = static_cast<float>(
+                  static_cast<int>(t->offset - nitems_rd - d_filter_delay) - ii)
+                  + time_est_val;
+            inst_clock_period = inst_clock_distance - d_interp_fraction;
+
+            d_mu = inst_clock_period;
+            m = clock_sample_phase_wrap();
+            n = distance_from_current_input(m);
+
+            // next instantaneous clock period estimate will match the nominal
+            d_mu = 0.5f;
+            d_omega = d_omega_mid;
+
+            // force next the next timing error to be 0.0f
+            d_prev_y = 0.0f;
+            d_prev_decision = 0.0f;
+            d_prev2_y = 0.0f;
+            d_prev2_decision = 0.0f;
+
+            // Revised Diagnostic Output of PLL cycle results
+            avg_clock_period = d_omega + 0.5f;
+            if (output_items.size() > 1)
+                out_error[oo] = 0.0f;
+            if (output_items.size() > 2)
+                out_instantaneous_clock_period[oo] = inst_clock_period;
+            if (output_items.size() > 3)
+                out_average_clock_period[oo] = avg_clock_period;
+
+            // Only process the first time_est tag in the nominal clock period
+            break;
+        }
+
+        // Tag Propagation
+        //
         // Onto this output sample, place all the remaining tags that
         // came before the interpolated input sample, and all the tags
         // on and after the interpolated input sample, up to half way to
         // the next interpolated input sample.
         mid_period_offset = nitems_rd + d_filter_delay
             + static_cast<uint64_t>(ii)
-            + static_cast<uint64_t>(llroundf(
-               sample_distance_phase_unwrap(n, d_interp_fraction) // next clock
-               - sample_distance_phase_unwrap(m, d_mu)/2.0f));  // - half period
+            + static_cast<uint64_t>(llroundf(inst_clock_distance
+                                             - inst_clock_period/2.0f));
 
         output_offset = nitems_wr + static_cast<uint64_t>(oo);
 
@@ -296,10 +377,13 @@ namespace gr {
                 add_item_tag(i, *t);
         }
 
+        // Increment Main Loop Counters
         ii += n;
         oo++;
       }
 
+      // Deferred Tag Propagation
+      //
       // Only save away input tags that will not be available
       // in the next call to general_work().  Otherwise we would
       // create duplicate tags next time around.

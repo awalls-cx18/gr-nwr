@@ -75,6 +75,7 @@ namespace gr {
       std::vector<tag_t> d_new_tags;
       std::vector<tag_t> d_tags;
       uint64_t d_filter_delay;
+      pmt::pmt_t d_time_est_key;
 
       // For reverting the process state back one interation
       float d_prev_mu;
