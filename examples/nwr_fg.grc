@@ -1700,7 +1700,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2406,7 +2406,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2328, 916)</value>
+      <value>(2328, 948)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3884,6 +3884,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
       <value></value>
     </param>
     <param>
+      <key>clock_est_key</key>
+      <value>"clock_est"</value>
+    </param>
+    <param>
       <key>comment</key>
       <value></value>
     </param>
@@ -3909,7 +3913,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2320, 816)</value>
+      <value>(2328, 800)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3946,6 +3950,18 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>sob_key</key>
       <value>"rx_sob"</value>
+    </param>
+    <param>
+      <key>timing_win_end</key>
+      <value>int(sps*6)</value>
+    </param>
+    <param>
+      <key>timing_win_start</key>
+      <value>int(sps*3)</value>
+    </param>
+    <param>
+      <key>time_est_key</key>
+      <value>"time_est"</value>
     </param>
   </block>
   <block>
