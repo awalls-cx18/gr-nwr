@@ -24,8 +24,12 @@ namespace gr {
       int d_inspection_len;
       float d_peak_ref;
       float d_trough_ref;
+      int d_timing_win_start;
+      int d_timing_win_end;
       pmt::pmt_t d_offset_corr_key;
       pmt::pmt_t d_scale_corr_key;
+      pmt::pmt_t d_time_est_key;
+      pmt::pmt_t d_clock_est_key;
       pmt::pmt_t d_sob_key;
       pmt::pmt_t d_eob_key;
       pmt::pmt_t d_eob_offset_corr;
@@ -37,6 +41,10 @@ namespace gr {
       void compute_corrections(const float *in,
                                double &offset_corr, double &scale_corr);
 
+      bool compute_timing_estimate(const float *in,
+                                   uint64_t &n, double &fraction,
+                                   double &clock_period);
+
      public:
       correction_estimator_ff_impl(int inspection_length,
                                    float peak_ref,
@@ -44,6 +52,10 @@ namespace gr {
                                    const std::string &offset_corr_key,
                                    const std::string &scale_corr_key,
                                    bool scale_eob_zero,
+                                   int timing_win_start,
+                                   int timing_win_end,
+                                   const std::string &time_est_key,
+                                   const std::string &clock_est_key,
                                    const std::string &sob_key,
                                    const std::string &eob_key);
       ~correction_estimator_ff_impl();

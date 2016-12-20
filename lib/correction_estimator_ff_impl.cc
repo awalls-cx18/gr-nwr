@@ -26,6 +26,10 @@ namespace gr {
                                   const std::string &offset_corr_key,
                                   const std::string &scale_corr_key,
                                   bool scale_eob_zero,
+                                  int timing_win_start,
+                                  int timing_win_end,
+                                  const std::string &time_est_key,
+                                  const std::string &clock_est_key,
                                   const std::string &sob_key,
                                   const std::string &eob_key)
     {
@@ -34,6 +38,8 @@ namespace gr {
                                           peak_ref, trough_ref,
                                           offset_corr_key, scale_corr_key,
                                           scale_eob_zero,
+                                          timing_win_start, timing_win_end,
+                                          time_est_key, clock_est_key,
                                           sob_key, eob_key));
     }
 
@@ -44,6 +50,10 @@ namespace gr {
                                           const std::string &offset_corr_key,
                                           const std::string &scale_corr_key,
                                           bool scale_eob_zero,
+                                          int timing_win_start,
+                                          int timing_win_end,
+                                          const std::string &time_est_key,
+                                          const std::string &clock_est_key,
                                           const std::string &sob_key,
                                           const std::string &eob_key)
       : gr::sync_block("correction_estimator_ff",
@@ -52,8 +62,12 @@ namespace gr {
         d_inspection_len(inspection_length),
         d_peak_ref(peak_ref),
         d_trough_ref(trough_ref),
+        d_timing_win_start(timing_win_start),
+        d_timing_win_end(timing_win_end),
         d_offset_corr_key(pmt::intern(offset_corr_key)),
         d_scale_corr_key(pmt::intern(scale_corr_key)),
+        d_time_est_key(pmt::intern(time_est_key)),
+        d_clock_est_key(pmt::intern(clock_est_key)),
         d_sob_key(pmt::intern(sob_key)),
         d_eob_key(pmt::intern(eob_key)),
         d_eob_offset_corr(pmt::from_double(0.0)),
@@ -89,6 +103,67 @@ namespace gr {
         offset_corr = (d_trough_ref * in_max - d_peak_ref * in_min)
                       / (d_peak_ref - d_trough_ref);
         scale_corr = (d_peak_ref - d_trough_ref) / (in_max - in_min);
+    }
+
+    bool 
+    correction_estimator_ff_impl::compute_timing_estimate(const float *in,
+                                                          uint64_t &n,
+                                                          double &fraction,
+                                                          double &clock_period)
+    {
+        if (d_timing_win_start < 0 or
+            d_timing_win_end < 0 or
+            d_timing_win_start >= d_timing_win_end or
+            d_timing_win_start > d_inspection_len or
+            d_timing_win_end > d_inspection_len)
+            return false;
+
+        unsigned int i, j;
+
+        float in_min = in[d_timing_win_start];
+        float in_max = in[d_timing_win_start];
+        for (i = d_timing_win_start + 1; i <= d_timing_win_end; i++) {
+            in_min = std::min(in_min, in[i]);
+            in_max = std::max(in_max, in[i]);
+        }
+        float in_mid = (in_max + in_min)/2.0f;
+
+        std::vector<unsigned int> peaks;
+        std::vector<unsigned int> troughs;
+        for (i = d_timing_win_start + 1; i < d_timing_win_end; i++) {
+            if (in[i] > in[i-1] and
+                in[i] > in[i+1] and
+                in[i] - in_mid > (0.9f * (in_max - in_mid)))
+            peaks.push_back(i);
+            if (in[i] < in[i-1] and
+                in[i] < in[i+1] and
+                in[i] - in_mid < (0.9f * (in_min - in_mid)))
+            troughs.push_back(i);
+        }
+
+        if (peaks.size() == 0 or
+            troughs.size() == 0 or
+            peaks[0] == troughs[0])
+            return false;
+
+        float f, g, h;
+        if (peaks[0] < troughs[0]) {
+            i = peaks[0];
+            j = troughs[0];
+        } else {
+            i = troughs[0];
+            j = peaks[0];
+        }
+        f = (-1.0f*in[i-1] + 0.0f*in[i] + 1.0f*in[i+1])
+            / (in[i-1] + in[i] + in[i+1]);
+        g = (-1.0f*in[j-1] + 0.0f*in[j] + 1.0f*in[j+1])
+            / (in[j-1] + in[j] + in[j+1]);
+        h = static_cast<float>(j) + g - (static_cast<float>(i) + f);
+
+        n = static_cast<uint64_t>(i);
+        fraction = static_cast<double>(f);
+        clock_period = static_cast<double>(h);
+        return true;
     }
 
     int
@@ -148,6 +223,21 @@ namespace gr {
                              d_scale_corr_key,
                              pmt::from_double(scale_corr),
                              d_src_id);
+
+                uint64_t n = 0;
+                double fraction = 0.0;
+                double clk_period = 0.0;
+                if (compute_timing_estimate(&in[idx], n, fraction, clk_period)){
+                    add_item_tag(0, t->offset + n,
+                                 d_time_est_key,
+                                 pmt::from_double(fraction),
+                                 d_src_id);
+                    add_item_tag(0, t->offset + n,
+                                 d_clock_est_key,
+                                 pmt::make_tuple(pmt::from_double(fraction),
+                                                 pmt::from_double(clk_period)),
+                                 d_src_id);
+                }
 
                 // Plan to process the rest of the items in this call to work()
                 idx = noutput_items;

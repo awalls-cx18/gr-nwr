@@ -7,7 +7,7 @@
   <key>nwr_correction_estimator_ff</key>
   <category>[nwr]</category>
   <import>import nwr</import>
-  <make>nwr.correction_estimator_ff($inspection_length, $peak_ref, $trough_ref, $offset_corr_key, $scale_corr_key, $scale_eob_zero, $sob_key, $eob_key)</make>
+  <make>nwr.correction_estimator_ff($inspection_length, $peak_ref, $trough_ref, $offset_corr_key, $scale_corr_key, $scale_eob_zero, $timing_win_start, $timing_win_end, $time_est_key, $clock_est_key, $sob_key, $eob_key)</make>
 
   <param>
     <name>Inspection Length</name>
@@ -57,6 +57,36 @@
         <name>0.0</name>
         <key>True</key>
     </option>
+  </param>
+
+  <param>
+    <name>Timing Est. Window Start</name>
+    <key>timing_win_start</key>
+    <value>-1</value>
+    <type>int</type>
+    <hide>#if $timing_win_start() == -1 then 'part' else 'none'</hide>
+  </param>
+  <param>
+    <name>Timing Est. Window End</name>
+    <key>timing_win_end</key>
+    <value>-1</value>
+    <type>int</type>
+    <hide>#if $timing_win_end() == -1 then 'part' else 'none'</hide>
+  </param>
+
+  <param>
+    <name>Timing Estimate Tag Name</name>
+    <key>time_est_key</key>
+    <value>"time_est"</value>
+    <type>string</type>
+    <hide>part</hide>
+  </param>
+  <param>
+    <name>Clock Estimate Tag Name</name>
+    <key>clock_est_key</key>
+    <value>"clock_est"</value>
+    <type>string</type>
+    <hide>part</hide>
   </param>
 
   <param>

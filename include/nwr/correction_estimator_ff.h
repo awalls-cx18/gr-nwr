@@ -48,6 +48,10 @@ namespace gr {
        * \param offset_corr_key   Tag name to use for the offset correction
        * \param scale_corr_key    Tag name to use for the scaling correction
        * \param scale_eob_zero    Set scaling correction to 0.0 vs 1.0 at end
+       * \param timing_win_start  Relative sample when timing est process starts
+       * \param timing_win_end    Relative sample when timing est process ends
+       * \param time_est_key      Tag name to use for the symbol timing estimate
+       * \param clock_est_key     Tag name to use for the symbol clock estimate
        * \param sob_key           Tag name that indicates the start of a burst
        * \param eob_key           Tag name that indicates the end of a burst
        */
@@ -57,6 +61,10 @@ namespace gr {
                        const std::string &offset_corr_key = "offset_corr",
                        const std::string &scale_corr_key = "scale_corr",
                        bool scale_eob_zero = false,
+                       int timing_win_start = -1,
+                       int timing_win_end = -1,
+                       const std::string &time_est_key = "time_est",
+                       const std::string &clock_est_key = "clock_est",
                        const std::string &sob_key = "rx_sob",
                        const std::string &eob_key = "rx_eob");
     };
