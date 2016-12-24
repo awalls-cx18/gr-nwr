@@ -44,7 +44,7 @@
     <param>
         <name>Mu</name>
         <key>mu</key>
-        <value>0.5</value>
+        <value>0.0</value>
         <type>real</type>
     </param>
     <param>

@@ -63,6 +63,8 @@ namespace gr {
     {
       if(omega <  1)
         throw std::out_of_range("clock rate must be > 1");
+      if (mu < 0.0f || mu > 0.5f) // because also sets initial d_interp_fraction
+        throw std::out_of_range("initial phase (mu) must be in [0.0, 0.5]");
       if(gain_mu <  0  || gain_omega < 0)
         throw std::out_of_range("Gains must be non-negative");
 
@@ -89,13 +91,13 @@ namespace gr {
       // The '+ 2' in the expression below is an effort to always have at least
       // one output sample, even if the main loop decides it has to revert
       // one computed sample and wait for the next call to general_work().
-      // The d_omega_mid + 0.5f + d_omega_lim is also an effort to do the same,
+      // The d_omega_mid + d_omega_lim is also an effort to do the same,
       // in case we have the worst case allowable clock timing deviation on
       // input.
       for(unsigned i=0; i < ninputs; i++)
         ninput_items_required[i] = static_cast<int>(
-                   ceil((noutput_items + 2) * (d_omega_mid + 0.5f + d_omega_lim)
-                   + d_interp->ntaps()));
+                       ceilf((noutput_items + 2) * (d_omega_mid + d_omega_lim)))
+                     + static_cast<int>(d_interp->ntaps());
     }
 
     float
@@ -107,11 +109,7 @@ namespace gr {
     void
     clock_recovery_mm_ff_impl::set_omega (float omega)
     {
-      // omega is the user's specified nominal samples/symbol.
-      // d_omega is the tracked samples/symbol - 0.5, because the
-      // sample phase wrapped d_mu ranges in
-      // [0.0f, 1.0f] instead of [-0.5f, 0.5f]
-      d_omega = omega - 0.5f;
+      d_omega = omega;
       d_prev_omega = d_omega;
       d_omega_mid = d_omega;
       d_omega_lim = omega * d_omega_relative_limit;
@@ -169,7 +167,7 @@ namespace gr {
     clock_recovery_mm_ff_impl::sample_distance_phase_wrap(float d,
                                                           int &n, float &f)
     {
-        float whole_samples = floorf(d);
+        float whole_samples = roundf(d);
         f = d - whole_samples;
         n = static_cast<int>(whole_samples);
     }
@@ -195,6 +193,10 @@ namespace gr {
 
         sample_distance_phase_wrap(d, whole_samples_until_clock,
                                    d_interp_fraction);
+        if (d_interp_fraction < 0.0f) {
+            d_interp_fraction += 1.0f;
+            whole_samples_until_clock--;
+        }
         return whole_samples_until_clock;
     }
 
@@ -211,7 +213,8 @@ namespace gr {
                                          gr_vector_const_void_star &input_items,
                                          gr_vector_void_star &output_items)
     {
-      int ni = ninput_items[0] - d_interp->ntaps(); // max input to consume
+      // max input to consume
+      int ni = ninput_items[0] - static_cast<int>(d_interp->ntaps());
       if (ni <= 0)
           return 0;
 
@@ -261,9 +264,7 @@ namespace gr {
         // Clock Timing Recovery PLL
         error = timing_error_detector(out[oo]);
         advance_loop(error);
-        // d_omega is the tracked samples/symbol - 0.5f, because the sample
-        // phase wrapped d_mu ranges in [0.0f, 1.0f] instead of [-0.5f, 0.5f]
-        avg_clock_period = d_omega + 0.5f;
+        avg_clock_period = d_omega;
         inst_clock_period = d_mu;
         m = clock_sample_phase_wrap();
         symbol_period_limit();
@@ -334,7 +335,7 @@ namespace gr {
             n = distance_from_current_input(m);
 
             // next instantaneous clock period estimate will match the nominal
-            d_mu = 0.5f;
+            d_mu = 0.0f;
             d_omega = d_omega_mid;
 
             // force next the next timing error to be 0.0f
@@ -344,7 +345,7 @@ namespace gr {
             d_prev2_decision = 0.0f;
 
             // Revised Diagnostic Output of PLL cycle results
-            avg_clock_period = d_omega + 0.5f;
+            avg_clock_period = d_omega;
             if (output_items.size() > 1)
                 out_error[oo] = 0.0f;
             if (output_items.size() > 2)
