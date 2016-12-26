@@ -10,7 +10,7 @@
     </param>
     <param>
       <key>window_size</key>
-      <value>2200, 700</value>
+      <value>3200, 700</value>
     </param>
     <param>
       <key>category</key>
@@ -220,69 +220,6 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>value</key>
-      <value>0.040</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1728, 416)</value>
-    </param>
-    <param>
-      <key>gui_hint</key>
-      <value>0,1,1,1</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>fn_norm</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Clock Recovery Normalized Bandwidth</value>
-    </param>
-    <param>
-      <key>min_len</key>
-      <value>200</value>
-    </param>
-    <param>
-      <key>orient</key>
-      <value>Qt.Horizontal</value>
-    </param>
-    <param>
-      <key>start</key>
-      <value>0.0</value>
-    </param>
-    <param>
-      <key>step</key>
-      <value>0.001</value>
-    </param>
-    <param>
-      <key>stop</key>
-      <value>0.5</value>
-    </param>
-    <param>
-      <key>rangeType</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>widget</key>
-      <value>counter_slider</value>
-    </param>
-  </block>
-  <block>
-    <key>variable_qtgui_range</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>value</key>
       <value>0.6</value>
     </param>
     <param>
@@ -291,7 +228,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1920, 536)</value>
+      <value>(2912, 448)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -339,33 +276,6 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1624, 548)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>gain_mu</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>2.0*math.exp(zeta*omega_n_norm)*((math.cosh(omega_d_norm) if zeta &gt; 1.0 else math.cos(omega_d_norm))-math.exp(-zeta*omega_n_norm))</value>
-    </param>
-  </block>
-  <block>
     <key>variable_qtgui_range</key>
     <param>
       <key>comment</key>
@@ -381,7 +291,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1920, 416)</value>
+      <value>(2776, 448)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -429,87 +339,6 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1616, 612)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>gain_omega</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>2.0*math.exp(zeta*omega_n_norm)*(math.cosh(zeta*omega_n_norm)-(math.cosh(omega_d_norm) if zeta &gt; 1.0 else math.cos(omega_d_norm)))</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1600, 484)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>omega_d_norm</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>omega_n_norm*math.sqrt((zeta*zeta-1.0) if zeta &gt; 1.0 else (1.0-zeta*zeta))</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1600, 420)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>omega_n_norm</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>2.0*math.pi*fn_norm</value>
-    </param>
-  </block>
-  <block>
     <key>variable_tag_object</key>
     <param>
       <key>comment</key>
@@ -517,11 +346,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(400, 552)</value>
+      <value>(8, 600)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -573,69 +402,6 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>value</key>
       <value>7</value>
-    </param>
-  </block>
-  <block>
-    <key>variable_qtgui_range</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>2.0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1728, 536)</value>
-    </param>
-    <param>
-      <key>gui_hint</key>
-      <value>1,1,1,1</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>zeta</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Clock Recovery Damping Factor</value>
-    </param>
-    <param>
-      <key>min_len</key>
-      <value>200</value>
-    </param>
-    <param>
-      <key>orient</key>
-      <value>Qt.Horizontal</value>
-    </param>
-    <param>
-      <key>start</key>
-      <value>0.1</value>
-    </param>
-    <param>
-      <key>step</key>
-      <value>0.1</value>
-    </param>
-    <param>
-      <key>stop</key>
-      <value>5.0</value>
-    </param>
-    <param>
-      <key>rangeType</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>widget</key>
-      <value>counter_slider</value>
     </param>
   </block>
   <block>
@@ -695,6 +461,53 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>repeat</key>
       <value>True</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_abs_xx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1672, 448)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_abs_xx_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
     </param>
   </block>
   <block>
@@ -840,6 +653,61 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>vlen</key>
       <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_moving_average_xx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1760, 428)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_moving_average_xx_0</value>
+    </param>
+    <param>
+      <key>length</key>
+      <value>sps</value>
+    </param>
+    <param>
+      <key>max_iter</key>
+      <value>4000</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>scale</key>
+      <value>1.0/sps</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
     </param>
   </block>
   <block>
@@ -1117,7 +985,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1288, 324)</value>
+      <value>(1280, 324)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1215,7 +1083,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(400, 468)</value>
+      <value>(2456, 356)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1223,11 +1091,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>id</key>
-      <value>blocks_tag_gate_1</value>
+      <value>blocks_tag_gate_1_0</value>
     </param>
     <param>
       <key>type</key>
-      <value>short</value>
+      <value>float</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1239,7 +1107,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>propagate_tags</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>vlen</key>
@@ -1526,7 +1394,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>tags</key>
-      <value>[packet_time_est_tag]</value>
+      <value>[]</value>
     </param>
     <param>
       <key>vlen</key>
@@ -1604,7 +1472,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1440, 316)</value>
+      <value>(1432, 316)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1624,7 +1492,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>samp_delay</key>
-      <value>sps-1</value>
+      <value>int((sps-1.0)/2.0)*0</value>
     </param>
     <param>
       <key>taps</key>
@@ -1667,6 +1535,89 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
+    <key>nwr_burst_detect_and_tag</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>guard_interval</key>
+      <value>8.0*10.0/baud_rate</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>declare_dur</key>
+      <value>8.0/baud_rate</value>
+    </param>
+    <param>
+      <key>eob_delay</key>
+      <value>0.0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>eob_key</key>
+      <value>"rx_eob"</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1944, 300)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>nwr_burst_detect_and_tag_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>init_floor_est</key>
+      <value>100e-6</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>max_dur</key>
+      <value>8.0*50.0/baud_rate</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>sob_amp_frac</key>
+      <value>0.0</value>
+    </param>
+    <param>
+      <key>sample_rate</key>
+      <value>sps*baud_rate</value>
+    </param>
+    <param>
+      <key>sob_key</key>
+      <value>"rx_sob"</value>
+    </param>
+    <param>
+      <key>thresh_db</key>
+      <value>0.0</value>
+    </param>
+  </block>
+  <block>
     <key>nwr_clock_recovery_mm_ff</key>
     <param>
       <key>alias</key>
@@ -1686,7 +1637,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1728, 280)</value>
+      <value>(2776, 312)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1723,6 +1674,93 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>omega</key>
       <value>sps</value>
+    </param>
+  </block>
+  <block>
+    <key>nwr_correction_estimator_ff</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>clock_est_key</key>
+      <value>"clock_est"</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>eob_key</key>
+      <value>"rx_eob"</value>
+    </param>
+    <param>
+      <key>peak_ref</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>trough_ref</key>
+      <value>-1.0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(2224, 320)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>nwr_correction_estimator_ff_0</value>
+    </param>
+    <param>
+      <key>inspection_length</key>
+      <value>sps*4</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>offset_corr_key</key>
+      <value>"offset_corr"</value>
+    </param>
+    <param>
+      <key>scale_corr_key</key>
+      <value>"scale_corr"</value>
+    </param>
+    <param>
+      <key>scale_eob_zero</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>sob_key</key>
+      <value>"rx_sob"</value>
+    </param>
+    <param>
+      <key>timing_win_end</key>
+      <value>sps*4</value>
+    </param>
+    <param>
+      <key>timing_win_start</key>
+      <value>sps*0</value>
+    </param>
+    <param>
+      <key>time_est_key</key>
+      <value>"time_est"</value>
     </param>
   </block>
   <block>
@@ -2124,7 +2162,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2000, 280)</value>
+      <value>(3016, 312)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -2487,7 +2525,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1736, 196)</value>
+      <value>(2776, 228)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -2779,7 +2817,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>tr_mode</key>
-      <value>qtgui.TRIG_MODE_NORM</value>
+      <value>qtgui.TRIG_MODE_TAG</value>
     </param>
     <param>
       <key>tr_slope</key>
@@ -2821,6 +2859,12 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>blocks_abs_xx_0</source_block_id>
+    <sink_block_id>blocks_moving_average_xx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>blocks_add_xx_0</source_block_id>
     <sink_block_id>blocks_throttle_0</sink_block_id>
     <source_key>0</source_key>
@@ -2839,10 +2883,16 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_multiply_const_vxx_0</source_block_id>
-    <sink_block_id>blocks_tag_gate_1</sink_block_id>
+    <source_block_id>blocks_moving_average_xx_0</source_block_id>
+    <sink_block_id>nwr_burst_detect_and_tag_0</sink_block_id>
     <source_key>0</source_key>
-    <sink_key>0</sink_key>
+    <sink_key>1</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_multiply_const_vxx_0</source_block_id>
+    <sink_block_id>blocks_add_xx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>4</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_multiply_const_vxx_0_0</source_block_id>
@@ -2887,10 +2937,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_tag_gate_1</source_block_id>
-    <sink_block_id>blocks_add_xx_0</sink_block_id>
+    <source_block_id>blocks_tag_gate_1_0</source_block_id>
+    <sink_block_id>nwr_clock_recovery_mm_ff_0</sink_block_id>
     <source_key>0</source_key>
-    <sink_key>4</sink_key>
+    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_throttle_0</source_block_id>
@@ -2930,13 +2980,19 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>fir_filter_xxx_0_1_0_0_0</source_block_id>
-    <sink_block_id>nwr_clock_recovery_mm_ff_0</sink_block_id>
+    <sink_block_id>blocks_abs_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>fir_filter_xxx_0_1_0_0_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0_1_0</sink_block_id>
+    <sink_block_id>nwr_burst_detect_and_tag_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>nwr_burst_detect_and_tag_0</source_block_id>
+    <sink_block_id>nwr_correction_estimator_ff_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2961,6 +3017,18 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   <connection>
     <source_block_id>nwr_clock_recovery_mm_ff_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>nwr_correction_estimator_ff_0</source_block_id>
+    <sink_block_id>blocks_tag_gate_1_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>nwr_correction_estimator_ff_0</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_0_1_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
