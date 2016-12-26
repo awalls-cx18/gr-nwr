@@ -312,9 +312,13 @@ namespace gr {
             // time_est indicates.  Fix up PLL state as necessary.
             revert_distance_state();
 
+            // NOTE: the + 1 below was determined empirically, but doesn't
+            // seem right on paper (maybe rounding in the computation of
+            // d_filter_delay is the culprit).  Anyway, experiment trumps
+            // theory *every* time; so + 1 it is.
             inst_clock_distance = static_cast<float>(
-                  static_cast<int>(t->offset - nitems_rd - d_filter_delay) - ii)
-                  + time_est_val;
+              static_cast<int>(t->offset - nitems_rd - d_filter_delay) - ii + 1)
+              + time_est_val;
             inst_clock_period = inst_clock_distance - d_interp_fraction;
 
             d_mu = inst_clock_period;
