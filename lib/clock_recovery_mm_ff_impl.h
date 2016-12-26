@@ -54,13 +54,13 @@ namespace gr {
       void set_omega (float omega);
 
     private:
-      float d_mu;                   // fractional sample position [-0.5, 0.5]
-      float d_gain_mu;              // gain for adjusting mu
-      float d_omega;                // nominal frequency
-      float d_gain_omega;           // gain for adjusting omega
-      float d_omega_relative_limit; // used to compute min and max omega
-      float d_omega_mid;            // average omega
-      float d_omega_lim;            // actual omega clipping limit
+      float d_mu;                   // instantaneous clock period estimate
+      float d_gain_mu;              // Proportional gain in the PI filter
+      float d_omega;                // average clock period estimate
+      float d_gain_omega;           // Integral gain in the PI filter
+      float d_omega_relative_limit; // used to keep d_omega from walking too far
+      float d_omega_mid;            // nominal clock period specified by user
+      float d_omega_lim;            // maximum |d_omega - d_omega_mid| allowed
 
       float d_prev_y;
       float d_prev_decision;
@@ -75,7 +75,6 @@ namespace gr {
       pmt::pmt_t d_time_est_key;
 
       // For reverting the process state back one interation
-      float d_prev_mu;
       float d_prev_omega;
       float d_prev2_y;
       float d_prev2_decision;
@@ -85,8 +84,7 @@ namespace gr {
       float timing_error_detector(float curr_y);
       void symbol_period_limit();
       void advance_loop(float error);
-      int clock_sample_phase_wrap();
-      int distance_from_current_input(int mu_int);
+      int distance_from_current_input();
 
       void sample_distance_phase_wrap(float d, int &n, float &f);
 

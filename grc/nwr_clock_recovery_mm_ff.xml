@@ -38,19 +38,19 @@
     <param>
         <name>Gain Omega</name>
         <key>gain_omega</key>
-        <value>((2*(math.exp(2*math.pi*fn_norm)-1))**2)/4.0</value>
+        <value>0.1</value>
         <type>real</type>
     </param>
     <param>
         <name>Mu</name>
         <key>mu</key>
-        <value>0.0</value>
+        <value>sps</value>
         <type>real</type>
     </param>
     <param>
         <name>Gain Mu</name>
         <key>gain_mu</key>
-        <value>2*(math.exp(2*math.pi*fn_norm)-1)</value>
+        <value>0.6</value>
         <type>real</type>
     </param>
     <param>

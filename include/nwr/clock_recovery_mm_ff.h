@@ -49,11 +49,11 @@ namespace gr {
       /*!
        * Make a M&M clock recovery block.
        *
-       * \param omega Initial estimate of samples per symbol
-       * \param gain_omega Gain setting for omega update loop
-       * \param mu Initial estimate of phase of sample
-       * \param gain_mu Gain setting for mu update loop
-       * \param omega_relative_limit maximum relative deviation from omega
+       * \param omega User specified nominal clock period in samples per symbol
+       * \param gain_omega Integral gain of the PI loop filter
+       * \param mu Initial estimate of the instantaneous clock period (ignored)
+       * \param gain_mu Proportional gain of the PI loop filter
+       * \param omega_relative_limit Maximum relative deviation of the average clock period estimate from the user specified nominal clock period
        */
       static sptr make(float omega, float gain_omega,
 		       float mu, float gain_mu,

@@ -49,22 +49,19 @@ namespace gr {
       : block("clock_recovery_mm_ff",
               io_signature::make(1, 1, sizeof(float)),
               io_signature::makev(1, 4, std::vector<int>(4, sizeof(float)))),
-        d_mu(mu), d_gain_mu(gain_mu), d_gain_omega(gain_omega),
+        d_mu(omega), d_gain_mu(gain_mu), d_gain_omega(gain_omega),
         d_omega_relative_limit(omega_relative_limit),
         d_prev_y(0.0f),
-        d_interp_fraction(mu),
+        d_interp_fraction(0.0f),
         d_prev_interp_fraction(0.0f),
         d_interp(new filter::mmse_fir_interpolator_ff()),
         d_new_tags(),
         d_tags(),
         d_time_est_key(pmt::intern("time_est")),
-        d_prev_mu(0.0f),
         d_prev2_y(0.0f)
     {
       if(omega <  1)
         throw std::out_of_range("clock rate must be > 1");
-      if (mu < 0.0f || mu > 0.5f) // because also sets initial d_interp_fraction
-        throw std::out_of_range("initial phase (mu) must be in [0.0, 0.5]");
       if(gain_mu <  0  || gain_omega < 0)
         throw std::out_of_range("Gains must be non-negative");
 
@@ -150,17 +147,17 @@ namespace gr {
     clock_recovery_mm_ff_impl::advance_loop(float error)
     {
         d_prev_omega = d_omega;
-        d_prev_mu = d_mu;
 
+        // Integral portion of filter
         d_omega = d_omega + d_gain_omega * error;
-        d_mu = d_mu + d_omega + d_gain_mu * error;
+        // Proportional portion of filter and final sum of PI filter arms
+        d_mu = d_omega + d_gain_mu * error;
     }
 
     void
     clock_recovery_mm_ff_impl::revert_loop_state()
     {
         d_omega = d_prev_omega;
-        d_mu = d_prev_mu;
     }
 
     void
@@ -172,24 +169,15 @@ namespace gr {
         n = static_cast<int>(whole_samples);
     }
 
-
     int
-    clock_recovery_mm_ff_impl::clock_sample_phase_wrap()
-    {
-        int whole_samples_until_clock;
-        sample_distance_phase_wrap(d_mu, whole_samples_until_clock, d_mu);
-        return whole_samples_until_clock;
-    }
-
-    int
-    clock_recovery_mm_ff_impl::distance_from_current_input(int mu_int)
+    clock_recovery_mm_ff_impl::distance_from_current_input()
     {
         float d;
         int whole_samples_until_clock;
 
         d_prev_interp_fraction = d_interp_fraction;
 
-        d = d_interp_fraction + sample_distance_phase_unwrap(mu_int, d_mu);
+        d = d_interp_fraction + d_mu;
 
         sample_distance_phase_wrap(d, whole_samples_until_clock,
                                    d_interp_fraction);
@@ -237,7 +225,7 @@ namespace gr {
       float inst_clock_period; // between interpolated samples
       float inst_clock_distance; // from an input sample's position
       float avg_clock_period;
-      int i, m, n;
+      int i, n;
 
       uint64_t nitems_rd = nitems_read(0);
       uint64_t nitems_wr = nitems_written(0);
@@ -266,7 +254,6 @@ namespace gr {
         advance_loop(error);
         avg_clock_period = d_omega;
         inst_clock_period = d_mu;
-        m = clock_sample_phase_wrap();
         symbol_period_limit();
 
         // Diagnostic Output of PLL cycle results
@@ -278,7 +265,7 @@ namespace gr {
             out_average_clock_period[oo] = avg_clock_period;
 
         // Application of Clock Timing Recovery PLL Result (1st part)
-        n = distance_from_current_input(m);
+        n = distance_from_current_input();
         inst_clock_distance = sample_distance_phase_unwrap(n,
                                                            d_interp_fraction);
         if (ii + n >= ni) {
@@ -331,11 +318,9 @@ namespace gr {
             inst_clock_period = inst_clock_distance - d_interp_fraction;
 
             d_mu = inst_clock_period;
-            m = clock_sample_phase_wrap();
-            n = distance_from_current_input(m);
+            n = distance_from_current_input();
 
             // next instantaneous clock period estimate will match the nominal
-            d_mu = 0.0f;
             d_omega = d_omega_mid;
 
             // force next the next timing error to be 0.0f

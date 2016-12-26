@@ -566,11 +566,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2968, 944)</value>
+      <value>(2792, 944)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -618,6 +618,69 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
+    <key>variable_qtgui_range</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0.6</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(2968, 1064)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value>tabset0@2:1,1,1,1</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>gain_mu</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Clock Recovery Gain Mu</value>
+    </param>
+    <param>
+      <key>min_len</key>
+      <value>200</value>
+    </param>
+    <param>
+      <key>orient</key>
+      <value>Qt.Horizontal</value>
+    </param>
+    <param>
+      <key>start</key>
+      <value>0.001</value>
+    </param>
+    <param>
+      <key>step</key>
+      <value>0.001</value>
+    </param>
+    <param>
+      <key>stop</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>rangeType</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>widget</key>
+      <value>counter_slider</value>
+    </param>
+  </block>
+  <block>
     <key>variable</key>
     <param>
       <key>comment</key>
@@ -625,11 +688,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2856, 1068)</value>
+      <value>(2624, 1068)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -645,6 +708,69 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
+    <key>variable_qtgui_range</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0.1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(2968, 944)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value>tabset0@2:1,0,1,1</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>gain_omega</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Clock Recovery Gain Omega</value>
+    </param>
+    <param>
+      <key>min_len</key>
+      <value>200</value>
+    </param>
+    <param>
+      <key>orient</key>
+      <value>Qt.Horizontal</value>
+    </param>
+    <param>
+      <key>start</key>
+      <value>0.001</value>
+    </param>
+    <param>
+      <key>step</key>
+      <value>0.001</value>
+    </param>
+    <param>
+      <key>stop</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>rangeType</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>widget</key>
+      <value>counter_slider</value>
+    </param>
+  </block>
+  <block>
     <key>variable</key>
     <param>
       <key>comment</key>
@@ -652,11 +778,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2856, 1132)</value>
+      <value>(2624, 1132)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -850,11 +976,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2848, 1004)</value>
+      <value>(2616, 1004)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -877,11 +1003,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2848, 940)</value>
+      <value>(2616, 940)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1484,11 +1610,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2968, 1064)</value>
+      <value>(2800, 1064)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -3957,7 +4083,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>timing_win_start</key>
-      <value>int(sps*3)</value>
+      <value>int(sps*0)</value>
     </param>
     <param>
       <key>time_est_key</key>
@@ -7807,11 +7933,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>marker1</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style1</key>
-      <value>1</value>
+      <value>3</value>
     </param>
     <param>
       <key>width1</key>
@@ -8170,11 +8296,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>marker1</key>
-      <value>-1</value>
+      <value>0</value>
     </param>
     <param>
       <key>style1</key>
-      <value>1</value>
+      <value>3</value>
     </param>
     <param>
       <key>width1</key>
