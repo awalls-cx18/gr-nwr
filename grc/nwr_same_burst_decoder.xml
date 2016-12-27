@@ -3,7 +3,7 @@
   Copyright (C) 2016  Andy Walls awalls.cx18@gmail.com
  -->
 <block>
-  <name>same_burst_decoder</name>
+  <name>SAME Burst Decoder</name>
   <key>nwr_same_burst_decoder</key>
   <category>[nwr]</category>
   <import>import nwr</import>
@@ -29,17 +29,21 @@
   <source>
     <name>printable</name>
     <type>message</type>
+    <optional>1</optional>
   </source>
   <source>
     <name>bytes</name>
     <type>message</type>
+    <optional>1</optional>
   </source>
   <source>
     <name>hard_bits</name>
     <type>message</type>
+    <optional>1</optional>
   </source>
   <source>
     <name>soft_bits</name>
     <type>message</type>
+    <optional>1</optional>
   </source>
 </block>
