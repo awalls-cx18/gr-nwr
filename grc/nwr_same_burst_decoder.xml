@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!--
+  Copyright (C) 2016  Andy Walls awalls.cx18@gmail.com
+ -->
+<block>
+  <name>same_burst_decoder</name>
+  <key>nwr_same_burst_decoder</key>
+  <category>[nwr]</category>
+  <import>import nwr</import>
+  <make>nwr.same_burst_decoder($sob_key, $eob_key)</make>
+  <param>
+    <name>Start Tag Name</name>
+    <key>sob_key</key>
+    <value>"rx_sob"</value>
+    <type>string</type>
+  </param>
+  <param>
+    <name>End Tag Name</name>
+    <key>eob_key</key>
+    <value>"rx_eob"</value>
+    <type>string</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>float</type>
+  </sink>
+
+  <source>
+    <name>printable</name>
+    <type>message</type>
+  </source>
+  <source>
+    <name>bytes</name>
+    <type>message</type>
+  </source>
+  <source>
+    <name>hard_bits</name>
+    <type>message</type>
+  </source>
+  <source>
+    <name>soft_bits</name>
+    <type>message</type>
+  </source>
+</block>

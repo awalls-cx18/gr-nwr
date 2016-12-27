@@ -23,6 +23,7 @@ list(APPEND nwr_sources
     multiply_by_tag_value_ff_impl.cc
     add_tag_value_ff_impl.cc
     clock_recovery_mm_ff_impl.cc
+    same_burst_decoder_impl.cc
 )
 
 set(nwr_sources "${nwr_sources}" PARENT_SCOPE)

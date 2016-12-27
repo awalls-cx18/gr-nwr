@@ -18,5 +18,6 @@ install(FILES
     correction_estimator_ff.h
     multiply_by_tag_value_ff.h
     add_tag_value_ff.h
-    clock_recovery_mm_ff.h DESTINATION include/nwr
+    clock_recovery_mm_ff.h
+    same_burst_decoder.h DESTINATION include/nwr
 )
