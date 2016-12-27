@@ -38,7 +38,8 @@ namespace gr {
           + (1 + 6) * 31 // -PSSCCC up to 31 times
           + 1 + 4        // +TTTT
           + 1 + 7        // -JJJHHMM
-          + 1 + 8 + 1;   // -LLLLLLLL-
+          + 1 + 8 + 1    // -LLLLLLLL-
+          + 4;           // 3 or 4 NULL bytes which real OTA gear seems to emit
 
       static const unsigned int MAX_BYTES = MAX_SAME_BYTES + 1;
       static const unsigned int MAX_BITS = MAX_BYTES * 8;
@@ -56,7 +57,7 @@ namespace gr {
       void clear();
       void output_messages();
       bool process_bits();
-      void process_input(const float *in, int start, int bound);
+      void process_input(const float *in, int start, int bound, bool end);
 
      public:
       same_burst_decoder_impl(const std::string &sob_key,

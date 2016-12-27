@@ -145,7 +145,7 @@ namespace gr {
 
     void
     same_burst_decoder_impl::process_input(const float *in,
-                                           int start, int bound)
+                                           int start, int bound, bool end)
     {
         for (int i = start; d_in_burst and i < bound; i++) {
             d_soft_bits.push_back(in[i]);
@@ -156,6 +156,12 @@ namespace gr {
                 clear();
                 d_in_burst = false;
             }
+        }
+        if (end) {
+            if (d_in_burst and process_bits())
+                output_messages();
+            clear();
+            d_in_burst = false;
         }
     }
 
@@ -184,23 +190,22 @@ namespace gr {
         for (t = d_tags.begin(); t != d_tags.end(); ++t) {
             if (pmt::eq(t->key, d_eob_key)) {
                 tidx = static_cast<int>(t->offset - nitems_rd);
-                process_input(in, idx, tidx);
+                process_input(in, idx, tidx, true);
                 idx = tidx;
-                d_in_burst = false;
             } else if (pmt::eq(t->key, d_sob_key)) {
                 // Handle a missing EOB tag as robustly as we can.
                 tidx = static_cast<int>(t->offset - nitems_rd);
-                process_input(in, idx, tidx);
+                process_input(in, idx, tidx, true);
+                idx = tidx;
 
                 // We'll handle the input from the SOB, when we find the next
                 // SOB or EOB tag, or when there are none of those tags left
                 // in this call to work.
-                idx = tidx;
                 d_in_burst = true;
             }
         }
 
-        process_input(in, idx, noutput_items);
+        process_input(in, idx, noutput_items, false);
 
         return noutput_items;
     }
