@@ -118,7 +118,7 @@ namespace gr {
             d_timing_win_end > d_inspection_len)
             return false;
 
-        unsigned int i, j;
+        unsigned int i, j, k, l;
 
         float in_min = in[d_timing_win_start];
         float in_max = in[d_timing_win_start];
@@ -146,7 +146,7 @@ namespace gr {
             peaks[0] == troughs[0])
             return false;
 
-        float f, g, h;
+        float f, g, h, d, e, r, s;
         if (peaks[0] < troughs[0]) {
             i = peaks[0];
             j = troughs[0];
@@ -163,6 +163,24 @@ namespace gr {
         n = static_cast<uint64_t>(i);
         fraction = static_cast<double>(f);
         clock_period = static_cast<double>(h);
+
+        if (peaks.size() < 2 or troughs.size() < 2)
+            return true;
+
+        if (peaks[0] < troughs[0]) {
+            k = peaks[1];
+            l = troughs[1];
+        } else {
+            k = troughs[1];
+            l = peaks[1];
+        }
+        d = (-1.0f*in[k-1] + 0.0f*in[k] + 1.0f*in[k+1])
+            / (in[k-1] + in[k] + in[k+1]);
+        e = (-1.0f*in[l-1] + 0.0f*in[l] + 1.0f*in[l+1])
+            / (in[l-1] + in[l] + in[l+1]);
+        r = static_cast<float>(k) + d - (static_cast<float>(j) + g);
+        s = static_cast<float>(l) + e - (static_cast<float>(k) + d);
+        clock_period = static_cast<double>((h+r+s)/3.0f);
         return true;
     }
 

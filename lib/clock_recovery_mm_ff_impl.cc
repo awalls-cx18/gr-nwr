@@ -58,6 +58,7 @@ namespace gr {
         d_new_tags(),
         d_tags(),
         d_time_est_key(pmt::intern("time_est")),
+        d_clock_est_key(pmt::intern("clock_est")),
         d_prev2_y(0.0f)
     {
       if(omega <  1)
@@ -230,8 +231,10 @@ namespace gr {
       uint64_t nitems_rd = nitems_read(0);
       uint64_t nitems_wr = nitems_written(0);
       std::vector<tag_t>::iterator t;
+      std::vector<tag_t>::iterator t2;
       uint64_t soffset, eoffset;
       float time_est_val;
+      float clock_est_val;
       uint64_t mid_period_offset;
       uint64_t output_offset;
 
@@ -292,15 +295,38 @@ namespace gr {
                 break;
             if (t->offset < soffset) // tag is in the past of what we care about
                 continue;
-            if (not pmt::eq(t->key, d_time_est_key)) // not a time_est tag
+            if (not pmt::eq(t->key, d_time_est_key) and  // not a time_est tag
+                not pmt::eq(t->key, d_clock_est_key)   ) // not a clock_est tag
                 continue;
-            time_est_val = static_cast<float>(pmt::to_double(t->value));
+            if (pmt::eq(t->key, d_time_est_key)) {
+                time_est_val = static_cast<float>(pmt::to_double(t->value));
+                // next instantaneous clock period estimate will be nominal
+                clock_est_val = d_omega_mid;
+                // Look for a clock_est tag at the same offset
+                for (t2 = ++t; t2 != d_new_tags.end(); ++t2) {
+                    if (t2->offset > t->offset) // search finished
+                        break;
+                    if (not pmt::eq(t->key, d_clock_est_key)) // not a clock_est
+                        continue;
+                    // Found a clock_est tag at the same offset
+                    time_est_val = static_cast<float>(
+                                  pmt::to_double(pmt::tuple_ref(t2->value, 0)));
+                    clock_est_val = static_cast<float>(
+                                  pmt::to_double(pmt::tuple_ref(t2->value, 1)));
+                    break;
+                }
+            } else { // got a clock_est tag
+                time_est_val = static_cast<float>(
+                                   pmt::to_double(pmt::tuple_ref(t->value, 0)));
+                clock_est_val = static_cast<float>(
+                                   pmt::to_double(pmt::tuple_ref(t->value, 1)));
+            }
             if (not(time_est_val >= -1.0f and time_est_val <= 1.0f)) {
-                // the time_est tag's payload is invalid
+                // the time_est/clock_est tag's payload is invalid
                 GR_LOG_WARN(d_logger,
-                            boost::format("ignoring time_est tag with value "
-                                          "%.2f, outside of allowed range [-1.0"
-                                          ", 1.0]") % time_est_val);
+                            boost::format("ignoring time_est/clock_est tag with"
+                                          " value %.2f, outside of allowed "
+                                          "range [-1.0, 1.0]") % time_est_val);
                 continue;
             }
             if (t->offset == soffset and time_est_val < 0.0f) // already handled
@@ -309,7 +335,7 @@ namespace gr {
                 break;
 
             // Adjust this instantaneous clock period to land right where
-            // time_est indicates.  Fix up PLL state as necessary.
+            // time_est/clock_est indicates.  Fix up PLL state as necessary.
             revert_distance_state();
 
             // NOTE: the + 1 below was determined empirically, but doesn't
@@ -325,7 +351,9 @@ namespace gr {
             n = distance_from_current_input();
 
             // next instantaneous clock period estimate will match the nominal
-            d_omega = d_omega_mid;
+            // or comes from the clock_est tag
+            d_omega = clock_est_val;
+            d_prev_omega = clock_est_val;
 
             // force next the next timing error to be 0.0f
             d_prev_y = 0.0f;
@@ -342,7 +370,7 @@ namespace gr {
             if (output_items.size() > 3)
                 out_average_clock_period[oo] = avg_clock_period;
 
-            // Only process the first time_est tag in the nominal clock period
+            // Only process the 1st time_est/clock_est in the nominal clk period
             break;
         }
 

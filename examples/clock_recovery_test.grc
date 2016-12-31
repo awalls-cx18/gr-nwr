@@ -1482,7 +1482,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>propagate_tags</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>vlen</key>
@@ -1867,7 +1867,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>samp_delay</key>
-      <value>int((sps-1.0)/2.0)*0</value>
+      <value>int((sps-1.0)/2.0)</value>
     </param>
     <param>
       <key>taps</key>
@@ -2099,7 +2099,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>inspection_length</key>
-      <value>sps*8</value>
+      <value>sps*10</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2127,11 +2127,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>timing_win_end</key>
-      <value>sps*6</value>
+      <value>sps*9</value>
     </param>
     <param>
       <key>timing_win_start</key>
-      <value>sps*0</value>
+      <value>sps*5</value>
     </param>
     <param>
       <key>time_est_key</key>

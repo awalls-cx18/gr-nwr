@@ -562,7 +562,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>value</key>
-      <value>0.04</value>
+      <value>0.045</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -4110,7 +4110,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>timing_win_end</key>
-      <value>int(sps*6)</value>
+      <value>int(sps*7)</value>
     </param>
     <param>
       <key>timing_win_start</key>
