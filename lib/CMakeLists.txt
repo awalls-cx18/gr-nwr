@@ -17,6 +17,7 @@ include_directories(${Boost_INCLUDE_DIR} ${UHD_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS} ${UHD_LIBRARY_DIRS})
 
 list(APPEND nwr_sources
+    clock_tracking_loop.cc
     lms_da_equalizer_ff_impl.cc
     burst_detect_and_tag_impl.cc
     correction_estimator_ff_impl.cc

@@ -13,6 +13,7 @@
 ########################################################################
 install(FILES
     api.h
+    clock_tracking_loop.h
     lms_da_equalizer_ff.h
     burst_detect_and_tag.h
     correction_estimator_ff.h
