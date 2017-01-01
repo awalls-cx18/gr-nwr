@@ -112,7 +112,7 @@ namespace gr {
       // Its range should be in (0.0, 0.5), corresponding to the normalized
       // approximate bandwidth of the loop as digital low-pass filter that is 
       // filtering the clock phase/timing error signal.
-      // FIXME LaTeX: omega_n*T  = 2*pi*f_n*T = 2*pi*f_n_norm
+      // omega_n*T  = 2*pi*f_n*T = 2*pi*f_n_norm
       float d_fn_norm;
 
       // Proportional gain of the PI loop filter (aka gain_mu)
@@ -437,6 +437,20 @@ namespace gr {
        */
       void set_min_avg_period(float period);
 
+      /*!
+       * \brief Set the nominal average clock period estimate limit, T_avg_nom.
+       *
+       * \details
+       * Sets the nominal average clock period estimate limit, T_avg_nom
+       * in units of input stream sample clocks (so the nominal average number
+       * of input samples per output symbol, aka minimum samples/symbol).
+       *
+       * \param period
+       * Nominal average clock period, T_avg_nom, in units of input stream
+       * sample clocks.
+       */
+      void set_nom_avg_period(float period);
+
       /*******************************************************************
        * GET FUNCTIONS
        *******************************************************************/
@@ -540,6 +554,20 @@ namespace gr {
        * See the documenation for set_min_avg_period() for more details.
        */
       float get_min_avg_period() const;
+
+      /*!
+       * \brief Get the nominal average clock period, T_avg_nom.
+       *
+       * \details
+       * Gets the nominal average clock period, T_avg_nom,
+       * in units of input stream sample clocks (so the nominal average
+       * number of input samples per output symbol, aka nominal samples/symbol).
+       *
+       * To convert to seconds, divide by the input stream sample rate:
+       * F_s_input.
+       */
+      float get_nom_avg_period() const;
+
     };
 
   } /* namespace nwr */

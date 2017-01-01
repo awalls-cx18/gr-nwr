@@ -49,7 +49,6 @@ namespace gr {
       : block("clock_recovery_mm_ff",
               io_signature::make(1, 1, sizeof(float)),
               io_signature::makev(1, 4, std::vector<int>(4, sizeof(float)))),
-        d_mu(omega), d_gain_mu(gain_mu), d_gain_omega(gain_omega),
         d_omega_relative_limit(omega_relative_limit),
         d_prev_y(0.0f),
         d_interp_fraction(0.0f),
@@ -66,7 +65,20 @@ namespace gr {
       if(gain_mu <  0  || gain_omega < 0)
         throw std::out_of_range("Gains must be non-negative");
 
-      set_omega(omega); // also sets min and max omega
+      d_clock = new clock_tracking_loop(0.045f,
+                                        omega * (1.0f + d_omega_relative_limit),
+                                        omega * (1.0f - d_omega_relative_limit),
+                                        omega, 1.0f);
+      d_clock->set_max_avg_period(omega * (1.0f + d_omega_relative_limit));
+      d_clock->set_min_avg_period(omega * (1.0f - d_omega_relative_limit));
+      d_clock->set_nom_avg_period(omega);
+
+      d_clock->set_avg_period(omega);
+      d_clock->set_beta(gain_omega);
+
+      d_clock->set_inst_period(omega);
+      d_clock->set_alpha(gain_mu);
+
       d_prev_decision = slice(d_prev_y);
       d_prev2_decision = slice(d_prev2_y);
 
@@ -79,6 +91,7 @@ namespace gr {
     clock_recovery_mm_ff_impl::~clock_recovery_mm_ff_impl()
     {
       delete d_interp;
+      delete d_clock;
     }
 
     void
@@ -89,13 +102,14 @@ namespace gr {
       // The '+ 2' in the expression below is an effort to always have at least
       // one output sample, even if the main loop decides it has to revert
       // one computed sample and wait for the next call to general_work().
-      // The d_omega_mid + d_omega_lim is also an effort to do the same,
+      // The d_clock->get_max_avg_period() is also an effort to do the same,
       // in case we have the worst case allowable clock timing deviation on
       // input.
       for(unsigned i=0; i < ninputs; i++)
-        ninput_items_required[i] = static_cast<int>(
-                       ceilf((noutput_items + 2) * (d_omega_mid + d_omega_lim)))
-                     + static_cast<int>(d_interp->ntaps());
+        ninput_items_required[i] =
+                        static_cast<int>(ceilf((noutput_items + 2)
+                                               * d_clock->get_max_avg_period()))
+                        + static_cast<int>(d_interp->ntaps());
     }
 
     float
@@ -107,10 +121,10 @@ namespace gr {
     void
     clock_recovery_mm_ff_impl::set_omega (float omega)
     {
-      d_omega = omega;
-      d_prev_omega = d_omega;
-      d_omega_mid = d_omega;
-      d_omega_lim = omega * d_omega_relative_limit;
+        d_clock->set_max_avg_period(omega * (1.0f + d_omega_relative_limit));
+        d_clock->set_min_avg_period(omega * (1.0f - d_omega_relative_limit));
+        d_clock->set_nom_avg_period(omega);
+        d_clock->set_avg_period(omega);
     }
 
     float
@@ -138,30 +152,6 @@ namespace gr {
     }
 
     void
-    clock_recovery_mm_ff_impl::symbol_period_limit()
-    {
-        d_omega = d_omega_mid
-                  + gr::branchless_clip(d_omega-d_omega_mid, d_omega_lim);
-    }
-
-    void
-    clock_recovery_mm_ff_impl::advance_loop(float error)
-    {
-        d_prev_omega = d_omega;
-
-        // Integral portion of filter
-        d_omega = d_omega + d_gain_omega * error;
-        // Proportional portion of filter and final sum of PI filter arms
-        d_mu = d_omega + d_gain_mu * error;
-    }
-
-    void
-    clock_recovery_mm_ff_impl::revert_loop_state()
-    {
-        d_omega = d_prev_omega;
-    }
-
-    void
     clock_recovery_mm_ff_impl::sample_distance_phase_wrap(float d,
                                                           int &n, float &f)
     {
@@ -178,7 +168,7 @@ namespace gr {
 
         d_prev_interp_fraction = d_interp_fraction;
 
-        d = d_interp_fraction + d_mu;
+        d = d_interp_fraction + d_clock->get_inst_period();
 
         sample_distance_phase_wrap(d, whole_samples_until_clock,
                                    d_interp_fraction);
@@ -254,10 +244,11 @@ namespace gr {
 
         // Clock Timing Recovery PLL
         error = timing_error_detector(out[oo]);
-        advance_loop(error);
-        avg_clock_period = d_omega;
-        inst_clock_period = d_mu;
-        symbol_period_limit();
+        d_clock->advance_loop(error);
+        avg_clock_period = d_clock->get_avg_period();
+        inst_clock_period = d_clock->get_inst_period();
+        d_clock->phase_wrap();
+        d_clock->period_limit();
 
         // Diagnostic Output of PLL cycle results
         if (output_items.size() > 1)
@@ -277,7 +268,7 @@ namespace gr {
             // otherwise we would consume() more input than we were
             // given.
             revert_distance_state();
-            revert_loop_state();
+            d_clock->revert_loop();
             revert_timing_error_detector_state();
             break;
         }
@@ -301,7 +292,7 @@ namespace gr {
             if (pmt::eq(t->key, d_time_est_key)) {
                 time_est_val = static_cast<float>(pmt::to_double(t->value));
                 // next instantaneous clock period estimate will be nominal
-                clock_est_val = d_omega_mid;
+                clock_est_val = d_clock->get_nom_avg_period();
                 // Look for a clock_est tag at the same offset
                 for (t2 = ++t; t2 != d_new_tags.end(); ++t2) {
                     if (t2->offset > t->offset) // search finished
@@ -347,13 +338,12 @@ namespace gr {
               + time_est_val;
             inst_clock_period = inst_clock_distance - d_interp_fraction;
 
-            d_mu = inst_clock_period;
+            d_clock->set_inst_period(inst_clock_period);
             n = distance_from_current_input();
 
             // next instantaneous clock period estimate will match the nominal
             // or comes from the clock_est tag
-            d_omega = clock_est_val;
-            d_prev_omega = clock_est_val;
+            d_clock->set_avg_period(clock_est_val);
 
             // force next the next timing error to be 0.0f
             d_prev_y = 0.0f;
@@ -362,7 +352,7 @@ namespace gr {
             d_prev2_decision = 0.0f;
 
             // Revised Diagnostic Output of PLL cycle results
-            avg_clock_period = d_omega;
+            avg_clock_period = d_clock->get_avg_period();
             if (output_items.size() > 1)
                 out_error[oo] = 0.0f;
             if (output_items.size() > 2)

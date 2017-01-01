@@ -23,6 +23,7 @@
 #define	INCLUDED_NWR_CLOCK_RECOVERY_MM_FF_IMPL_H
 
 #include <nwr/clock_recovery_mm_ff.h>
+#include <nwr/clock_tracking_loop.h>
 #include <gnuradio/filter/mmse_fir_interpolator_ff.h>
 
 namespace gr {
@@ -42,25 +43,21 @@ namespace gr {
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items);
 
-      float mu() const { return d_mu;}
-      float omega() const { return d_omega;}
-      float gain_mu() const { return d_gain_mu;}
-      float gain_omega() const { return d_gain_omega;}
+      float mu() const { return d_clock->get_inst_period(); }
+      float omega() const { return d_clock->get_avg_period(); }
+      float gain_mu() const { return d_clock->get_alpha(); }
+      float gain_omega() const { return d_clock->get_beta(); }
 
       void set_verbose (bool verbose) { d_verbose = verbose; }
-      void set_gain_mu (float gain_mu) { d_gain_mu = gain_mu; }
-      void set_gain_omega (float gain_omega) { d_gain_omega = gain_omega; }
-      void set_mu (float mu) { d_mu = mu; }
+
+      void set_gain_mu (float gain_mu) { d_clock->set_alpha(gain_mu); }
+      void set_gain_omega (float gain_omega) { d_clock->set_beta(gain_omega); }
+      void set_mu (float mu) { d_clock->set_inst_period(mu); }
       void set_omega (float omega);
 
     private:
-      float d_mu;                   // instantaneous clock period estimate
-      float d_gain_mu;              // Proportional gain in the PI filter
-      float d_omega;                // average clock period estimate
-      float d_gain_omega;           // Integral gain in the PI filter
-      float d_omega_relative_limit; // used to keep d_omega from walking too far
-      float d_omega_mid;            // nominal clock period specified by user
-      float d_omega_lim;            // maximum |d_omega - d_omega_mid| allowed
+      clock_tracking_loop *d_clock;
+      float d_omega_relative_limit;
 
       float d_prev_y;
       float d_prev_decision;
@@ -76,15 +73,12 @@ namespace gr {
       pmt::pmt_t d_clock_est_key;
 
       // For reverting the process state back one interation
-      float d_prev_omega;
       float d_prev2_y;
       float d_prev2_decision;
       float d_prev_interp_fraction;
 
       float slice(float x);
       float timing_error_detector(float curr_y);
-      void symbol_period_limit();
-      void advance_loop(float error);
       int distance_from_current_input();
 
       void sample_distance_phase_wrap(float d, int &n, float &f);
@@ -94,7 +88,6 @@ namespace gr {
       }
 
       void revert_distance_state();
-      void revert_loop_state();
       void revert_timing_error_detector_state();
     };
 

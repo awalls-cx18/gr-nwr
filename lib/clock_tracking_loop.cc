@@ -50,10 +50,8 @@ namespace gr {
     {
         set_max_avg_period(max_period);
         set_min_avg_period(min_period);
-        if (d_nom_avg_period < d_min_avg_period or
-            d_nom_avg_period > d_max_avg_period   ) {
-            d_nom_avg_period = (d_max_avg_period + d_min_avg_period)/2.0f;
-        }
+        set_nom_avg_period(nominal_period);
+
         set_avg_period(d_nom_avg_period);
         set_inst_period(d_nom_avg_period);
 
@@ -230,6 +228,17 @@ namespace gr {
         d_min_avg_period = period;
     }
 
+    void
+    clock_tracking_loop::set_nom_avg_period(float period)
+    {
+        if (period < d_min_avg_period or
+            period > d_max_avg_period   ) {
+            d_nom_avg_period = (d_max_avg_period + d_min_avg_period)/2.0f;
+        } else {
+            d_nom_avg_period = period;
+        }
+    }
+
     /*******************************************************************
      * GET FUNCTIONS
      *******************************************************************/
@@ -286,6 +295,12 @@ namespace gr {
     clock_tracking_loop::get_min_avg_period() const
     {
         return d_min_avg_period;
+    }
+
+    float
+    clock_tracking_loop::get_nom_avg_period() const
+    {
+        return d_nom_avg_period;
     }
 
   } /* namespace nwr */
