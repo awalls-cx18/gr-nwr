@@ -32,9 +32,10 @@ namespace gr {
     class clock_recovery_mm_ff_impl : public clock_recovery_mm_ff
     {
     public:
-      clock_recovery_mm_ff_impl(float omega, float gain_omega,
-                                float mu, float gain_mu,
-                                float omega_relative_limit);
+      clock_recovery_mm_ff_impl(float sps,
+                                float loop_bw,
+                                float damping_factor,
+                                float max_deviation);
       ~clock_recovery_mm_ff_impl();
 
       void forecast(int noutput_items, gr_vector_int &ninput_items_required);
@@ -43,28 +44,27 @@ namespace gr {
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items);
 
-      float mu() const { return d_clock->get_inst_period(); }
-      float omega() const { return d_clock->get_avg_period(); }
-      float gain_mu() const { return d_clock->get_alpha(); }
-      float gain_omega() const { return d_clock->get_beta(); }
+      float loop_bandwidth() const { return d_clock->get_loop_bandwidth(); }
+      float damping_factor() const { return d_clock->get_damping_factor(); }
+      float alpha() const { return d_clock->get_alpha(); }
+      float beta() const { return d_clock->get_beta(); }
 
-      void set_verbose (bool verbose) { d_verbose = verbose; }
-
-      void set_gain_mu (float gain_mu) { d_clock->set_alpha(gain_mu); }
-      void set_gain_omega (float gain_omega) { d_clock->set_beta(gain_omega); }
-      void set_mu (float mu) { d_clock->set_inst_period(mu); }
-      void set_omega (float omega);
+      void set_loop_bandwidth (float fn_norm) {
+          d_clock->set_loop_bandwidth(fn_norm);
+      }
+      void set_damping_factor (float zeta) {
+          d_clock->set_damping_factor(zeta);
+      }
+      void set_alpha (float alpha) { d_clock->set_alpha(alpha); }
+      void set_beta (float beta) { d_clock->set_beta(beta); }
 
     private:
       clock_tracking_loop *d_clock;
-      float d_omega_relative_limit;
 
       float d_prev_y;
       float d_prev_decision;
       float d_interp_fraction;
       filter::mmse_fir_interpolator_ff *d_interp;
-
-      bool d_verbose;
 
       std::vector<tag_t> d_new_tags;
       std::vector<tag_t> d_tags;

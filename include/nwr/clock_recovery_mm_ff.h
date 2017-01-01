@@ -49,26 +49,38 @@ namespace gr {
       /*!
        * Make a M&M clock recovery block.
        *
-       * \param omega User specified nominal clock period in samples per symbol
-       * \param gain_omega Integral gain of the PI loop filter
-       * \param mu Initial estimate of the instantaneous clock period (ignored)
-       * \param gain_mu Proportional gain of the PI loop filter
-       * \param omega_relative_limit Maximum relative deviation of the average clock period estimate from the user specified nominal clock period
+       * \param sps
+       * User specified nominal clock period in samples per symbol
+       *
+       * \param loop_bw
+       * Approximate normailzed loop bandwidth of the symbol clock tracking
+       * loop. It should be in the range (0.0f, 0.5f).
+       *
+       * \param damping_factor
+       * Damping factor of the symbol clock tracking loop.
+       * Damping < 1.0f is an under-damped loop.
+       * Damping = 1.0f is a critically-damped loop.
+       * Damping > 1.0f is an over-damped loop.
+       * One should generally use an over-damped loop for clock recovery.
+       *
+       * \param max_deviation
+       * Maximum absolute deviation of the average clock period estimate
+       * from the user specified nominal clock period in samples per symbol
        */
-      static sptr make(float omega, float gain_omega,
-		       float mu, float gain_mu,
-		       float omega_relative_limit);
+      static sptr make(float sps,
+                       float loop_bw,
+                       float damping_factor = 2.0f,
+		       float max_deviation = 1.5f);
       
-      virtual float mu() const = 0;
-      virtual float omega() const = 0;
-      virtual float gain_mu() const = 0;
-      virtual float gain_omega() const = 0;
+      virtual float loop_bandwidth() const = 0;
+      virtual float damping_factor() const = 0;
+      virtual float alpha() const = 0;
+      virtual float beta() const = 0;
 
-      virtual void set_verbose(bool verbose) = 0;
-      virtual void set_gain_mu (float gain_mu) = 0;
-      virtual void set_gain_omega (float gain_omega) = 0;
-      virtual void set_mu (float mu) = 0;
-      virtual void set_omega (float omega) = 0;
+      virtual void set_loop_bandwidth (float fn_norm) = 0;
+      virtual void set_damping_factor (float zeta) = 0;
+      virtual void set_alpha (float alpha) = 0;
+      virtual void set_beta (float beta) = 0;
     };
 
   } /* namespace nwr */

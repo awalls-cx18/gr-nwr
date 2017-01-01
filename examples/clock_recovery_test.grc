@@ -2007,6 +2007,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
       <value></value>
     </param>
     <param>
+      <key>damping</key>
+      <value>zeta</value>
+    </param>
+    <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
@@ -2019,35 +2023,31 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
       <value>0</value>
     </param>
     <param>
-      <key>gain_mu</key>
-      <value>gain_mu</value>
-    </param>
-    <param>
-      <key>gain_omega</key>
-      <value>gain_omega</value>
+      <key>type</key>
+      <value>ff</value>
     </param>
     <param>
       <key>id</key>
       <value>nwr_clock_recovery_mm_ff_0</value>
     </param>
     <param>
+      <key>loop_bw</key>
+      <value>fn_norm</value>
+    </param>
+    <param>
       <key>maxoutbuf</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>max_dev</key>
+      <value>1.5</value>
     </param>
     <param>
       <key>minoutbuf</key>
       <value>0</value>
     </param>
     <param>
-      <key>mu</key>
-      <value>0.5</value>
-    </param>
-    <param>
-      <key>omega_relative_limit</key>
-      <value>1.0/sps</value>
-    </param>
-    <param>
-      <key>omega</key>
+      <key>sps</key>
       <value>sps</value>
     </param>
   </block>

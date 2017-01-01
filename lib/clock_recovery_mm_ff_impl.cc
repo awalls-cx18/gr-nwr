@@ -32,24 +32,25 @@ namespace gr {
   namespace nwr {
 
     clock_recovery_mm_ff::sptr
-    clock_recovery_mm_ff::make(float omega, float gain_omega,
-                               float mu, float gain_mu,
-                               float omega_relative_limit)
+    clock_recovery_mm_ff::make(float sps,
+                               float loop_bw,
+                               float damping_factor,
+                               float max_deviation)
     {
       return gnuradio::get_initial_sptr
-        (new clock_recovery_mm_ff_impl(omega, gain_omega,
-                                       mu, gain_mu,
-                                       omega_relative_limit));
+        (new clock_recovery_mm_ff_impl(sps,
+                                       loop_bw,
+                                       damping_factor,
+                                       max_deviation));
     }
 
-    clock_recovery_mm_ff_impl::clock_recovery_mm_ff_impl(
-                                                  float omega, float gain_omega,
-                                                  float mu, float gain_mu,
-                                                  float omega_relative_limit)
+    clock_recovery_mm_ff_impl::clock_recovery_mm_ff_impl(float sps,
+                                                         float loop_bw,
+                                                         float damping_factor,
+                                                         float max_deviation)
       : block("clock_recovery_mm_ff",
               io_signature::make(1, 1, sizeof(float)),
               io_signature::makev(1, 4, std::vector<int>(4, sizeof(float)))),
-        d_omega_relative_limit(omega_relative_limit),
         d_prev_y(0.0f),
         d_interp_fraction(0.0f),
         d_prev_interp_fraction(0.0f),
@@ -60,29 +61,19 @@ namespace gr {
         d_clock_est_key(pmt::intern("clock_est")),
         d_prev2_y(0.0f)
     {
-      if(omega <  1)
-        throw std::out_of_range("clock rate must be > 1");
-      if(gain_mu <  0  || gain_omega < 0)
-        throw std::out_of_range("Gains must be non-negative");
+      if (sps <= 1.0f)
+        throw std::out_of_range("nominal samples per symbol must be > 1");
 
-      d_clock = new clock_tracking_loop(0.045f,
-                                        omega * (1.0f + d_omega_relative_limit),
-                                        omega * (1.0f - d_omega_relative_limit),
-                                        omega, 1.0f);
-      d_clock->set_max_avg_period(omega * (1.0f + d_omega_relative_limit));
-      d_clock->set_min_avg_period(omega * (1.0f - d_omega_relative_limit));
-      d_clock->set_nom_avg_period(omega);
-
-      d_clock->set_avg_period(omega);
-      d_clock->set_beta(gain_omega);
-
-      d_clock->set_inst_period(omega);
-      d_clock->set_alpha(gain_mu);
+      d_clock = new clock_tracking_loop(loop_bw,
+                                        sps + max_deviation,
+                                        sps - max_deviation,
+                                        sps,
+                                        damping_factor);
 
       d_prev_decision = slice(d_prev_y);
       d_prev2_decision = slice(d_prev2_y);
 
-      set_relative_rate (1.0 / omega);
+      set_relative_rate (1.0 / sps);
 
       set_tag_propagation_policy(TPP_DONT);
       d_filter_delay = (d_interp->ntaps() + 1) / 2;
@@ -116,15 +107,6 @@ namespace gr {
     clock_recovery_mm_ff_impl::slice(float x)
     {
       return x < 0 ? -1.0F : 1.0F;
-    }
-
-    void
-    clock_recovery_mm_ff_impl::set_omega (float omega)
-    {
-        d_clock->set_max_avg_period(omega * (1.0f + d_omega_relative_limit));
-        d_clock->set_min_avg_period(omega * (1.0f - d_omega_relative_limit));
-        d_clock->set_nom_avg_period(omega);
-        d_clock->set_avg_period(omega);
     }
 
     float
