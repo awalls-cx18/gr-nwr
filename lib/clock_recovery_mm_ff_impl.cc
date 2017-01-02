@@ -167,6 +167,166 @@ namespace gr {
         d_interp_fraction = d_prev_interp_fraction;
     }
 
+    void
+    clock_recovery_mm_ff_impl::collect_tags(uint64_t nitems_rd, int count)
+    {
+        // Get all the tags in offset order
+        // d_new_tags is used to look for time_est and clock_est tags.
+        // d_tags is used for manual tag propagation.
+        d_new_tags.clear();
+        get_tags_in_range(d_new_tags, 0, nitems_rd, nitems_rd + count);
+        std::sort(d_new_tags.begin(), d_new_tags.end(), tag_t::offset_compare);
+        d_tags.insert(d_tags.end(), d_new_tags.begin(), d_new_tags.end());
+        std::sort(d_tags.begin(), d_tags.end(), tag_t::offset_compare);
+    }
+
+    bool
+    clock_recovery_mm_ff_impl::find_sync_tag(uint64_t nitems_rd, int iidx,
+                                             int clock_distance,
+                                             uint64_t &tag_offset,
+                                             float &timing_offset,
+                                             float &clock_period)
+    {
+        bool found;
+        uint64_t soffset, eoffset;
+        std::vector<tag_t>::iterator t;
+        std::vector<tag_t>::iterator t2;
+
+        // PLL Reset/Resynchronization to time_est & clock_est tags (1st part)
+        //
+        // Look for a time_est tag between the current interpolated input sample
+        // and the next predicted interpolated input sample. (both rounded up)
+        soffset = nitems_rd + d_filter_delay + static_cast<uint64_t>(iidx + 1);
+        eoffset = soffset + clock_distance;
+        found = false;
+        for (t = d_new_tags.begin();
+             t != d_new_tags.end();
+             t = d_new_tags.erase(t)) {
+
+            if (t->offset > eoffset) // search finished
+                break;
+
+            if (t->offset < soffset) // tag is in the past of what we care about
+                continue;
+
+            if (not pmt::eq(t->key, d_time_est_key) and  // not a time_est tag
+                not pmt::eq(t->key, d_clock_est_key)   ) // not a clock_est tag
+                continue;
+
+            found = true;
+            tag_offset = t->offset;
+            if (pmt::eq(t->key, d_time_est_key)) {
+                // got a time_est tag
+                timing_offset = static_cast<float>(pmt::to_double(t->value));
+                // next instantaneous clock period estimate will be nominal
+                clock_period = d_clock->get_nom_avg_period();
+
+                // Look for a clock_est tag at the same offset,
+                // as we prefer clock_est tags
+                for (t2 = ++t; t2 != d_new_tags.end(); ++t2) {
+                    if (t2->offset > t->offset) // search finished
+                        break;
+                    if (not pmt::eq(t->key, d_clock_est_key)) // not a clock_est
+                        continue;
+                    // Found a clock_est tag at the same offset
+                    tag_offset = t2->offset;
+                    timing_offset = static_cast<float>(
+                                  pmt::to_double(pmt::tuple_ref(t2->value, 0)));
+                    clock_period = static_cast<float>(
+                                  pmt::to_double(pmt::tuple_ref(t2->value, 1)));
+                    break;
+                }
+            } else {
+                // got a clock_est tag
+                timing_offset = static_cast<float>(
+                                   pmt::to_double(pmt::tuple_ref(t->value, 0)));
+                clock_period = static_cast<float>(
+                                   pmt::to_double(pmt::tuple_ref(t->value, 1)));
+            }
+
+            if (not(timing_offset >= -1.0f and timing_offset <= 1.0f)) {
+                // the time_est/clock_est tag's payload is invalid
+                GR_LOG_WARN(d_logger,
+                            boost::format("ignoring time_est/clock_est tag with"
+                                          " value %.2f, outside of allowed "
+                                          "range [-1.0, 1.0]") % timing_offset);
+                found = false;
+                continue;
+            }
+
+            if (t->offset == soffset and timing_offset < 0.0f) {
+                // already handled clock times earlier than this previously
+                found = false;
+                continue;
+            }
+
+            if (t->offset == eoffset and timing_offset >= 0.0f) {
+                // handle clock times greater than this later
+                found = false;
+                break;
+            }
+
+            if (found == true)
+                break;
+        }
+        return found;
+    }
+
+    void
+    clock_recovery_mm_ff_impl::propagate_tags(uint64_t nitems_rd, int iidx,
+                                              float inst_clock_distance,
+                                              float inst_clock_period,
+                                              uint64_t nitems_wr, int oidx,
+                                              int noutputs)
+    {
+        // Tag Propagation
+        //
+        // Onto this output sample, place all the remaining tags that
+        // came before the interpolated input sample, and all the tags
+        // on and after the interpolated input sample, up to half way to
+        // the next interpolated input sample.
+
+        uint64_t mid_period_offset = nitems_rd + d_filter_delay
+                    + static_cast<uint64_t>(iidx)
+                    + static_cast<uint64_t>(llroundf(inst_clock_distance
+                                                     - inst_clock_period/2.0f));
+
+        uint64_t output_offset = nitems_wr + static_cast<uint64_t>(oidx);
+
+        int i;
+        std::vector<tag_t>::iterator t;
+        for (t = d_tags.begin();
+             t != d_tags.end() and t->offset <= mid_period_offset;
+             t = d_tags.erase(t)) {
+            t->offset = output_offset;
+            for (i = 0; i < noutputs; i++)
+                add_item_tag(i, *t);
+        }
+    }
+
+    void
+    clock_recovery_mm_ff_impl::save_expiring_tags(uint64_t nitems_rd,
+                                                  int consumed)
+    {
+        // Deferred Tag Propagation
+        //
+        // Only save away input tags that will not be available
+        // in the next call to general_work().  Otherwise we would
+        // create duplicate tags next time around.
+        // Tags that have already been propagated, have already been erased
+        // from d_tags.
+
+        uint64_t consumed_offset = nitems_rd + static_cast<uint64_t>(consumed);
+        std::vector<tag_t>::iterator t;
+
+        for (t = d_tags.begin(); t != d_tags.end(); ) {
+            if (t->offset < consumed_offset)
+                ++t;
+            else
+                t = d_tags.erase(t);
+        }
+    }
+
     int
     clock_recovery_mm_ff_impl::general_work(
                                          int noutput_items,
@@ -202,21 +362,12 @@ namespace gr {
 
       uint64_t nitems_rd = nitems_read(0);
       uint64_t nitems_wr = nitems_written(0);
-      std::vector<tag_t>::iterator t;
-      std::vector<tag_t>::iterator t2;
-      uint64_t soffset, eoffset;
-      float time_est_val;
-      float clock_est_val;
-      uint64_t mid_period_offset;
-      uint64_t output_offset;
+      uint64_t sync_tag_offset;
+      float sync_timing_offset;
+      float sync_clock_period;
 
       // Tag Propagation & PLL Reset/Resynchronization to "time_est" tags
-      // Get all the tags in offset order
-      d_new_tags.clear();
-      get_tags_in_range(d_new_tags, 0, nitems_rd, nitems_rd + ni);
-      std::sort(d_new_tags.begin(), d_new_tags.end(), tag_t::offset_compare);
-      d_tags.insert(d_tags.end(), d_new_tags.begin(), d_new_tags.end());
-      std::sort(d_tags.begin(), d_tags.end(), tag_t::offset_compare);
+      collect_tags(nitems_rd, ni);
 
       while (oo < noutput_items) {
         // Application of Clock Timing Recovery PLL Result (2nd part)
@@ -255,57 +406,9 @@ namespace gr {
             break;
         }
 
-        // PLL Reset/Resynchronization to "time_est" tags (1st part)
-        //
-        // Look for a time_est tag between the current interpolated input sample
-        // and the next predicted interpolated input sample. (both rounded up)
-        soffset = nitems_rd + d_filter_delay + static_cast<uint64_t>(ii + 1);
-        eoffset = nitems_rd + d_filter_delay + static_cast<uint64_t>(ii + n +1);
-        for (t = d_new_tags.begin();
-             t != d_new_tags.end();
-             t = d_new_tags.erase(t)) {
-            if (t->offset > eoffset) // search finished
-                break;
-            if (t->offset < soffset) // tag is in the past of what we care about
-                continue;
-            if (not pmt::eq(t->key, d_time_est_key) and  // not a time_est tag
-                not pmt::eq(t->key, d_clock_est_key)   ) // not a clock_est tag
-                continue;
-            if (pmt::eq(t->key, d_time_est_key)) {
-                time_est_val = static_cast<float>(pmt::to_double(t->value));
-                // next instantaneous clock period estimate will be nominal
-                clock_est_val = d_clock->get_nom_avg_period();
-                // Look for a clock_est tag at the same offset
-                for (t2 = ++t; t2 != d_new_tags.end(); ++t2) {
-                    if (t2->offset > t->offset) // search finished
-                        break;
-                    if (not pmt::eq(t->key, d_clock_est_key)) // not a clock_est
-                        continue;
-                    // Found a clock_est tag at the same offset
-                    time_est_val = static_cast<float>(
-                                  pmt::to_double(pmt::tuple_ref(t2->value, 0)));
-                    clock_est_val = static_cast<float>(
-                                  pmt::to_double(pmt::tuple_ref(t2->value, 1)));
-                    break;
-                }
-            } else { // got a clock_est tag
-                time_est_val = static_cast<float>(
-                                   pmt::to_double(pmt::tuple_ref(t->value, 0)));
-                clock_est_val = static_cast<float>(
-                                   pmt::to_double(pmt::tuple_ref(t->value, 1)));
-            }
-            if (not(time_est_val >= -1.0f and time_est_val <= 1.0f)) {
-                // the time_est/clock_est tag's payload is invalid
-                GR_LOG_WARN(d_logger,
-                            boost::format("ignoring time_est/clock_est tag with"
-                                          " value %.2f, outside of allowed "
-                                          "range [-1.0, 1.0]") % time_est_val);
-                continue;
-            }
-            if (t->offset == soffset and time_est_val < 0.0f) // already handled
-                continue;
-            if (t->offset == eoffset and time_est_val >= 0.0f) // handle later
-                break;
+        // PLL Reset/Resynchronization to time_est and clock_est tags
+        if (find_sync_tag(nitems_rd, ii, n, sync_tag_offset,
+                          sync_timing_offset, sync_clock_period) == true) {
 
             // Adjust this instantaneous clock period to land right where
             // time_est/clock_est indicates.  Fix up PLL state as necessary.
@@ -316,8 +419,9 @@ namespace gr {
             // d_filter_delay is the culprit).  Anyway, experiment trumps
             // theory *every* time; so + 1 it is.
             inst_clock_distance = static_cast<float>(
-              static_cast<int>(t->offset - nitems_rd - d_filter_delay) - ii + 1)
-              + time_est_val;
+                  static_cast<int>(sync_tag_offset - nitems_rd - d_filter_delay)
+                  - ii + 1)
+                  + sync_timing_offset;
             inst_clock_period = inst_clock_distance - d_interp_fraction;
 
             d_clock->set_inst_period(inst_clock_period);
@@ -325,7 +429,7 @@ namespace gr {
 
             // next instantaneous clock period estimate will match the nominal
             // or comes from the clock_est tag
-            d_clock->set_avg_period(clock_est_val);
+            d_clock->set_avg_period(sync_clock_period);
 
             // force next the next timing error to be 0.0f
             d_prev_y = 0.0f;
@@ -341,31 +445,11 @@ namespace gr {
                 out_instantaneous_clock_period[oo] = inst_clock_period;
             if (output_items.size() > 3)
                 out_average_clock_period[oo] = avg_clock_period;
-
-            // Only process the 1st time_est/clock_est in the nominal clk period
-            break;
         }
 
         // Tag Propagation
-        //
-        // Onto this output sample, place all the remaining tags that
-        // came before the interpolated input sample, and all the tags
-        // on and after the interpolated input sample, up to half way to
-        // the next interpolated input sample.
-        mid_period_offset = nitems_rd + d_filter_delay
-            + static_cast<uint64_t>(ii)
-            + static_cast<uint64_t>(llroundf(inst_clock_distance
-                                             - inst_clock_period/2.0f));
-
-        output_offset = nitems_wr + static_cast<uint64_t>(oo);
-
-        for (t = d_tags.begin();
-             t != d_tags.end() and t->offset <= mid_period_offset;
-             t = d_tags.erase(t)) {
-            t->offset = output_offset;
-            for (i = 0; i < output_items.size(); i++)
-                add_item_tag(i, *t);
-        }
+        propagate_tags(nitems_rd, ii, inst_clock_distance, inst_clock_period,
+                       nitems_wr, oo, output_items.size());
 
         // Increment Main Loop Counters
         ii += n;
@@ -373,17 +457,7 @@ namespace gr {
       }
 
       // Deferred Tag Propagation
-      //
-      // Only save away input tags that will not be available
-      // in the next call to general_work().  Otherwise we would
-      // create duplicate tags next time around.
-      uint64_t consumed_offset = nitems_rd + static_cast<uint64_t>(ii);
-      for (t = d_tags.begin(); t != d_tags.end(); ) {
-          if (t->offset < consumed_offset)
-              ++t;
-          else
-              t = d_tags.erase(t);
-      }
+      save_expiring_tags(nitems_rd, ii);
 
       consume_each(ii);
       return oo;

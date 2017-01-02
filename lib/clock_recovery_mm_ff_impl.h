@@ -89,6 +89,19 @@ namespace gr {
 
       void revert_distance_state();
       void revert_timing_error_detector_state();
+
+      void collect_tags(uint64_t nitems_rd, int count);
+      bool find_sync_tag(uint64_t nitems_rd, int iidx,
+                         int clock_distance,
+                         uint64_t &tag_offset,
+                         float &timing_offset,
+                         float &clock_period);
+      void propagate_tags(uint64_t nitems_rd, int iidx,
+                          float inst_clock_distance,
+                          float inst_clock_period,
+                          uint64_t nitems_wr, int oidx,
+                          int noutputs);
+      void save_expiring_tags(uint64_t nitems_rd, int consumed);
     };
 
   } /* namespace nwr */
