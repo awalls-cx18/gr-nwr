@@ -416,27 +416,29 @@ namespace gr {
       float sync_timing_offset;
       float sync_clock_period;
 
-      // Tag Propagation and Clock Tracking Reset/Resync
+      // Tag Propagation and Symbol Clock Tracking Reset/Resync
       collect_tags(nitems_rd, ni);
 
       while (oo < noutput_items) {
-        // Application of Clock Timing Recovery PLL Result (2nd part)
+        // Application of Symbol Clock and Interpolator Positioning & Alignment
         //
         // produce output sample
         out[oo] = d_interp->interpolate(&in[ii], d_interp_fraction);
 
-        // Clock Timing Recovery PLL
+        // Timing Error Detector
         error = timing_error_detector(out[oo]);
+
+        // Symbol Clock Tracking and Estimation
         d_clock->advance_loop(error);
         avg_clock_period = d_clock->get_avg_period();
         inst_clock_period = d_clock->get_inst_period();
         d_clock->phase_wrap();
         d_clock->period_limit();
 
-        // Diagnostic Output of PLL cycle results
+        // Diagnostic Output of Symbol Clock Tracking cycle results
         emit_optional_output(oo, error, inst_clock_period, avg_clock_period);
 
-        // Application of Clock Timing Recovery PLL Result (1st part)
+        // Symbol Clock and Interpolator Positioning & Alignment
         n = distance_from_current_input();
         inst_clock_distance = sample_distance_phase_unwrap(n,
                                                            d_interp_fraction);
@@ -445,15 +447,24 @@ namespace gr {
             // symbol is greater than d_interp->ntaps() (normally 8);
             // otherwise we would consume() more input than we were
             // given.
+
+            // Symbol Clock and Interpolator Positioning & Alignment
             revert_distance_state();
+            // Symbol Clock Tracking and Estimation
             d_clock->revert_loop();
+            // Timing Error Detector
             revert_timing_error_detector_state();
             break;
         }
 
-        // PLL Reset/Resynchronization to time_est and clock_est tags
+        // Symbol Clock Tracking Reset/Resync to time_est and clock_est tags
         if (find_sync_tag(nitems_rd, ii, n, sync_tag_offset,
                           sync_timing_offset, sync_clock_period) == true) {
+
+            //
+            // Symbol Clock and Interpolator Positioning & Alignment
+            // Symbol Clock Tracking and Estimation
+            //
 
             // Adjust this instantaneous clock period to land right where
             // time_est/clock_est indicates.  Fix up PLL state as necessary.
@@ -477,13 +488,14 @@ namespace gr {
             d_clock->set_avg_period(sync_clock_period);
             avg_clock_period = d_clock->get_avg_period();
 
+            // Timing Error Detector
             // force next the next timing error to be 0.0f
             d_prev_y = 0.0f;
             d_prev_decision = 0.0f;
             d_prev2_y = 0.0f;
             d_prev2_decision = 0.0f;
 
-            // Revised Diagnostic Output of PLL cycle results
+            // Revised Diagnostic Output of Symbol Clock Tracking cycle results
             emit_optional_output(oo, 0.0f, inst_clock_period, avg_clock_period);
         }
 
@@ -491,7 +503,7 @@ namespace gr {
         propagate_tags(nitems_rd, ii, inst_clock_distance, inst_clock_period,
                        nitems_wr, oo);
 
-        // Increment Main Loop Counters
+        // Symbol Clock and Interpolator Positioning & Alignment
         ii += n;
         oo++;
       }
@@ -499,6 +511,7 @@ namespace gr {
       // Deferred Tag Propagation
       save_expiring_tags(nitems_rd, ii);
 
+      // Symbol Clock and Interpolator Positioning & Alignment
       consume_each(ii);
       return oo;
     }
