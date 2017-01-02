@@ -91,6 +91,7 @@ namespace gr {
       float slice(float x);
       float timing_error_detector(float curr_y);
       void revert_timing_error_detector_state();
+      void sync_reset_timing_error_detector();
 
       // Symbol Clock and Interpolator Positioning and Alignment
       int distance_from_current_input();

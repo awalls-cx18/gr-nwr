@@ -179,6 +179,16 @@ namespace gr {
         d_interp_fraction = d_prev_interp_fraction;
     }
 
+    void
+    clock_recovery_mm_ff_impl::sync_reset_timing_error_detector()
+    {
+        // force next the next timing error to be 0.0f
+        d_prev_y = 0.0f;
+        d_prev_decision = 0.0f;
+        d_prev2_y = 0.0f;
+        d_prev2_decision = 0.0f;
+    }
+
     //
     // Tag Propagation and Clock Tracking Reset/Resync
     //
@@ -489,11 +499,7 @@ namespace gr {
             avg_clock_period = d_clock->get_avg_period();
 
             // Timing Error Detector
-            // force next the next timing error to be 0.0f
-            d_prev_y = 0.0f;
-            d_prev_decision = 0.0f;
-            d_prev2_y = 0.0f;
-            d_prev2_decision = 0.0f;
+            sync_reset_timing_error_detector();
 
             // Revised Diagnostic Output of Symbol Clock Tracking cycle results
             emit_optional_output(oo, 0.0f, inst_clock_period, avg_clock_period);
