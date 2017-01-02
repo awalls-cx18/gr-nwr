@@ -69,6 +69,148 @@ namespace gr {
      * #period_limit to easily keep the clock phase estimate, tau, and the
      * average clock period estimate, T_avg, within set bounds (phase_wrap
      * keeps the phase within +/-T_avg/2).
+     *
+     * The clock tracking loop, with its PI filter, when properly implemented, has
+     * a digital loop phase-transfer function, in terms of the proportional gain
+     * \f$\alpha\f$ and the integral gain \f$\beta\f$ as follows:
+     * 
+     * \f{align*}
+     *    H(z) &= \dfrac{
+     *                  \dfrac{\alpha + \beta}{1 + \alpha + \beta}
+     *                  - \dfrac{\alpha}{1 + \alpha + \beta} z^{-1}
+     *                 }
+     *                 {
+     *                  1
+     *                  - 2 \dfrac{1 + \frac{\alpha}{2}}{1 + \alpha + \beta} z^{-1}
+     *                  + \dfrac{1}{1 + \alpha + \beta} z^{-2}
+     *                 } \\
+     * \f}
+     * 
+     * Mapping the above phase-transfer function to the standard form of a transfer
+     * function for a second order control loop in the digital domain, one gets an
+     * alternate form of the transfer function, directly related to the
+     * damping factor \f$\zeta\f$, the natural radian frequency \f$\omega_{n}\f$, the
+     * damped radian frequency of oscillation \f$\omega_{d}\f$, and the clock period \f$T\f$:
+     * 
+     * \f{align*}
+     *    H(z) &=
+     *       \begin{cases}
+     *          2e^{-\zeta\omega_{n}T} \cdot
+     *          \dfrac{
+     *                 \cosh(\zeta\omega_{n}T) z^{2} +
+     *                 [e^{-\zeta\omega_{n}T} - \cos(\omega_{d}T)] z
+     *                }
+     *                {
+     *                 z^{2}
+     *                 - 2 \cos(\omega_{d}T) e^{-\zeta\omega_{n}T} z
+     *                 + e^{-2\zeta\omega_{n}T}
+     *                }
+     *                & \quad \text{for} \quad \zeta < 1 \quad \text{with}
+     *                \quad \omega_{d}T = \omega_{n}T \sqrt{1 - \zeta^{2}}
+     *                \quad (under \: damped)\\
+     * \\
+     *          2e^{-\zeta\omega_{n}T} \cdot
+     *          \dfrac{
+     *                 \cosh(\zeta\omega_{n}T) z^{2} +
+     *                 [e^{-\zeta\omega_{n}T} - 1] z
+     *                }
+     *                {
+     *                 z^{2}
+     *                 - 2(1)e^{-\zeta\omega_{n}T} z
+     *                 + e^{-2\zeta\omega_{n}T}
+     *                }
+     *                & \quad \text{for} \quad \zeta = 1 \quad \text{with}
+     *                \quad \omega_{d}T = 0
+     *                \quad (critically \: damped)\\
+     * \\
+     *          2e^{-\zeta\omega_{n}T} \cdot
+     *          \dfrac{
+     *                 \cosh(\zeta\omega_{n}T) z^{2} +
+     *                 [e^{-\zeta\omega_{n}T} - \cosh(\omega_{d}T)] z
+     *                }
+     *                {
+     *                 z^{2}
+     *                 - 2 \cosh(\omega_{d}T) e^{-\zeta\omega_{n}T} z
+     *                 + e^{-2\zeta\omega_{n}T}
+     *                }
+     *                & \quad \text{for} \quad \zeta > 1 \quad \text{with}
+     *                \quad \omega_{d}T = \omega_{n}T \sqrt{\zeta^{2} - 1}
+     *                \quad (over \: damped)\\
+     *       \end{cases}
+     * \\
+     * \f}
+     * 
+     * The PI filter gains, expressed in terms of the damping factor \f$\zeta\f$,
+     * the natural radian frequency \f$\omega_{n}\f$, the damped radian frequency of
+     * oscillation \f$\omega_{d}\f$, and the clock period \f$T\f$ are:
+     * 
+     * \f{align*}
+     *    \alpha &=
+     *       \begin{cases}
+     *          -2e^{\zeta\omega_{n}T} [e^{-\zeta\omega_{n}T} - \cos(\omega_{d}T)] &
+     *          \text{for} \quad \zeta < 1 \quad (under \: damped)\\
+     *          -2e^{\zeta\omega_{n}T} [e^{-\zeta\omega_{n}T} - 1] &
+     *          \text{for} \quad \zeta = 1 \quad (critcally \: damped)\\
+     *          -2e^{\zeta\omega_{n}T} [e^{-\zeta\omega_{n}T} - \cosh(\omega_{d}T)] &
+     *          \text{for} \quad \zeta > 1 \quad (over \: damped)\\
+     *       \end{cases} \\
+     * \\
+     *    \beta  &=
+     *       \begin{cases}
+     *          2e^{\zeta\omega_{n}T} [\cosh(\zeta\omega_{n}T) - \cos(\omega_{d}T)] &
+     *          \text{for} \quad \zeta < 1 \quad (under \: damped)\\
+     *          2e^{\zeta\omega_{n}T} [\cosh(\zeta\omega_{n}T) - 1] &
+     *          \text{for} \quad \zeta = 1 \quad (critically \: damped)\\
+     *          2e^{\zeta\omega_{n}T} [\cosh(\zeta\omega_{n}T) - \cosh(\omega_{d}T)] &
+     *          \text{for} \quad \zeta > 1 \quad (over \: damped)\\
+     *       \end{cases} \\
+     * \\
+     * \f}
+     * 
+     * It should be noted that the clock period \f$T\f$ is being estimated by the clock
+     * tracking loop and can vary over time, so that setting the loop bandwidth
+     * directly can be a problem.  However, we specify loop bandwidth in terms
+     * of the normalized digital natural frequency \f$f_{n\_norm}\f$ of the loop.
+     * \f$f_{n\_norm}\f$ can only usefully take on the range \f$(0, 0.5)\f$, as \f$0.5\f$
+     * corresponds to the Nyquist frequency of the clock:
+     * 
+     * \f{align*}
+     *     \omega_{n}T = \omega_{n\_norm} = 2 \pi f_{n\_norm} = 2 \pi f_{n} T =
+     *     \pi \dfrac{f_{n}}{\left(\dfrac{F_{c}}{2}\right)}
+     * \f}
+     * 
+     * A note on symbol clock phase vs. interpolator sample phase:
+     * In general, the symbol clock phase, that this class estimates and tracks,
+     * cannot be used alone to derive the interpolator sample phase, except in the
+     * very special case of the symbol clock period being exactly divisible by
+     * the input sample stream sample period.  Since this is never guaranteed in
+     * tracking real symbol clocks, one should not use the symbol clock phase
+     * to compute the interpolator sample phase.
+     * 
+     * Consider, in the analog time domain, the optimum symbol sampling instants
+     * \f$t_{k}\f$, of an analog input signal \f$x(t)\f$, at an optimal symbol clock
+     * phase \f$\tau_{0}\f$ and the symbol clock period \f$T_{c}\f$:
+     * 
+     * \f{align*}
+     *    t_{k} &= \tau_{0} + k T_{c} \\
+     *    y_{k} &= x(t_{k}) = x(\tau_{0} + k T_{c}) \\
+     * \f}
+     * 
+     * If one divides the \f$t_{k}\f$ times by the input sample stream sample period
+     * \f$T_{i}\f$, the correct interpolator sample phase \f$\tau_{0\_i}\f$ will get a
+     * contribution from the term \f$T_{c\_remainder}\f$ as shown below:
+     * 
+     * \f{align*}
+     *    \dfrac{t_{k}}{T_{i}} &= \dfrac{\tau_{0}}{T_{i}} + \dfrac{k T_{c}}{T_{i}} \\
+     *     &= (m + \tau_{0\_remainder}) + (n + T_{c\_remainder}) \\
+     *     &= \tau_{0\_remainder} + T_{c\_remainder} + (m + n) \\
+     *     &= \tau_{0\_i} + k^{\prime}
+     * \f}
+     * 
+     * So instead of using the clock sample phase alone to obtain the interpolator
+     * sample phase, one should use the previous interpolator sample phase and 
+     * the instantaneous clock period estimate provided by this class.
+     *
      */
     class NWR_API clock_tracking_loop
     {
