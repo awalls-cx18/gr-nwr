@@ -4030,6 +4030,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
       <value>0</value>
     </param>
     <param>
+      <key>osps</key>
+      <value>1</value>
+    </param>
+    <param>
       <key>sps</key>
       <value>sps</value>
     </param>

@@ -50,7 +50,7 @@ namespace gr {
        * Make a M&M clock recovery block.
        *
        * \param sps
-       * User specified nominal clock period in samples per symbol
+       * User specified nominal clock period in samples per symbol.
        *
        * \param loop_bw
        * Approximate normailzed loop bandwidth of the symbol clock tracking
@@ -65,12 +65,16 @@ namespace gr {
        *
        * \param max_deviation
        * Maximum absolute deviation of the average clock period estimate
-       * from the user specified nominal clock period in samples per symbol
+       * from the user specified nominal clock period in samples per symbol.
+       *
+       * \param osps
+       * The number of output samples per symbol (default=1).
        */
       static sptr make(float sps,
                        float loop_bw,
                        float damping_factor = 2.0f,
-		       float max_deviation = 1.5f);
+		       float max_deviation = 1.5f,
+                       int osps = 1);
       
       virtual float loop_bandwidth() const = 0;
       virtual float damping_factor() const = 0;

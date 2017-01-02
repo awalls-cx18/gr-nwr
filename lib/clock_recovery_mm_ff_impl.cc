@@ -35,22 +35,27 @@ namespace gr {
     clock_recovery_mm_ff::make(float sps,
                                float loop_bw,
                                float damping_factor,
-                               float max_deviation)
+                               float max_deviation,
+                               int osps)
     {
       return gnuradio::get_initial_sptr
         (new clock_recovery_mm_ff_impl(sps,
                                        loop_bw,
                                        damping_factor,
-                                       max_deviation));
+                                       max_deviation,
+                                       osps));
     }
 
     clock_recovery_mm_ff_impl::clock_recovery_mm_ff_impl(float sps,
                                                          float loop_bw,
                                                          float damping_factor,
-                                                         float max_deviation)
+                                                         float max_deviation,
+                                                         int osps)
       : block("clock_recovery_mm_ff",
               io_signature::make(1, 1, sizeof(float)),
               io_signature::makev(1, 4, std::vector<int>(4, sizeof(float)))),
+        d_error(0.0f),
+        d_prev_error(0.0f),
         d_prev_y(0.0f),
         d_prev2_y(0.0f),
         d_interp(new filter::mmse_fir_interpolator_ff()),
@@ -60,6 +65,9 @@ namespace gr {
         d_prev_interp_phase(sps),
         d_prev_interp_phase_wrapped(sps - floorf(sps)),
         d_prev_interp_phase_n(static_cast<int>(floorf(sps))),
+        d_osps(static_cast<float>(osps)),
+        d_osps_n(osps),
+        d_output_phase(osps - 1),
         d_tags(),
         d_new_tags(),
         d_time_est_key(pmt::intern("time_est")),
@@ -71,6 +79,9 @@ namespace gr {
     {
       if (sps <= 1.0f)
         throw std::out_of_range("nominal samples per symbol must be > 1");
+
+      if (osps < 1 or osps > 2)
+        throw std::out_of_range("output samples per symbol must be 1 or 2");
 
       // Symbol Clock Tracking and Estimation
       d_clock = new clock_tracking_loop(loop_bw,
@@ -84,9 +95,11 @@ namespace gr {
       d_prev2_decision = slice(d_prev2_y);
 
       // Tag Propagation and Clock Tracking Reset/Resync
-      set_relative_rate (1.0 / sps);
+      set_relative_rate (d_osps / sps);
       set_tag_propagation_policy(TPP_DONT);
       d_filter_delay = (d_interp->ntaps() + 1) / 2;
+
+      set_output_multiple(d_osps_n);
     }
 
     clock_recovery_mm_ff_impl::~clock_recovery_mm_ff_impl()
@@ -107,10 +120,10 @@ namespace gr {
     float
     clock_recovery_mm_ff_impl::timing_error_detector(float curr_y)
     {
-        float error;
         float curr_decision = slice(curr_y);
 
-        error = d_prev_decision * curr_y - curr_decision * d_prev_y;
+        d_prev_error = d_error;
+        d_error = d_prev_decision * curr_y - curr_decision * d_prev_y;
 
         d_prev2_y = d_prev_y;
         d_prev2_decision = d_prev_decision;
@@ -118,12 +131,13 @@ namespace gr {
         d_prev_y = curr_y;
         d_prev_decision = curr_decision;
 
-        return error;
+        return d_error;
     }
 
     void
     clock_recovery_mm_ff_impl::revert_timing_error_detector_state()
     {
+        d_error = d_prev_error;
         d_prev_y = d_prev2_y;
         d_prev_decision = d_prev2_decision;
     }
@@ -131,7 +145,8 @@ namespace gr {
     void
     clock_recovery_mm_ff_impl::sync_reset_timing_error_detector()
     {
-        // force next the next timing error to be 0.0f
+        d_error = 0.0f;
+        d_prev_error = 0.0f;
         d_prev_y = 0.0f;
         d_prev_decision = 0.0f;
         d_prev2_y = 0.0f;
@@ -374,18 +389,22 @@ namespace gr {
     clock_recovery_mm_ff_impl::forecast(int noutput_items,
                                         gr_vector_int &ninput_items_required)
     {
-      unsigned ninputs = ninput_items_required.size();
-      // The '+ 2' in the expression below is an effort to always have at least
-      // one output sample, even if the main loop decides it has to revert
-      // one computed sample and wait for the next call to general_work().
-      // The d_clock->get_max_avg_period() is also an effort to do the same,
-      // in case we have the worst case allowable clock timing deviation on
-      // input.
-      for(unsigned i=0; i < ninputs; i++)
-        ninput_items_required[i] =
-                        static_cast<int>(ceilf((noutput_items + 2)
-                                               * d_clock->get_max_avg_period()))
-                        + static_cast<int>(d_interp->ntaps());
+        unsigned ninputs = ninput_items_required.size();
+
+        // The '+ 2' in the expression below is an effort to always have at
+        // least one output sample, even if the main loop decides it has to
+        // revert one computed sample and wait for the next call to
+        // general_work().
+        // The d_clock->get_max_avg_period() is also an effort to do the same,
+        // in case we have the worst case allowable clock timing deviation on
+        // input.
+        int answer = static_cast<int>(
+                                ceilf(static_cast<float>(noutput_items + 2)
+                                      * d_clock->get_max_avg_period() / d_osps))
+                     + static_cast<int>(d_interp->ntaps());
+
+        for(unsigned i = 0; i < ninputs; i++)
+            ninput_items_required[i] = answer;
     }
 
     int
@@ -424,19 +443,29 @@ namespace gr {
         // Symbol Clock and Interpolator Positioning & Alignment
         // produce output sample
         out[oo] = d_interp->interpolate(&in[ii], d_interp_phase_wrapped);
+        advance_output_phase();
 
-        // Timing Error Detector
-        error = timing_error_detector(out[oo]);
+        if (symbol_center_output_phase()) {
+            // Timing Error Detector
+            error = timing_error_detector(out[oo]);
 
-        // Symbol Clock Tracking and Estimation
-        d_clock->advance_loop(error);
-        inst_clock_period = d_clock->get_inst_period();
-        avg_clock_period = d_clock->get_avg_period();
-        d_clock->phase_wrap();
-        d_clock->period_limit();
+            // Symbol Clock Tracking and Estimation
+            d_clock->advance_loop(error);
+            inst_clock_period = d_clock->get_inst_period();
+            avg_clock_period = d_clock->get_avg_period();
+            d_clock->phase_wrap();
+            d_clock->period_limit();
+        } else {
+            // Timing Error Detector
+            error = d_error;
+
+            // Symbol Clock Tracking and Estimation
+            inst_clock_period = d_clock->get_inst_period();
+            avg_clock_period = d_clock->get_avg_period();
+        }
 
         // Symbol Clock and Interpolator Positioning & Alignment
-        advance_interpolator_phase(inst_clock_period);
+        advance_interpolator_phase(inst_clock_period / d_osps);
 
         if (ii + d_interp_phase_n >= ni) {
             // This check and revert is needed when the samples per
@@ -446,20 +475,27 @@ namespace gr {
 
             // Symbol Clock and Interpolator Positioning & Alignment
             revert_interpolator_phase();
-            // Symbol Clock Tracking and Estimation
-            d_clock->revert_loop();
-            // Timing Error Detector
-            revert_timing_error_detector_state();
+            if (symbol_center_output_phase()) {
+                // Symbol Clock Tracking and Estimation
+                d_clock->revert_loop();
+                // Timing Error Detector
+                revert_timing_error_detector_state();
+            }
+            // Symbol Clock and Interpolator Positioning & Alignment
+            revert_output_phase();
             break;
         }
 
         // Symbol Clock Tracking Reset/Resync to time_est and clock_est tags
         if (find_sync_tag(nitems_rd, ii, d_interp_phase_n, sync_tag_offset,
-                          sync_timing_offset, sync_clock_period) == true) {
+                          sync_timing_offset, sync_clock_period) == true   ) {
+
+            // Symbol Clock and Interpolator Positioning & Alignment
+            sync_reset_output_phase();
 
             // Timing Error Detector
             sync_reset_timing_error_detector();
-            error = 0.0f;
+            error = d_error;
 
             // Symbol Clock Tracking and Estimation
 

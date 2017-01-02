@@ -35,7 +35,8 @@ namespace gr {
       clock_recovery_mm_ff_impl(float sps,
                                 float loop_bw,
                                 float damping_factor,
-                                float max_deviation);
+                                float max_deviation,
+                                int osps);
       ~clock_recovery_mm_ff_impl();
 
       void forecast(int noutput_items, gr_vector_int &ninput_items_required);
@@ -61,6 +62,8 @@ namespace gr {
 
     private:
       // Timing Error Detector
+      float d_error;
+      float d_prev_error;
       float d_prev_y;
       float d_prev_decision;
       float d_prev2_y;
@@ -77,6 +80,9 @@ namespace gr {
       float d_prev_interp_phase;
       float d_prev_interp_phase_wrapped;
       int   d_prev_interp_phase_n;
+      float d_osps;
+      int   d_osps_n;
+      int   d_output_phase;
 
       // Tag Propagation and Symbol Clock Tracking Reset/Resync
       uint64_t d_filter_delay; // interpolator filter delay
@@ -100,6 +106,17 @@ namespace gr {
       // Symbol Clock and Interpolator Positioning and Alignment
       void advance_interpolator_phase(float increment);
       void revert_interpolator_phase();
+      void advance_output_phase() {
+          d_output_phase = (d_output_phase + 1) % d_osps_n;
+      }
+      void revert_output_phase() {
+          if (d_output_phase == 0)
+              d_output_phase = d_osps_n - 1;
+          else
+              d_output_phase--;
+      }
+      bool symbol_center_output_phase() { return d_output_phase == 0; }
+      void sync_reset_output_phase() { d_output_phase = d_osps_n - 1; }
 
       // Tag Propagation and Clock Tracking Reset/Resync
       void collect_tags(uint64_t nitems_rd, int count);

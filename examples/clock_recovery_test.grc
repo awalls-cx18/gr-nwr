@@ -596,6 +596,33 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(3168, 228)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>osps</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
     <key>variable_tag_object</key>
     <param>
       <key>comment</key>
@@ -2047,6 +2074,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
       <value>0</value>
     </param>
     <param>
+      <key>osps</key>
+      <value>osps</value>
+    </param>
+    <param>
       <key>sps</key>
       <value>sps</value>
     </param>
@@ -2809,11 +2840,11 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>size</key>
-      <value>256</value>
+      <value>256*osps</value>
     </param>
     <param>
       <key>srate</key>
-      <value>baud_rate</value>
+      <value>baud_rate*osps</value>
     </param>
     <param>
       <key>tr_chan</key>
