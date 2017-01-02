@@ -59,7 +59,11 @@ namespace gr {
         d_tags(),
         d_time_est_key(pmt::intern("time_est")),
         d_clock_est_key(pmt::intern("clock_est")),
-        d_prev2_y(0.0f)
+        d_prev2_y(0.0f),
+        d_noutputs(1),
+        d_out_error(NULL),
+        d_out_instantaneous_clock_period(NULL),
+        d_out_average_clock_period(NULL)
     {
       if (sps <= 1.0f)
         throw std::out_of_range("nominal samples per symbol must be > 1");
@@ -276,8 +280,7 @@ namespace gr {
     clock_recovery_mm_ff_impl::propagate_tags(uint64_t nitems_rd, int iidx,
                                               float inst_clock_distance,
                                               float inst_clock_period,
-                                              uint64_t nitems_wr, int oidx,
-                                              int noutputs)
+                                              uint64_t nitems_wr, int oidx)
     {
         // Tag Propagation
         //
@@ -299,7 +302,7 @@ namespace gr {
              t != d_tags.end() and t->offset <= mid_period_offset;
              t = d_tags.erase(t)) {
             t->offset = output_offset;
-            for (i = 0; i < noutputs; i++)
+            for (i = 0; i < d_noutputs; i++)
                 add_item_tag(i, *t);
         }
     }
@@ -327,6 +330,47 @@ namespace gr {
         }
     }
 
+    void
+    clock_recovery_mm_ff_impl::setup_optional_outputs(
+                                              gr_vector_void_star &output_items)
+    {
+        d_noutputs = output_items.size();
+        d_out_error = NULL;
+        d_out_instantaneous_clock_period = NULL;
+        d_out_average_clock_period = NULL;
+
+        if (d_noutputs < 2)
+            return;
+        d_out_error = (float *) output_items[1];
+
+        if (d_noutputs < 3)
+            return;
+        d_out_instantaneous_clock_period = (float *) output_items[2];
+
+        if (d_noutputs < 4)
+            return;
+        d_out_average_clock_period = (float *) output_items[3];
+    }
+
+    void
+    clock_recovery_mm_ff_impl::emit_optional_output(int oidx,
+                                                    float error,
+                                                    float inst_clock_period,
+                                                    float avg_clock_period)
+    {
+        if (d_noutputs < 2)
+            return;
+        d_out_error[oidx] = error;
+
+        if (d_noutputs < 3)
+            return;
+        d_out_instantaneous_clock_period[oidx] = inst_clock_period;
+
+        if (d_noutputs < 4)
+            return;
+        d_out_average_clock_period[oidx] = avg_clock_period;
+    }
+
     int
     clock_recovery_mm_ff_impl::general_work(
                                          int noutput_items,
@@ -342,15 +386,7 @@ namespace gr {
       const float *in = (const float *)input_items[0];
       float *out = (float *)output_items[0];
 
-      float *out_error = NULL;
-      float *out_instantaneous_clock_period = NULL;
-      float *out_average_clock_period = NULL;
-      if (output_items.size() > 1)
-          out_error = (float *) output_items[1];
-      if (output_items.size() > 2)
-          out_instantaneous_clock_period = (float *) output_items[2];
-      if (output_items.size() > 3)
-          out_average_clock_period = (float *) output_items[3];
+      setup_optional_outputs(output_items);
 
       int ii = 0; // input index
       int oo = 0; // output index
@@ -358,7 +394,7 @@ namespace gr {
       float inst_clock_period; // between interpolated samples
       float inst_clock_distance; // from an input sample's position
       float avg_clock_period;
-      int i, n;
+      int n;
 
       uint64_t nitems_rd = nitems_read(0);
       uint64_t nitems_wr = nitems_written(0);
@@ -384,12 +420,7 @@ namespace gr {
         d_clock->period_limit();
 
         // Diagnostic Output of PLL cycle results
-        if (output_items.size() > 1)
-            out_error[oo] = error;
-        if (output_items.size() > 2)
-            out_instantaneous_clock_period[oo] = inst_clock_period;
-        if (output_items.size() > 3)
-            out_average_clock_period[oo] = avg_clock_period;
+        emit_optional_output(oo, error, inst_clock_period, avg_clock_period);
 
         // Application of Clock Timing Recovery PLL Result (1st part)
         n = distance_from_current_input();
@@ -430,6 +461,7 @@ namespace gr {
             // next instantaneous clock period estimate will match the nominal
             // or comes from the clock_est tag
             d_clock->set_avg_period(sync_clock_period);
+            avg_clock_period = d_clock->get_avg_period();
 
             // force next the next timing error to be 0.0f
             d_prev_y = 0.0f;
@@ -438,18 +470,12 @@ namespace gr {
             d_prev2_decision = 0.0f;
 
             // Revised Diagnostic Output of PLL cycle results
-            avg_clock_period = d_clock->get_avg_period();
-            if (output_items.size() > 1)
-                out_error[oo] = 0.0f;
-            if (output_items.size() > 2)
-                out_instantaneous_clock_period[oo] = inst_clock_period;
-            if (output_items.size() > 3)
-                out_average_clock_period[oo] = avg_clock_period;
+            emit_optional_output(oo, 0.0f, inst_clock_period, avg_clock_period);
         }
 
         // Tag Propagation
         propagate_tags(nitems_rd, ii, inst_clock_distance, inst_clock_period,
-                       nitems_wr, oo, output_items.size());
+                       nitems_wr, oo);
 
         // Increment Main Loop Counters
         ii += n;

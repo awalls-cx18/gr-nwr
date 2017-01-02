@@ -77,6 +77,12 @@ namespace gr {
       float d_prev2_decision;
       float d_prev_interp_fraction;
 
+      // Optional outputs
+      int d_noutputs;
+      float *d_out_error;
+      float *d_out_instantaneous_clock_period;
+      float *d_out_average_clock_period;
+
       float slice(float x);
       float timing_error_detector(float curr_y);
       int distance_from_current_input();
@@ -99,9 +105,14 @@ namespace gr {
       void propagate_tags(uint64_t nitems_rd, int iidx,
                           float inst_clock_distance,
                           float inst_clock_period,
-                          uint64_t nitems_wr, int oidx,
-                          int noutputs);
+                          uint64_t nitems_wr, int oidx);
       void save_expiring_tags(uint64_t nitems_rd, int consumed);
+
+      void setup_optional_outputs(gr_vector_void_star &output_items);
+      void emit_optional_output(int oidx,
+                                float error,
+                                float inst_clock_period,
+                                float avg_clock_period);
     };
 
   } /* namespace nwr */
