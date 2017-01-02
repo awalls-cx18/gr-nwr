@@ -52,14 +52,14 @@ namespace gr {
               io_signature::make(1, 1, sizeof(float)),
               io_signature::makev(1, 4, std::vector<int>(4, sizeof(float)))),
         d_prev_y(0.0f),
+        d_prev2_y(0.0f),
+        d_interp(new filter::mmse_fir_interpolator_ff()),
         d_interp_fraction(0.0f),
         d_prev_interp_fraction(0.0f),
-        d_interp(new filter::mmse_fir_interpolator_ff()),
-        d_new_tags(),
         d_tags(),
+        d_new_tags(),
         d_time_est_key(pmt::intern("time_est")),
         d_clock_est_key(pmt::intern("clock_est")),
-        d_prev2_y(0.0f),
         d_noutputs(1),
         d_out_error(NULL),
         d_out_instantaneous_clock_period(NULL),
@@ -68,17 +68,19 @@ namespace gr {
       if (sps <= 1.0f)
         throw std::out_of_range("nominal samples per symbol must be > 1");
 
+      // Symbol Clock Tracking and Estimation
       d_clock = new clock_tracking_loop(loop_bw,
                                         sps + max_deviation,
                                         sps - max_deviation,
                                         sps,
                                         damping_factor);
 
+      // Timing Error Detector
       d_prev_decision = slice(d_prev_y);
       d_prev2_decision = slice(d_prev2_y);
 
+      // Tag Propagation and Clock Tracking Reset/Resync
       set_relative_rate (1.0 / sps);
-
       set_tag_propagation_policy(TPP_DONT);
       d_filter_delay = (d_interp->ntaps() + 1) / 2;
     }
@@ -107,6 +109,9 @@ namespace gr {
                         + static_cast<int>(d_interp->ntaps());
     }
 
+    //
+    // Timing Error Detector
+    //
     float
     clock_recovery_mm_ff_impl::slice(float x)
     {
@@ -137,6 +142,9 @@ namespace gr {
         d_prev_decision = d_prev2_decision;
     }
 
+    //
+    // Symbol Clock and Interpolator Positioning and Alignment
+    //
     void
     clock_recovery_mm_ff_impl::sample_distance_phase_wrap(float d,
                                                           int &n, float &f)
@@ -171,6 +179,9 @@ namespace gr {
         d_interp_fraction = d_prev_interp_fraction;
     }
 
+    //
+    // Tag Propagation and Clock Tracking Reset/Resync
+    //
     void
     clock_recovery_mm_ff_impl::collect_tags(uint64_t nitems_rd, int count)
     {
@@ -330,6 +341,9 @@ namespace gr {
         }
     }
 
+    //
+    // Optional Diagnostic Outputs
+    //
     void
     clock_recovery_mm_ff_impl::setup_optional_outputs(
                                               gr_vector_void_star &output_items)
@@ -402,7 +416,7 @@ namespace gr {
       float sync_timing_offset;
       float sync_clock_period;
 
-      // Tag Propagation & PLL Reset/Resynchronization to "time_est" tags
+      // Tag Propagation and Clock Tracking Reset/Resync
       collect_tags(nitems_rd, ni);
 
       while (oo < noutput_items) {

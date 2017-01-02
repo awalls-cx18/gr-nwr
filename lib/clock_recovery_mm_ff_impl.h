@@ -44,6 +44,7 @@ namespace gr {
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items);
 
+      // Symbol Clock Tracking and Estimation
       float loop_bandwidth() const { return d_clock->get_loop_bandwidth(); }
       float damping_factor() const { return d_clock->get_damping_factor(); }
       float alpha() const { return d_clock->get_alpha(); }
@@ -59,43 +60,47 @@ namespace gr {
       void set_beta (float beta) { d_clock->set_beta(beta); }
 
     private:
-      clock_tracking_loop *d_clock;
-
+      // Timing Error Detector
       float d_prev_y;
       float d_prev_decision;
-      float d_interp_fraction;
-      filter::mmse_fir_interpolator_ff *d_interp;
+      float d_prev2_y;
+      float d_prev2_decision;
 
-      std::vector<tag_t> d_new_tags;
+      // Symbol Clock Tracking and Estimation
+      clock_tracking_loop *d_clock;
+
+      // Interpolator and Interpolator Positioning and Alignment
+      filter::mmse_fir_interpolator_ff *d_interp;
+      float d_interp_fraction; // a.k.a. interpolator sample phase
+      float d_prev_interp_fraction;
+
+      // Tag Propagation and Symbol Clock Tracking Reset/Resync
+      uint64_t d_filter_delay; // interpolator filter delay
       std::vector<tag_t> d_tags;
-      uint64_t d_filter_delay;
+      std::vector<tag_t> d_new_tags;
       pmt::pmt_t d_time_est_key;
       pmt::pmt_t d_clock_est_key;
 
-      // For reverting the process state back one interation
-      float d_prev2_y;
-      float d_prev2_decision;
-      float d_prev_interp_fraction;
-
-      // Optional outputs
+      // Optional Diagnostic Outputs
       int d_noutputs;
       float *d_out_error;
       float *d_out_instantaneous_clock_period;
       float *d_out_average_clock_period;
 
+      // Timing Error Detector
       float slice(float x);
       float timing_error_detector(float curr_y);
+      void revert_timing_error_detector_state();
+
+      // Symbol Clock and Interpolator Positioning and Alignment
       int distance_from_current_input();
-
       void sample_distance_phase_wrap(float d, int &n, float &f);
-
       float sample_distance_phase_unwrap(int n, float f) {
           return static_cast<float>(n) + f;
       }
-
       void revert_distance_state();
-      void revert_timing_error_detector_state();
 
+      // Tag Propagation and Clock Tracking Reset/Resync
       void collect_tags(uint64_t nitems_rd, int count);
       bool find_sync_tag(uint64_t nitems_rd, int iidx,
                          int clock_distance,
@@ -108,6 +113,7 @@ namespace gr {
                           uint64_t nitems_wr, int oidx);
       void save_expiring_tags(uint64_t nitems_rd, int consumed);
 
+      // Optional Diagnostic Outputs
       void setup_optional_outputs(gr_vector_void_star &output_items);
       void emit_optional_output(int oidx,
                                 float error,
