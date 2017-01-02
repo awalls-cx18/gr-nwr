@@ -91,24 +91,6 @@ namespace gr {
       delete d_clock;
     }
 
-    void
-    clock_recovery_mm_ff_impl::forecast(int noutput_items,
-                                        gr_vector_int &ninput_items_required)
-    {
-      unsigned ninputs = ninput_items_required.size();
-      // The '+ 2' in the expression below is an effort to always have at least
-      // one output sample, even if the main loop decides it has to revert
-      // one computed sample and wait for the next call to general_work().
-      // The d_clock->get_max_avg_period() is also an effort to do the same,
-      // in case we have the worst case allowable clock timing deviation on
-      // input.
-      for(unsigned i=0; i < ninputs; i++)
-        ninput_items_required[i] =
-                        static_cast<int>(ceilf((noutput_items + 2)
-                                               * d_clock->get_max_avg_period()))
-                        + static_cast<int>(d_interp->ntaps());
-    }
-
     //
     // Timing Error Detector
     //
@@ -140,6 +122,16 @@ namespace gr {
     {
         d_prev_y = d_prev2_y;
         d_prev_decision = d_prev2_decision;
+    }
+
+    void
+    clock_recovery_mm_ff_impl::sync_reset_timing_error_detector()
+    {
+        // force next the next timing error to be 0.0f
+        d_prev_y = 0.0f;
+        d_prev_decision = 0.0f;
+        d_prev2_y = 0.0f;
+        d_prev2_decision = 0.0f;
     }
 
     //
@@ -177,16 +169,6 @@ namespace gr {
     clock_recovery_mm_ff_impl::revert_distance_state()
     {
         d_interp_fraction = d_prev_interp_fraction;
-    }
-
-    void
-    clock_recovery_mm_ff_impl::sync_reset_timing_error_detector()
-    {
-        // force next the next timing error to be 0.0f
-        d_prev_y = 0.0f;
-        d_prev_decision = 0.0f;
-        d_prev2_y = 0.0f;
-        d_prev2_decision = 0.0f;
     }
 
     //
@@ -393,6 +375,24 @@ namespace gr {
         if (d_noutputs < 4)
             return;
         d_out_average_clock_period[oidx] = avg_clock_period;
+    }
+
+    void
+    clock_recovery_mm_ff_impl::forecast(int noutput_items,
+                                        gr_vector_int &ninput_items_required)
+    {
+      unsigned ninputs = ninput_items_required.size();
+      // The '+ 2' in the expression below is an effort to always have at least
+      // one output sample, even if the main loop decides it has to revert
+      // one computed sample and wait for the next call to general_work().
+      // The d_clock->get_max_avg_period() is also an effort to do the same,
+      // in case we have the worst case allowable clock timing deviation on
+      // input.
+      for(unsigned i=0; i < ninputs; i++)
+        ninput_items_required[i] =
+                        static_cast<int>(ceilf((noutput_items + 2)
+                                               * d_clock->get_max_avg_period()))
+                        + static_cast<int>(d_interp->ntaps());
     }
 
     int
