@@ -421,8 +421,7 @@ namespace gr {
       collect_tags(nitems_rd, ni);
 
       while (oo < noutput_items) {
-        // Application of Symbol Clock and Interpolator Positioning & Alignment
-        //
+        // Symbol Clock and Interpolator Positioning & Alignment
         // produce output sample
         out[oo] = d_interp->interpolate(&in[ii], d_interp_phase_wrapped);
 
@@ -431,13 +430,10 @@ namespace gr {
 
         // Symbol Clock Tracking and Estimation
         d_clock->advance_loop(error);
-        avg_clock_period = d_clock->get_avg_period();
         inst_clock_period = d_clock->get_inst_period();
+        avg_clock_period = d_clock->get_avg_period();
         d_clock->phase_wrap();
         d_clock->period_limit();
-
-        // Diagnostic Output of Symbol Clock Tracking cycle results
-        emit_optional_output(oo, error, inst_clock_period, avg_clock_period);
 
         // Symbol Clock and Interpolator Positioning & Alignment
         advance_interpolator_phase(inst_clock_period);
@@ -461,14 +457,11 @@ namespace gr {
         if (find_sync_tag(nitems_rd, ii, d_interp_phase_n, sync_tag_offset,
                           sync_timing_offset, sync_clock_period) == true) {
 
-            //
-            // Symbol Clock and Interpolator Positioning & Alignment
-            // Symbol Clock Tracking and Estimation
-            //
+            // Timing Error Detector
+            sync_reset_timing_error_detector();
+            error = 0.0f;
 
-            // Adjust this instantaneous clock period to land right where
-            // time_est/clock_est indicates.  Fix up PLL state as necessary.
-            revert_interpolator_phase();
+            // Symbol Clock Tracking and Estimation
 
             // NOTE: the + 1 below was determined empirically, but doesn't
             // seem right on paper (maybe rounding in the computation of
@@ -478,20 +471,18 @@ namespace gr {
                   static_cast<int>(sync_tag_offset - nitems_rd - d_filter_delay)
                   - ii + 1) + sync_timing_offset - d_interp_phase_wrapped;
 
-            advance_interpolator_phase(inst_clock_period);
-
             d_clock->set_inst_period(inst_clock_period);
-            // next instantaneous clock period estimate will match the nominal
-            // or comes from the clock_est tag
             d_clock->set_avg_period(sync_clock_period);
             avg_clock_period = d_clock->get_avg_period();
+            d_clock->set_phase(0.0f);
 
-            // Timing Error Detector
-            sync_reset_timing_error_detector();
-
-            // Revised Diagnostic Output of Symbol Clock Tracking cycle results
-            emit_optional_output(oo, 0.0f, inst_clock_period, avg_clock_period);
+            // Symbol Clock and Interpolator Positioning & Alignment
+            revert_interpolator_phase();
+            advance_interpolator_phase(inst_clock_period);
         }
+
+        // Diagnostic Output of Symbol Clock Tracking cycle results
+        emit_optional_output(oo, error, inst_clock_period, avg_clock_period);
 
         // Tag Propagation
         propagate_tags(nitems_rd, ii, d_interp_phase, inst_clock_period,
