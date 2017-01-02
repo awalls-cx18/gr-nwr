@@ -71,8 +71,12 @@ namespace gr {
 
       // Interpolator and Interpolator Positioning and Alignment
       filter::mmse_fir_interpolator_ff *d_interp;
-      float d_interp_fraction; // a.k.a. interpolator sample phase
-      float d_prev_interp_fraction;
+      float d_interp_phase; // instantaneous distance to clock from input sample
+      float d_interp_phase_wrapped;
+      int   d_interp_phase_n;
+      float d_prev_interp_phase;
+      float d_prev_interp_phase_wrapped;
+      int   d_prev_interp_phase_n;
 
       // Tag Propagation and Symbol Clock Tracking Reset/Resync
       uint64_t d_filter_delay; // interpolator filter delay
@@ -94,12 +98,8 @@ namespace gr {
       void sync_reset_timing_error_detector();
 
       // Symbol Clock and Interpolator Positioning and Alignment
-      int distance_from_current_input();
-      void sample_distance_phase_wrap(float d, int &n, float &f);
-      float sample_distance_phase_unwrap(int n, float f) {
-          return static_cast<float>(n) + f;
-      }
-      void revert_distance_state();
+      void advance_interpolator_phase(float increment);
+      void revert_interpolator_phase();
 
       // Tag Propagation and Clock Tracking Reset/Resync
       void collect_tags(uint64_t nitems_rd, int count);

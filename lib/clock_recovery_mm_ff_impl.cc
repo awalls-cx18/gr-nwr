@@ -54,8 +54,12 @@ namespace gr {
         d_prev_y(0.0f),
         d_prev2_y(0.0f),
         d_interp(new filter::mmse_fir_interpolator_ff()),
-        d_interp_fraction(0.0f),
-        d_prev_interp_fraction(0.0f),
+        d_interp_phase(sps),
+        d_interp_phase_wrapped(sps - floorf(sps)),
+        d_interp_phase_n(static_cast<int>(floorf(sps))),
+        d_prev_interp_phase(sps),
+        d_prev_interp_phase_wrapped(sps - floorf(sps)),
+        d_prev_interp_phase_n(static_cast<int>(floorf(sps))),
         d_tags(),
         d_new_tags(),
         d_time_est_key(pmt::intern("time_est")),
@@ -138,37 +142,26 @@ namespace gr {
     // Symbol Clock and Interpolator Positioning and Alignment
     //
     void
-    clock_recovery_mm_ff_impl::sample_distance_phase_wrap(float d,
-                                                          int &n, float &f)
+    clock_recovery_mm_ff_impl::advance_interpolator_phase(float increment)
     {
-        float whole_samples = roundf(d);
-        f = d - whole_samples;
-        n = static_cast<int>(whole_samples);
-    }
+        float n;
 
-    int
-    clock_recovery_mm_ff_impl::distance_from_current_input()
-    {
-        float d;
-        int whole_samples_until_clock;
+        d_prev_interp_phase = d_interp_phase;
+        d_prev_interp_phase_wrapped = d_interp_phase_wrapped;
+        d_prev_interp_phase_n = d_interp_phase_n;
 
-        d_prev_interp_fraction = d_interp_fraction;
-
-        d = d_interp_fraction + d_clock->get_inst_period();
-
-        sample_distance_phase_wrap(d, whole_samples_until_clock,
-                                   d_interp_fraction);
-        if (d_interp_fraction < 0.0f) {
-            d_interp_fraction += 1.0f;
-            whole_samples_until_clock--;
-        }
-        return whole_samples_until_clock;
+        d_interp_phase = d_interp_phase_wrapped + increment;
+        n = floorf(d_interp_phase);
+        d_interp_phase_wrapped = d_interp_phase - n;
+        d_interp_phase_n = static_cast<int>(n);
     }
 
     void
-    clock_recovery_mm_ff_impl::revert_distance_state()
+    clock_recovery_mm_ff_impl::revert_interpolator_phase()
     {
-        d_interp_fraction = d_prev_interp_fraction;
+        d_interp_phase = d_prev_interp_phase;
+        d_interp_phase_wrapped = d_prev_interp_phase_wrapped;
+        d_interp_phase_n = d_prev_interp_phase_n;
     }
 
     //
@@ -416,9 +409,7 @@ namespace gr {
       int oo = 0; // output index
       float error;
       float inst_clock_period; // between interpolated samples
-      float inst_clock_distance; // from an input sample's position
       float avg_clock_period;
-      int n;
 
       uint64_t nitems_rd = nitems_read(0);
       uint64_t nitems_wr = nitems_written(0);
@@ -433,7 +424,7 @@ namespace gr {
         // Application of Symbol Clock and Interpolator Positioning & Alignment
         //
         // produce output sample
-        out[oo] = d_interp->interpolate(&in[ii], d_interp_fraction);
+        out[oo] = d_interp->interpolate(&in[ii], d_interp_phase_wrapped);
 
         // Timing Error Detector
         error = timing_error_detector(out[oo]);
@@ -449,17 +440,16 @@ namespace gr {
         emit_optional_output(oo, error, inst_clock_period, avg_clock_period);
 
         // Symbol Clock and Interpolator Positioning & Alignment
-        n = distance_from_current_input();
-        inst_clock_distance = sample_distance_phase_unwrap(n,
-                                                           d_interp_fraction);
-        if (ii + n >= ni) {
+        advance_interpolator_phase(inst_clock_period);
+
+        if (ii + d_interp_phase_n >= ni) {
             // This check and revert is needed when the samples per
             // symbol is greater than d_interp->ntaps() (normally 8);
             // otherwise we would consume() more input than we were
             // given.
 
             // Symbol Clock and Interpolator Positioning & Alignment
-            revert_distance_state();
+            revert_interpolator_phase();
             // Symbol Clock Tracking and Estimation
             d_clock->revert_loop();
             // Timing Error Detector
@@ -468,7 +458,7 @@ namespace gr {
         }
 
         // Symbol Clock Tracking Reset/Resync to time_est and clock_est tags
-        if (find_sync_tag(nitems_rd, ii, n, sync_tag_offset,
+        if (find_sync_tag(nitems_rd, ii, d_interp_phase_n, sync_tag_offset,
                           sync_timing_offset, sync_clock_period) == true) {
 
             //
@@ -478,21 +468,19 @@ namespace gr {
 
             // Adjust this instantaneous clock period to land right where
             // time_est/clock_est indicates.  Fix up PLL state as necessary.
-            revert_distance_state();
+            revert_interpolator_phase();
 
             // NOTE: the + 1 below was determined empirically, but doesn't
             // seem right on paper (maybe rounding in the computation of
             // d_filter_delay is the culprit).  Anyway, experiment trumps
             // theory *every* time; so + 1 it is.
-            inst_clock_distance = static_cast<float>(
+            inst_clock_period = static_cast<float>(
                   static_cast<int>(sync_tag_offset - nitems_rd - d_filter_delay)
-                  - ii + 1)
-                  + sync_timing_offset;
-            inst_clock_period = inst_clock_distance - d_interp_fraction;
+                  - ii + 1) + sync_timing_offset - d_interp_phase_wrapped;
+
+            advance_interpolator_phase(inst_clock_period);
 
             d_clock->set_inst_period(inst_clock_period);
-            n = distance_from_current_input();
-
             // next instantaneous clock period estimate will match the nominal
             // or comes from the clock_est tag
             d_clock->set_avg_period(sync_clock_period);
@@ -506,11 +494,11 @@ namespace gr {
         }
 
         // Tag Propagation
-        propagate_tags(nitems_rd, ii, inst_clock_distance, inst_clock_period,
+        propagate_tags(nitems_rd, ii, d_interp_phase, inst_clock_period,
                        nitems_wr, oo);
 
         // Symbol Clock and Interpolator Positioning & Alignment
-        ii += n;
+        ii += d_interp_phase_n;
         oo++;
       }
 
