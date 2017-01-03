@@ -23,6 +23,7 @@
 #include "nwr/multiply_by_tag_value_ff.h"
 #include "nwr/add_tag_value_ff.h"
 #include "nwr/clock_recovery_mm_ff.h"
+#include "nwr/clock_recovery_mm_cc.h"
 #include "nwr/same_burst_decoder.h"
 %}
 
@@ -39,5 +40,7 @@ GR_SWIG_BLOCK_MAGIC2(nwr, multiply_by_tag_value_ff);
 GR_SWIG_BLOCK_MAGIC2(nwr, add_tag_value_ff);
 %include "nwr/clock_recovery_mm_ff.h"
 GR_SWIG_BLOCK_MAGIC2(nwr, clock_recovery_mm_ff);
+%include "nwr/clock_recovery_mm_cc.h"
+GR_SWIG_BLOCK_MAGIC2(nwr, clock_recovery_mm_cc);
 %include "nwr/same_burst_decoder.h"
 GR_SWIG_BLOCK_MAGIC2(nwr, same_burst_decoder);

@@ -2020,7 +2020,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
-    <key>nwr_clock_recovery_mm_ff</key>
+    <key>nwr_clock_recovery_mm_xx</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -2055,7 +2055,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>id</key>
-      <value>nwr_clock_recovery_mm_ff_0</value>
+      <value>nwr_clock_recovery_mm_xx_0</value>
     </param>
     <param>
       <key>loop_bw</key>
@@ -3409,7 +3409,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>blocks_tag_gate_1_0</source_block_id>
-    <sink_block_id>nwr_clock_recovery_mm_ff_0</sink_block_id>
+    <sink_block_id>nwr_clock_recovery_mm_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3468,25 +3468,25 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>nwr_clock_recovery_mm_ff_0</source_block_id>
+    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
     <source_key>3</source_key>
     <sink_key>3</sink_key>
   </connection>
   <connection>
-    <source_block_id>nwr_clock_recovery_mm_ff_0</source_block_id>
+    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
     <source_key>2</source_key>
     <sink_key>2</sink_key>
   </connection>
   <connection>
-    <source_block_id>nwr_clock_recovery_mm_ff_0</source_block_id>
+    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
     <source_key>1</source_key>
     <sink_key>1</sink_key>
   </connection>
   <connection>
-    <source_block_id>nwr_clock_recovery_mm_ff_0</source_block_id>
+    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>

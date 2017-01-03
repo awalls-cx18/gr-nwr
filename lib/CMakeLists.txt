@@ -24,6 +24,7 @@ list(APPEND nwr_sources
     multiply_by_tag_value_ff_impl.cc
     add_tag_value_ff_impl.cc
     clock_recovery_mm_ff_impl.cc
+    clock_recovery_mm_cc_impl.cc
     same_burst_decoder_impl.cc
 )
 

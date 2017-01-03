@@ -20,5 +20,6 @@ install(FILES
     multiply_by_tag_value_ff.h
     add_tag_value_ff.h
     clock_recovery_mm_ff.h
+    clock_recovery_mm_cc.h
     same_burst_decoder.h DESTINATION include/nwr
 )

@@ -37,5 +37,5 @@ GR_ADD_TEST(qa_burst_detect_and_tag ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_
 GR_ADD_TEST(qa_correction_estimator_ff ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_correction_estimator_ff.py)
 GR_ADD_TEST(qa_multiply_by_tag_value_ff ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_multiply_by_tag_value_ff.py)
 GR_ADD_TEST(qa_add_tag_value_ff ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_add_tag_value_ff.py)
-GR_ADD_TEST(qa_clock_recovery_mm_ff ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_clock_recovery_mm_ff.py)
+GR_ADD_TEST(qa_clock_recovery_mm ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_clock_recovery_mm.py)
 GR_ADD_TEST(qa_same_burst_decoder ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_same_burst_decoder.py)
