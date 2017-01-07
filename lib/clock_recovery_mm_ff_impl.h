@@ -68,21 +68,46 @@ namespace gr {
       float d_prev_decision;
       float d_prev2_y;
       float d_prev2_decision;
+      int   d_ted_inputs_per_symbol_n;
 
       // Symbol Clock Tracking and Estimation
       clock_tracking_loop *d_clock;
 
       // Interpolator and Interpolator Positioning and Alignment
       filter::mmse_fir_interpolator_ff *d_interp;
-      float d_interp_phase; // instantaneous distance to clock from input sample
+      float d_interp_phase;
       float d_interp_phase_wrapped;
       int   d_interp_phase_n;
       float d_prev_interp_phase;
       float d_prev_interp_phase_wrapped;
       int   d_prev_interp_phase_n;
+
+      // Block Internal Clocks
+      // 4 clocks that run synchronously, aligned to the Symbol Clock:
+      //     Interpolator Clock (always highest rate)
+      //     Timing Error Detector Input Clock
+      //     Output Sample Clock
+      //     Symbol Clock (always lowest rate)
+      int   d_interp_clock;
+      float d_inst_interp_period;
+
+      float d_interps_per_ted_input;
+      int   d_interps_per_ted_input_n;
+      bool  d_ted_input_clock;
+
+      int   d_interps_per_output_sample_n;
+      bool  d_output_sample_clock;
+      float d_inst_output_period;
+
+      float d_interps_per_symbol;
+      int   d_interps_per_symbol_n;
+      bool  d_symbol_clock;
+      float d_inst_clock_period;
+      float d_avg_clock_period;
+
+      // Block output
       float d_osps;
       int   d_osps_n;
-      int   d_output_phase;
 
       // Tag Propagation and Symbol Clock Tracking Reset/Resync
       uint64_t d_filter_delay; // interpolator filter delay
@@ -104,30 +129,32 @@ namespace gr {
       void sync_reset_timing_error_detector();
 
       // Symbol Clock and Interpolator Positioning and Alignment
+      void next_interpolator_phase(float increment,
+                                   float &phase,
+                                   int   &phase_n,
+                                   float &phase_wrapped);
       void advance_interpolator_phase(float increment);
       void revert_interpolator_phase();
-      void advance_output_phase() {
-          d_output_phase = (d_output_phase + 1) % d_osps_n;
-      }
-      void revert_output_phase() {
-          if (d_output_phase == 0)
-              d_output_phase = d_osps_n - 1;
-          else
-              d_output_phase--;
-      }
-      bool symbol_center_output_phase() { return d_output_phase == 0; }
-      void sync_reset_output_phase() { d_output_phase = d_osps_n - 1; }
+
+      // Block Internal Clocks
+      void update_internal_clock_outputs();
+      void advance_internal_clocks();
+      void revert_internal_clocks();
+      void sync_reset_internal_clocks();
+      bool ted_input_clock() { return d_ted_input_clock; }
+      bool output_sample_clock() { return d_output_sample_clock; }
+      bool symbol_clock() { return d_symbol_clock; }
 
       // Tag Propagation and Clock Tracking Reset/Resync
       void collect_tags(uint64_t nitems_rd, int count);
       bool find_sync_tag(uint64_t nitems_rd, int iidx,
-                         int clock_distance,
+                         int distance,
                          uint64_t &tag_offset,
                          float &timing_offset,
                          float &clock_period);
       void propagate_tags(uint64_t nitems_rd, int iidx,
-                          float inst_clock_distance,
-                          float inst_clock_period,
+                          float iidx_fraction,
+                          float inst_output_period,
                           uint64_t nitems_wr, int oidx);
       void save_expiring_tags(uint64_t nitems_rd, int consumed);
 
