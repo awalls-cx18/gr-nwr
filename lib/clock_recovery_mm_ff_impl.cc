@@ -381,7 +381,7 @@ namespace gr {
         uint64_t mid_period_offset = nitems_rd + d_filter_delay
                    + static_cast<uint64_t>(iidx)
                    + static_cast<uint64_t>(llroundf(iidx_fraction
-                                                    - inst_output_period/2.0f));
+                                                    + inst_output_period/2.0f));
 
         uint64_t output_offset = nitems_wr + static_cast<uint64_t>(oidx);
 
