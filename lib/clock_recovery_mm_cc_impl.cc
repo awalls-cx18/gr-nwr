@@ -24,6 +24,7 @@
 #endif
 
 #include "clock_recovery_mm_cc_impl.h"
+#include <boost/math/common_factor.hpp>
 #include <gnuradio/io_signature.h>
 #include <gnuradio/math.h>
 #include <stdexcept>
@@ -62,6 +63,7 @@ namespace gr {
         d_p_2T(0.0f, 0.0f),
         d_p_1T(0.0f, 0.0f),
         d_p_0T(0.0f, 0.0f),
+        d_ted_inputs_per_symbol_n(1),
         d_interp(new filter::mmse_fir_interpolator_cc()),
         d_interp_phase(sps),
         d_interp_phase_wrapped(sps - floorf(sps)),
@@ -69,9 +71,11 @@ namespace gr {
         d_prev_interp_phase(sps),
         d_prev_interp_phase_wrapped(sps - floorf(sps)),
         d_prev_interp_phase_n(static_cast<int>(floorf(sps))),
+        d_inst_output_period(sps / static_cast<float>(osps)),
+        d_inst_clock_period(sps),
+        d_avg_clock_period(sps),
         d_osps(static_cast<float>(osps)),
         d_osps_n(osps),
-        d_output_phase(osps - 1),
         d_tags(),
         d_new_tags(),
         d_time_est_key(pmt::intern("time_est")),
@@ -84,8 +88,31 @@ namespace gr {
       if (sps <= 1.0f)
         throw std::out_of_range("nominal samples per symbol must be > 1");
 
-      if (osps < 1 or osps > 2)
-        throw std::out_of_range("output samples per symbol must be 1 or 2");
+      if (osps < 1)
+        throw std::out_of_range("output samples per symbol must be > 0");
+
+      // Block Internal Clocks
+      d_interps_per_symbol_n = boost::math::lcm(d_ted_inputs_per_symbol_n,
+                                                d_osps_n);
+      d_interps_per_ted_input_n =
+                             d_interps_per_symbol_n / d_ted_inputs_per_symbol_n;
+      d_interps_per_output_sample_n =
+                             d_interps_per_symbol_n / d_osps_n;
+
+      d_interps_per_symbol = static_cast<float>(d_interps_per_symbol_n);
+      d_interps_per_ted_input = static_cast<float>(d_interps_per_ted_input_n);
+
+      d_interp_clock = d_interps_per_symbol_n - 1;
+      sync_reset_internal_clocks();
+      d_inst_interp_period = d_inst_clock_period / d_interps_per_symbol;
+
+      if (d_interps_per_symbol > sps)
+          GR_LOG_WARN(d_logger,
+                      boost::format("block performing more interopolations per "
+                                    "symbol (%3f) than input samples per symbol"
+                                    "(%3f). Consider reducing osps or "
+                                    "increasing sps") % d_interps_per_symbol
+                                                      % sps);
 
       // Symbol Clock Tracking and Estimation
       d_clock = new clock_tracking_loop(loop_bw,
@@ -178,23 +205,39 @@ namespace gr {
     void
     clock_recovery_mm_cc_impl::sync_reset_timing_error_detector()
     {
+        const gr_complex zero(0.0f, 0.0f);
+
         d_error = 0.0f;
         d_prev_error = 0.0f;
 
-        d_p_3T = gr_complex(0.0f, 0.0f);
-        d_p_2T = gr_complex(0.0f, 0.0f);
-        d_p_1T = gr_complex(0.0f, 0.0f);
-        d_p_0T = gr_complex(0.0f, 0.0f);
+        d_p_3T = zero;
+        d_p_2T = zero;
+        d_p_1T = zero;
+        d_p_0T = zero;
 
-        d_c_3T = gr_complex(0.0f, 0.0f);
-        d_c_2T = gr_complex(0.0f, 0.0f);
-        d_c_1T = gr_complex(0.0f, 0.0f);
-        d_c_0T = gr_complex(0.0f, 0.0f);
+        d_c_3T = zero;
+        d_c_2T = zero;
+        d_c_1T = zero;
+        d_c_0T = zero;
     }
 
     //
     // Symbol Clock and Interpolator Positioning and Alignment
     //
+    void
+    clock_recovery_mm_cc_impl::next_interpolator_phase(float increment,
+                                                       float &phase,
+                                                       int   &phase_n,
+                                                       float &phase_wrapped)
+    {
+        float n;
+
+        phase = d_interp_phase_wrapped + increment;
+        n = floorf(phase);
+        phase_wrapped = phase - n;
+        phase_n = static_cast<int>(n);
+    }
+
     void
     clock_recovery_mm_cc_impl::advance_interpolator_phase(float increment)
     {
@@ -204,10 +247,10 @@ namespace gr {
         d_prev_interp_phase_wrapped = d_interp_phase_wrapped;
         d_prev_interp_phase_n = d_interp_phase_n;
 
-        d_interp_phase = d_interp_phase_wrapped + increment;
-        n = floorf(d_interp_phase);
-        d_interp_phase_wrapped = d_interp_phase - n;
-        d_interp_phase_n = static_cast<int>(n);
+        next_interpolator_phase(increment,
+                                d_interp_phase,
+                                d_interp_phase_n,
+                                d_interp_phase_wrapped);
     }
 
     void
@@ -216,6 +259,43 @@ namespace gr {
         d_interp_phase = d_prev_interp_phase;
         d_interp_phase_wrapped = d_prev_interp_phase_wrapped;
         d_interp_phase_n = d_prev_interp_phase_n;
+    }
+
+    //
+    // Block Internal Clocks
+    //
+    void
+    clock_recovery_mm_cc_impl::update_internal_clock_outputs()
+    {
+          // a d_interp_clock boolean output would always be true.
+          d_ted_input_clock = (d_interp_clock % d_interps_per_ted_input_n == 0);
+          d_output_sample_clock =
+                          (d_interp_clock % d_interps_per_output_sample_n == 0);
+          d_symbol_clock = (d_interp_clock % d_interps_per_symbol_n == 0);
+    }
+
+    void
+    clock_recovery_mm_cc_impl::advance_internal_clocks()
+    {
+          d_interp_clock = (d_interp_clock + 1) % d_interps_per_symbol_n;
+          update_internal_clock_outputs();
+    }
+
+    void
+    clock_recovery_mm_cc_impl::revert_internal_clocks()
+    {
+          if (d_interp_clock == 0)
+              d_interp_clock = d_interps_per_symbol_n - 1;
+          else
+              d_interp_clock--;
+          update_internal_clock_outputs();
+    }
+
+    void
+    clock_recovery_mm_cc_impl::sync_reset_internal_clocks()
+    {
+          d_interp_clock = d_interps_per_symbol_n - 1;
+          update_internal_clock_outputs();
     }
 
     //
@@ -236,7 +316,7 @@ namespace gr {
 
     bool
     clock_recovery_mm_cc_impl::find_sync_tag(uint64_t nitems_rd, int iidx,
-                                             int clock_distance,
+                                             int distance,
                                              uint64_t &tag_offset,
                                              float &timing_offset,
                                              float &clock_period)
@@ -246,12 +326,12 @@ namespace gr {
         std::vector<tag_t>::iterator t;
         std::vector<tag_t>::iterator t2;
 
-        // PLL Reset/Resynchronization to time_est & clock_est tags (1st part)
+        // PLL Reset/Resynchronization to time_est & clock_est tags
         //
         // Look for a time_est tag between the current interpolated input sample
         // and the next predicted interpolated input sample. (both rounded up)
         soffset = nitems_rd + d_filter_delay + static_cast<uint64_t>(iidx + 1);
-        eoffset = soffset + clock_distance;
+        eoffset = soffset + distance;
         found = false;
         for (t = d_new_tags.begin();
              t != d_new_tags.end();
@@ -309,13 +389,13 @@ namespace gr {
             }
 
             if (t->offset == soffset and timing_offset < 0.0f) {
-                // already handled clock times earlier than this previously
+                // already handled times earlier than this previously
                 found = false;
                 continue;
             }
 
             if (t->offset == eoffset and timing_offset >= 0.0f) {
-                // handle clock times greater than this later
+                // handle times greater than this later
                 found = false;
                 break;
             }
@@ -328,8 +408,8 @@ namespace gr {
 
     void
     clock_recovery_mm_cc_impl::propagate_tags(uint64_t nitems_rd, int iidx,
-                                              float inst_clock_distance,
-                                              float inst_clock_period,
+                                              float iidx_fraction,
+                                              float inst_output_period,
                                               uint64_t nitems_wr, int oidx)
     {
         // Tag Propagation
@@ -337,12 +417,12 @@ namespace gr {
         // Onto this output sample, place all the remaining tags that
         // came before the interpolated input sample, and all the tags
         // on and after the interpolated input sample, up to half way to
-        // the next interpolated input sample.
+        // the next output sample.
 
         uint64_t mid_period_offset = nitems_rd + d_filter_delay
-                    + static_cast<uint64_t>(iidx)
-                    + static_cast<uint64_t>(llroundf(inst_clock_distance
-                                                     - inst_clock_period/2.0f));
+                   + static_cast<uint64_t>(iidx)
+                   + static_cast<uint64_t>(llroundf(iidx_fraction
+                                                    + inst_output_period/2.0f));
 
         uint64_t output_offset = nitems_wr + static_cast<uint64_t>(oidx);
 
@@ -465,9 +545,11 @@ namespace gr {
 
       int ii = 0; // input index
       int oo = 0; // output index
+      gr_complex interp_output;
       float error;
-      float inst_clock_period; // between interpolated samples
-      float avg_clock_period;
+      float look_ahead_phase = 0.0f;
+      int look_ahead_phase_n = 0;
+      float look_ahead_phase_wrapped = 0.0f;
 
       uint64_t nitems_rd = nitems_read(0);
       uint64_t nitems_wr = nitems_written(0);
@@ -479,58 +561,78 @@ namespace gr {
       collect_tags(nitems_rd, ni);
 
       while (oo < noutput_items) {
+        // Block Internal Clocks
+        advance_internal_clocks();
+
         // Symbol Clock and Interpolator Positioning & Alignment
-        // produce output sample
-        out[oo] = d_interp->interpolate(&in[ii], d_interp_phase_wrapped);
-        advance_output_phase();
+        interp_output = d_interp->interpolate(&in[ii], d_interp_phase_wrapped);
+        if (output_sample_clock())
+            out[oo] = interp_output;
 
-        if (symbol_center_output_phase()) {
-            // Timing Error Detector
-            error = timing_error_detector(out[oo]);
-
-            // Symbol Clock Tracking and Estimation
-            d_clock->advance_loop(error);
-            inst_clock_period = d_clock->get_inst_period();
-            avg_clock_period = d_clock->get_avg_period();
-            d_clock->phase_wrap();
-            d_clock->period_limit();
-        } else {
-            // Timing Error Detector
+        // Timing Error Detector
+        if (ted_input_clock())
+            error = timing_error_detector(interp_output);
+        else
             error = d_error;
 
+        if (symbol_clock()) {
             // Symbol Clock Tracking and Estimation
-            inst_clock_period = d_clock->get_inst_period();
-            avg_clock_period = d_clock->get_avg_period();
+            d_clock->advance_loop(error);
+            d_inst_clock_period = d_clock->get_inst_period();
+            d_avg_clock_period = d_clock->get_avg_period();
+            d_clock->phase_wrap();
+            d_clock->period_limit();
+
+            // Symbol Clock and Interpolator Positioning & Alignment
+            d_inst_interp_period = d_inst_clock_period / d_interps_per_symbol;
+
+            // Tag Propagation
+            d_inst_output_period = d_inst_clock_period / d_osps;
+        }
+
+        // Symbol Clock, Interpolator Positioning & Alignment, and 
+        // Tag Propagation
+        if (symbol_clock()) {
+            // This check and revert is needed either when
+            // a) the samples per symbol to get to the next symbol is greater
+            // than d_interp->ntaps() (normally 8); thus we would consume()
+            // more input than we were given to get there.
+            // b) we can't get to the next output so we can't do tag
+            // propagation properly.
+            next_interpolator_phase(d_inst_clock_period,
+                                    look_ahead_phase,
+                                    look_ahead_phase_n,
+                                    look_ahead_phase_wrapped);
+
+            if (ii + look_ahead_phase_n >= ni) {
+
+                // Symbol Clock Tracking and Estimation
+                // if (symbol_clock()), which is always true here.
+                d_clock->revert_loop();
+
+                // Timing Error Detector
+                if (ted_input_clock())
+                    revert_timing_error_detector_state();
+
+                // Symbol Clock and Interpolator Positioning & Alignment
+                // if (output_sample_clock())
+                //     Nothing to do;
+
+                // Block Internal Clocks
+                revert_internal_clocks();
+                break;
+            }
         }
 
         // Symbol Clock and Interpolator Positioning & Alignment
-        advance_interpolator_phase(inst_clock_period / d_osps);
-
-        if (ii + d_interp_phase_n >= ni) {
-            // This check and revert is needed when the samples per
-            // symbol is greater than d_interp->ntaps() (normally 8);
-            // otherwise we would consume() more input than we were
-            // given.
-
-            // Symbol Clock and Interpolator Positioning & Alignment
-            revert_interpolator_phase();
-            if (symbol_center_output_phase()) {
-                // Symbol Clock Tracking and Estimation
-                d_clock->revert_loop();
-                // Timing Error Detector
-                revert_timing_error_detector_state();
-            }
-            // Symbol Clock and Interpolator Positioning & Alignment
-            revert_output_phase();
-            break;
-        }
+        advance_interpolator_phase(d_inst_interp_period);
 
         // Symbol Clock Tracking Reset/Resync to time_est and clock_est tags
         if (find_sync_tag(nitems_rd, ii, d_interp_phase_n, sync_tag_offset,
                           sync_timing_offset, sync_clock_period) == true   ) {
 
-            // Symbol Clock and Interpolator Positioning & Alignment
-            sync_reset_output_phase();
+            // Block Internal Clocks
+            sync_reset_internal_clocks();
 
             // Timing Error Detector
             sync_reset_timing_error_detector();
@@ -542,30 +644,43 @@ namespace gr {
             // seem right on paper (maybe rounding in the computation of
             // d_filter_delay is the culprit).  Anyway, experiment trumps
             // theory *every* time; so + 1 it is.
-            inst_clock_period = static_cast<float>(
+            d_inst_clock_period = static_cast<float>(
                   static_cast<int>(sync_tag_offset - nitems_rd - d_filter_delay)
                   - ii + 1) + sync_timing_offset - d_interp_phase_wrapped;
 
-            d_clock->set_inst_period(inst_clock_period);
+            d_clock->set_inst_period(d_inst_clock_period);
             d_clock->set_avg_period(sync_clock_period);
-            avg_clock_period = d_clock->get_avg_period();
+            d_avg_clock_period = d_clock->get_avg_period();
             d_clock->set_phase(0.0f);
 
             // Symbol Clock and Interpolator Positioning & Alignment
+            d_inst_interp_period = d_inst_clock_period;
             revert_interpolator_phase();
-            advance_interpolator_phase(inst_clock_period);
+            advance_interpolator_phase(d_inst_interp_period);
+
+            // Tag Propagation
+            // Only needed if we reverted back to an output_sample_clock()
+            // as this is only used for tag propagation.  Note that the
+            // next output will also be both an output_sample_clock() and a
+            // symbol_clock().
+            d_inst_output_period = d_inst_clock_period;
         }
 
-        // Diagnostic Output of Symbol Clock Tracking cycle results
-        emit_optional_output(oo, error, inst_clock_period, avg_clock_period);
+        if (output_sample_clock()) {
+            // Diagnostic Output of Symbol Clock Tracking cycle results
+            emit_optional_output(oo, error, d_inst_clock_period,
+                                                            d_avg_clock_period);
+            // Tag Propagation
+            propagate_tags(nitems_rd, ii,
+                           d_prev_interp_phase_wrapped, d_inst_output_period,
+                           nitems_wr, oo);
 
-        // Tag Propagation
-        propagate_tags(nitems_rd, ii, d_interp_phase, inst_clock_period,
-                       nitems_wr, oo);
+            // Symbol Clock and Interpolator Positioning & Alignment
+            oo++;
+        }
 
         // Symbol Clock and Interpolator Positioning & Alignment
         ii += d_interp_phase_n;
-        oo++;
       }
 
       // Deferred Tag Propagation
