@@ -61,10 +61,6 @@ namespace gr {
       void set_beta (float beta) { d_clock->set_beta(beta); }
 
     private:
-      const int d_output_io_sizes[4] = {
-          sizeof(gr_complex), sizeof(float), sizeof(float), sizeof(float)
-      };
-
       // Timing Error Detector
       float d_error;
       float d_prev_error;

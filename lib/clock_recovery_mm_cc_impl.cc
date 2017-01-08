@@ -53,10 +53,8 @@ namespace gr {
                                                          float max_deviation,
                                                          int osps)
       : block("clock_recovery_mm_cc",
-              io_signature::make(1, 1, sizeof(float)),
-              io_signature::makev(1, 4,
-                                      std::vector<int>(&d_output_io_sizes[0],
-                                                       &d_output_io_sizes[4]))),
+              io_signature::make(1, 1, sizeof(gr_complex)),
+              io_signature::makev(1, 4, std::vector<int>(4, sizeof(float)))),
         d_error(0.0f),
         d_prev_error(0.0f),
         d_p_3T(0.0f, 0.0f),
@@ -85,6 +83,17 @@ namespace gr {
         d_out_instantaneous_clock_period(NULL),
         d_out_average_clock_period(NULL)
     {
+      // Brute force fix of the output io_signature, because I can't get
+      // an anonymous std::vector<int>() rvalue, with a const expression
+      // initializing the vector, to work.  Lvalues seem to make everything
+      // better.
+      int output_io_sizes[4] = {
+          sizeof(gr_complex), sizeof(float), sizeof(float), sizeof(float)
+      };
+      std::vector<int> output_io_sizes_vector(&output_io_sizes[0],
+                                              &output_io_sizes[4]);
+      set_output_signature(io_signature::makev(1, 4, output_io_sizes_vector));
+
       if (sps <= 1.0f)
         throw std::out_of_range("nominal samples per symbol must be > 1");
 

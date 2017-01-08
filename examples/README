@@ -25,5 +25,9 @@ Example flowgraphs and data files for NWR:
    http://www.nws.noaa.gov/nwr/coverage/site2.php?State=VA&Site=WXM57
 
 5. clock_recovery_test.grc
-   A test flowgraph for exercising changes to the clock recovery block's
-   algorithms.  You can safely ignore this flowgraph.
+   A test flowgraph for exercising changes to the float I/O clock recovery
+   block's algorithms.  You can safely ignore this flowgraph.
+
+6. clock_recovery_test_complex.grc
+   A test flowgraph for exercising changes to the complex I/O clock recovery
+   block's algorithms.  You can safely ignore this flowgraph.
