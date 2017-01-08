@@ -1,7 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2004,2011,2012 Free Software Foundation, Inc.
- * Copyright (C) 2016  Andy Walls <awalls.cx18@gmail.com>
+ * Copyright (C) 2016-2017  Andy Walls <awalls.cx18@gmail.com>
  *
  * GNU Radio is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,21 @@ namespace gr {
      * \details
      * This implements the modified Mueller and Müller (M&M) discrete-time
      * error-tracking synchronizer.
+     *
+     * For this block to work properly, the input stream must meet the
+     * following requirements:
+     *
+     * 1. the input pulses must have peaks (not flat), which usually can
+     * be implemented by using a matched filter before this block.
+     *
+     * 2. the input pulse peaks should nominally have a magnitude of 1.0.
+     *
+     * 3. the input should be properly rotated in I & Q so that the
+     * pulse peaks line up with the 45 degree QPSK constellation points:
+     * 1.0/sqrt(2.0) * [ 1+1j, -1+1j, -1-1j, 1-1j ].
+     *
+     * 4. the input baseband can be either QPSK or BPSK rotated to
+     * line up with the 45 degree QPSK constellation points.
      *
      * The complex version here is based on: Modified Mueller and
      * Muller clock recovery circuit:

@@ -1,7 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2004,2011,2012 Free Software Foundation, Inc.
- * Copyright (C) 2016  Andy Walls <awalls.cx18@gmail.com>
+ * Copyright (C) 2016-2017  Andy Walls <awalls.cx18@gmail.com>
  *
  * GNU Radio is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,15 @@ namespace gr {
      * \details
      * This implements the Mueller and Müller (M&M) discrete-time
      * error-tracking synchronizer.
+     *
+     * For this block to work properly, the input stream must meet the
+     * following requirements:
+     *
+     * 1. the input pulses must have peaks and troughs (not flat), which
+     * usually can be implemented by using a matched filter before this block.
+     *
+     * 2. the input pulse peaks and troughs should nominally be at +/-1.0
+     * and centered about 0.0.
      *
      * See "Digital Communication Receivers: Synchronization, Channel
      * Estimation and Signal Processing" by Heinrich Meyr, Marc
