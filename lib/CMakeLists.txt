@@ -26,6 +26,8 @@ list(APPEND nwr_sources
     clock_recovery_mm_ff_impl.cc
     clock_recovery_mm_cc_impl.cc
     same_burst_decoder_impl.cc
+    symbol_sync_ff_impl.cc
+    symbol_sync_cc_impl.cc
 )
 
 set(nwr_sources "${nwr_sources}" PARENT_SCOPE)

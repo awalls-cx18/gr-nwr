@@ -15,5 +15,6 @@ install(FILES
     nwr_multiply_by_tag_value_ff.xml
     nwr_add_tag_value_ff.xml
     nwr_clock_recovery_mm_xx.xml
-    nwr_same_burst_decoder.xml DESTINATION share/gnuradio/grc/blocks
+    nwr_same_burst_decoder.xml
+    nwr_symbol_sync_xx.xml DESTINATION share/gnuradio/grc/blocks
 )
