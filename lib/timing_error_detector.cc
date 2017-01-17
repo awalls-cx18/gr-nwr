@@ -8,6 +8,7 @@
 #endif
 
 #include <nwr/timing_error_detector.h>
+#include <gnuradio/math.h>
 #include <stdexcept>
 
 namespace gr {
@@ -25,6 +26,7 @@ namespace gr {
             ret = new ted_mueller_and_muller(constellation);
             break;
         case TED_MOD_MUELLER_AND_MULLER:
+            ret = new ted_mod_mueller_and_muller(constellation);
             break;
         case TED_ZERO_CROSSING:
             break;
@@ -105,11 +107,12 @@ namespace gr {
                                       digital::constellation_sptr constellation)
       : timing_error_detector(timing_error_detector::TED_MUELLER_AND_MULLER,
                               constellation),
-        d_prev_input(0.0f, 0.0f),
-        d_prev2_input(0.0f, 0.0f)
+        d_input(2, gr_complex(0.0f, 0.0f)),
+        d_decision()
     {
-        d_prev_decision = slice(d_prev_input);
-        d_prev2_decision = slice(d_prev2_input);
+        std::deque<gr_complex>::iterator it;
+        for (it = d_input.begin(); it != d_input.end(); ++it)
+            d_decision.push_back(slice(*it));
 
         d_inputs_per_symbol = 1;
         sync_reset_input_clock();
@@ -122,20 +125,18 @@ namespace gr {
         //if (d_input_clock == 0)
         //    compute error
 
-        gr_complex curr_decision = slice(x);
+        d_input.push_front(x);
+        d_decision.push_front(slice(d_input[0]));
 
         d_prev_error = d_error;
 
-        d_error =   (d_prev_decision.real() * x.real()
-                     - curr_decision.real() * d_prev_input.real())
-                  + (d_prev_decision.imag() * x.imag()
-                     - curr_decision.imag() * d_prev_input.imag());
+        d_error =   (  d_decision[1].real() * d_input[0].real()
+                     - d_decision[0].real() * d_input[1].real())
+                  + (  d_decision[1].imag() * d_input[0].imag()
+                     - d_decision[0].imag() * d_input[1].imag());
 
-        d_prev2_input = d_prev_input;
-        d_prev_input = x;
-
-        d_prev2_decision = d_prev_decision;
-        d_prev_decision = curr_decision;
+        d_input.pop_back();
+        d_decision.pop_back();
     }
 
     void
@@ -145,19 +146,16 @@ namespace gr {
         //if (d_input_clock == 0)
         //    compute error
 
-        gr_complex curr_input(x, 0.0f);
-        gr_complex curr_decision = slice(curr_input);
+        d_input.push_front(gr_complex(x, 0.0f));
+        d_decision.push_front(slice(d_input[0]));
 
         d_prev_error = d_error;
 
-        d_error =   d_prev_decision.real() * curr_input.real() 
-                  - curr_decision.real() * d_prev_input.real();
+        d_error =   (  d_decision[1].real() * d_input[0].real()
+                     - d_decision[0].real() * d_input[1].real());
 
-        d_prev2_input = d_prev_input;
-        d_prev_input = curr_input;
-
-        d_prev2_decision = d_prev_decision;
-        d_prev_decision = curr_decision;
+        d_input.pop_back();
+        d_decision.pop_back();
     }
 
     void
@@ -167,24 +165,120 @@ namespace gr {
         //if reverting an error computation ...
         //   revert error
         d_error = d_prev_error;
-        d_prev_input = d_prev2_input;
-        d_prev_decision = d_prev2_decision;
+        d_input.push_back(d_input.back());
+        d_input.pop_front();
+        d_decision.push_back(d_decision.back());
+        d_decision.pop_front();
     }
 
     void
     ted_mueller_and_muller::sync_reset()
     {
-        gr_complex czero(0.0f, 0.0f);
-
         d_error = 0.0f;
         d_prev_error = 0.0f;
-        d_prev_input = czero;
-        d_prev2_input = czero;
-        d_prev_decision = slice(d_prev_input);
-        d_prev2_decision = slice(d_prev2_input);
+
+        d_input.assign(2, gr_complex(0.0f, 0.0f));
+
+        std::deque<gr_complex>::iterator it;
+        d_decision.clear();
+        for (it = d_input.begin(); it != d_input.end(); ++it)
+            d_decision.push_back(slice(*it));
 
         sync_reset_input_clock();
     }
 
+    /*************************************************************************/
+
+    ted_mod_mueller_and_muller::ted_mod_mueller_and_muller(
+                                      digital::constellation_sptr constellation)
+      : timing_error_detector(timing_error_detector::TED_MOD_MUELLER_AND_MULLER,
+                              constellation),
+        d_input(3, gr_complex(0.0f, 0.0f)),
+        d_decision()
+    {
+        std::deque<gr_complex>::iterator it;
+        for (it = d_input.begin(); it != d_input.end(); ++it)
+            d_decision.push_back(slice(*it));
+
+        d_inputs_per_symbol = 1;
+        sync_reset_input_clock();
+    }
+
+    void
+    ted_mod_mueller_and_muller::input(const gr_complex &x)
+    {
+        //advance_input_clock();
+        //if (d_input_clock == 0)
+        //    compute error
+
+        gr_complex u;
+
+        d_input.push_front(x);
+        d_decision.push_front(slice(d_input[0]));
+
+        d_prev_error = d_error;
+
+        u = ((d_input[0]    - d_input[2]   ) * conj(d_decision[1]))
+           -((d_decision[0] - d_decision[2]) * conj(d_input[1]   ));
+
+        d_error = u.real();
+        d_error = gr::branchless_clip(d_error, 1.0f);
+
+        d_input.pop_back();
+        d_decision.pop_back();
+    }
+
+    void
+    ted_mod_mueller_and_muller::input(float x)
+    {
+        //advance_input_clock();
+        //if (d_input_clock == 0)
+        //    compute error
+
+        float u;
+
+        d_input.push_front(gr_complex(x, 0.0f));
+        d_decision.push_front(slice(d_input[0]));
+
+        d_prev_error = d_error;
+
+        u = ((d_input[0].real() - d_input[2].real()) * d_decision[1].real())
+           -((d_decision[0].real() - d_decision[2].real()) * d_input[1].real());
+
+        d_error = u/2.0f;
+        d_error = gr::branchless_clip(d_error, 1.0f);
+
+        d_input.pop_back();
+        d_decision.pop_back();
+    }
+
+    void
+    ted_mod_mueller_and_muller::revert()
+    {
+        //revert_input_clock();
+        //if reverting an error computation ...
+        //   revert error
+        d_error = d_prev_error;
+        d_input.push_back(d_input.back());
+        d_input.pop_front();
+        d_decision.push_back(d_decision.back());
+        d_decision.pop_front();
+    }
+
+    void
+    ted_mod_mueller_and_muller::sync_reset()
+    {
+        d_error = 0.0f;
+        d_prev_error = 0.0f;
+
+        d_input.assign(3, gr_complex(0.0f, 0.0f));
+
+        std::deque<gr_complex>::iterator it;
+        d_decision.clear();
+        for (it = d_input.begin(); it != d_input.end(); ++it)
+            d_decision.push_back(slice(*it));
+
+        sync_reset_input_clock();
+    }
   } /* namespace nwr */
 } /* namespace gr */

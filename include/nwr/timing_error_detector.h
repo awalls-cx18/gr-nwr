@@ -10,7 +10,7 @@
 
 #include <gnuradio/gr_complex.h>
 #include <gnuradio/digital/constellation.h>
-#include <vector>
+#include <deque>
 
 namespace gr {
   namespace nwr {
@@ -86,10 +86,24 @@ namespace gr {
         void sync_reset();
 
       private:
-        gr_complex d_prev_input;
-        gr_complex d_prev_decision;
-        gr_complex d_prev2_input;
-        gr_complex d_prev2_decision;
+        std::deque<gr_complex> d_input;
+        std::deque<gr_complex> d_decision;
+    };
+
+    class NWR_API ted_mod_mueller_and_muller : public timing_error_detector
+    {
+      public:
+        ted_mod_mueller_and_muller(digital::constellation_sptr constellation);
+        ~ted_mod_mueller_and_muller() {};
+
+        void input(const gr_complex &x);
+        void input(float x);
+        void revert();
+        void sync_reset();
+
+      private:
+        std::deque<gr_complex> d_input;
+        std::deque<gr_complex> d_decision;
     };
 
   } /* namespace nwr */
