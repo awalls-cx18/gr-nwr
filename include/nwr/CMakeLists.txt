@@ -23,5 +23,6 @@ install(FILES
     clock_recovery_mm_cc.h
     same_burst_decoder.h
     symbol_sync_ff.h
-    symbol_sync_cc.h DESTINATION include/nwr
+    symbol_sync_cc.h
+    timing_error_detector.h DESTINATION include/nwr
 )

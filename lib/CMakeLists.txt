@@ -28,6 +28,7 @@ list(APPEND nwr_sources
     same_burst_decoder_impl.cc
     symbol_sync_ff_impl.cc
     symbol_sync_cc_impl.cc
+    timing_error_detector.cc
 )
 
 set(nwr_sources "${nwr_sources}" PARENT_SCOPE)
