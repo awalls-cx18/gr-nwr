@@ -32,11 +32,13 @@ namespace gr {
     class symbol_sync_ff_impl : public symbol_sync_ff
     {
     public:
-      symbol_sync_ff_impl(float sps,
+      symbol_sync_ff_impl(timing_error_detector::ted_type detector_type,
+                          float sps,
                           float loop_bw,
                           float damping_factor,
                           float max_deviation,
-                          int osps);
+                          int osps,
+                          digital::constellation_sptr slicer);
       ~symbol_sync_ff_impl();
 
       void forecast(int noutput_items, gr_vector_int &ninput_items_required);
@@ -124,7 +126,7 @@ namespace gr {
 
       // Timing Error Detector
       float slice(float x);
-      float timing_error_detector(float curr_y);
+      float ltiming_error_detector(float curr_y);
       void revert_timing_error_detector_state();
       void sync_reset_timing_error_detector();
 

@@ -24,6 +24,7 @@
 
 #include <nwr/api.h>
 #include <gnuradio/block.h>
+#include <nwr/timing_error_detector.h>
 
 namespace gr {
   namespace nwr {
@@ -68,6 +69,10 @@ namespace gr {
        * slicer constellation, which is normalized to an average symbol
        * magnitude of 1.0 over the entire constellation.
        *
+       * \param detector_type
+       * The enumerated type of timing error detector to use.
+       * See the timing_error_detector class for a list of possible types.
+       *
        * \param sps
        * User specified nominal clock period in samples per symbol.
        *
@@ -88,12 +93,23 @@ namespace gr {
        *
        * \param osps
        * The number of output samples per symbol (default=1).
+       *
+       * \param slicer
+       * A constellation obj shared pointer that will be used by
+       * decision directed timing error detectors to make decisions.
+       * I.e. the timing error detector will use this constellation
+       * as a slicer, if the particular algorithm needs sliced
+       * symbols.
+       *
        */
-      static sptr make(float sps,
+      static sptr make(timing_error_detector::ted_type detector_type,
+                       float sps,
                        float loop_bw,
                        float damping_factor = 2.0f,
-		       float max_deviation = 1.5f,
-                       int osps = 1);
+                       float max_deviation = 1.5f,
+                       int osps = 1,
+                       digital::constellation_sptr slicer =
+                                                 digital::constellation_sptr());
       
       virtual float loop_bandwidth() const = 0;
       virtual float damping_factor() const = 0;

@@ -24,7 +24,8 @@
     <key>nwr_symbol_sync_xx</key>
     <category>[nwr]</category>
     <import>import nwr</import>
-    <make>nwr.symbol_sync_$(type)($sps, $loop_bw, $damping, $max_dev, $osps)</make>
+    <import>from gnuradio import digital</import>
+    <make>nwr.symbol_sync_$(type)($ted_type, $sps, $loop_bw, $damping, $max_dev, $osps, $constellation)</make>
 
     <callback>set_loop_bandwidth($loop_bw)</callback>
     <callback>set_damping_factor($damping)</callback>
@@ -45,6 +46,42 @@
             <opt>input:float</opt>
             <opt>output:float</opt>
         </option>
+    </param>
+    <param>
+        <name>Timing Error Detector</name>
+        <key>ted_type</key>
+        <type>enum</type>
+        <option>
+            <name>Mueller and Müller</name>
+            <key>nwr.timing_error_detector.TED_MUELLER_AND_MULLER</key>
+        </option>
+        <option>
+            <name>Modified Mueller and Müller</name>
+            <key>nwr.timing_error_detector.TED_MOD_MUELLER_AND_MULLER</key>
+        </option>
+        <option>
+            <name>Zero Crossing</name>
+            <key>nwr.timing_error_detector.TED_ZERO_CROSSING</key>
+        </option>
+        <option>
+            <name>Gardner</name>
+            <key>nwr.timing_error_detector.TED_GARDNER</key>
+        </option>
+        <option>
+            <name>Early-Late</name>
+            <key>nwr.timing_error_detector.TED_EARLY_LATE</key>
+        </option>
+        <option>
+            <name>D'Andrea and Mengalli Gen MSK</name>
+            <key>nwr.timing_error_detector.TED_DANDREA_AND_MENGALLI_GEN_MSK</key>
+        </option>
+    </param>
+    <param>
+        <name>TED Slicer Constellation</name>
+        <key>constellation</key>
+        <value>digital.constellation_bpsk().base()</value>
+        <type>raw</type>
+        <hide>part</hide>
     </param>
     <param>
         <name>Samples per Symbol</name>

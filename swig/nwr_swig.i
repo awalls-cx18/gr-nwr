@@ -10,6 +10,7 @@
  */
 
 #define NWR_API
+#define DIGITAL_API
 
 %include "gnuradio.i"			// the common stuff
 
@@ -17,6 +18,8 @@
 %include "nwr_swig_doc.i"
 
 %{
+#include "gnuradio/digital/constellation.h"
+#include "nwr/timing_error_detector.h"
 #include "nwr/lms_da_equalizer_ff.h"
 #include "nwr/burst_detect_and_tag.h"
 #include "nwr/correction_estimator_ff.h"
@@ -29,6 +32,8 @@
 #include "nwr/symbol_sync_cc.h"
 %}
 
+%include "gnuradio/digital/constellation.h"
+%include "nwr/timing_error_detector.h"
 
 %include "nwr/lms_da_equalizer_ff.h"
 GR_SWIG_BLOCK_MAGIC2(nwr, lms_da_equalizer_ff);

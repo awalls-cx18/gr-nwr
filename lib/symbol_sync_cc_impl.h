@@ -32,11 +32,13 @@ namespace gr {
     class symbol_sync_cc_impl : public symbol_sync_cc
     {
     public:
-      symbol_sync_cc_impl(float sps,
+      symbol_sync_cc_impl(timing_error_detector::ted_type detector_type,
+                          float sps,
                           float loop_bw,
                           float damping_factor,
                           float max_deviation,
-                          int osps);
+                          int osps,
+                          digital::constellation_sptr slicer);
       ~symbol_sync_cc_impl();
 
       void forecast(int noutput_items, gr_vector_int &ninput_items_required);
@@ -128,7 +130,7 @@ namespace gr {
 
       // Timing Error Detector
       gr_complex slice(gr_complex x);
-      float timing_error_detector(gr_complex curr_y);
+      float ltiming_error_detector(gr_complex curr_y);
       void revert_timing_error_detector_state();
       void sync_reset_timing_error_detector();
 

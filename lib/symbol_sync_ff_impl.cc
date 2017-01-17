@@ -33,25 +33,32 @@ namespace gr {
   namespace nwr {
 
     symbol_sync_ff::sptr
-    symbol_sync_ff::make(float sps,
+    symbol_sync_ff::make(timing_error_detector::ted_type detector_type,
+                         float sps,
                          float loop_bw,
                          float damping_factor,
                          float max_deviation,
-                         int osps)
+                         int osps,
+                         digital::constellation_sptr slicer)
     {
       return gnuradio::get_initial_sptr
-        (new symbol_sync_ff_impl(sps,
+        (new symbol_sync_ff_impl(detector_type,
+                                 sps,
                                  loop_bw,
                                  damping_factor,
                                  max_deviation,
-                                 osps));
+                                 osps,
+                                 slicer));
     }
 
-    symbol_sync_ff_impl::symbol_sync_ff_impl(float sps,
-                                             float loop_bw,
-                                             float damping_factor,
-                                             float max_deviation,
-                                             int osps)
+    symbol_sync_ff_impl::symbol_sync_ff_impl(
+                                  timing_error_detector::ted_type detector_type,
+                                  float sps,
+                                  float loop_bw,
+                                  float damping_factor,
+                                  float max_deviation,
+                                  int osps,
+                                  digital::constellation_sptr slicer)
       : block("symbol_sync_ff",
               io_signature::make(1, 1, sizeof(float)),
               io_signature::makev(1, 4, std::vector<int>(4, sizeof(float)))),
@@ -157,7 +164,7 @@ namespace gr {
     }
 
     float
-    symbol_sync_ff_impl::timing_error_detector(float curr_y)
+    symbol_sync_ff_impl::ltiming_error_detector(float curr_y)
     {
         float curr_decision = slice(curr_y);
 
@@ -539,7 +546,7 @@ namespace gr {
 
         // Timing Error Detector
         if (ted_input_clock())
-            error = timing_error_detector(interp_output);
+            error = ltiming_error_detector(interp_output);
         else
             error = d_error;
 
