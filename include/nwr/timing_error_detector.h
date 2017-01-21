@@ -42,18 +42,20 @@ namespace gr {
 
         virtual int inputs_per_symbol() { return d_inputs_per_symbol; }
 
-        virtual void input(const gr_complex &x) = 0;
-        virtual void input(float x) { input(gr_complex(x, 0.0f)); }
+        virtual void input(const gr_complex &x);
+        virtual void input(float x);
         virtual float error() { return d_error; }
 
-        virtual void revert() = 0;
-        virtual void sync_reset() = 0;
+        virtual void revert();
+        virtual void sync_reset();
 
       private:
         enum ted_type d_type;
 
       protected:
         timing_error_detector(enum ted_type type,
+                              int inputs_per_symbol,
+                              int error_computation_depth,
                               digital::constellation_sptr constellation =
                                                  digital::constellation_sptr());
 
@@ -66,12 +68,17 @@ namespace gr {
         }
 
         gr_complex slice(const gr_complex &x);
+        virtual float compute_error_cf() = 0;
+        virtual float compute_error_ff() = 0;
 
         digital::constellation_sptr d_constellation;
         float d_error;
         float d_prev_error;
         int d_inputs_per_symbol;
         int d_input_clock;
+        int d_error_depth;
+        std::deque<gr_complex> d_input;
+        std::deque<gr_complex> d_decision;
     };
 
     class NWR_API ted_mueller_and_muller : public timing_error_detector
@@ -80,14 +87,9 @@ namespace gr {
         ted_mueller_and_muller(digital::constellation_sptr constellation);
         ~ted_mueller_and_muller() {};
 
-        void input(const gr_complex &x);
-        void input(float x);
-        void revert();
-        void sync_reset();
-
       private:
-        std::deque<gr_complex> d_input;
-        std::deque<gr_complex> d_decision;
+        float compute_error_cf();
+        float compute_error_ff();
     };
 
     class NWR_API ted_mod_mueller_and_muller : public timing_error_detector
@@ -96,14 +98,9 @@ namespace gr {
         ted_mod_mueller_and_muller(digital::constellation_sptr constellation);
         ~ted_mod_mueller_and_muller() {};
 
-        void input(const gr_complex &x);
-        void input(float x);
-        void revert();
-        void sync_reset();
-
       private:
-        std::deque<gr_complex> d_input;
-        std::deque<gr_complex> d_decision;
+        float compute_error_cf();
+        float compute_error_ff();
     };
 
   } /* namespace nwr */
