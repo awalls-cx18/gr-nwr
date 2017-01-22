@@ -30,7 +30,7 @@ namespace gr {
             TED_ZERO_CROSSING                = 2, // Decision directed     
             TED_GARDNER                      = 4,
             TED_EARLY_LATE                   = 5,
-            TED_DANDREA_AND_MENGALLI_GEN_MSK = 6, // Complex only
+            TED_DANDREA_AND_MENGALI_GEN_MSK  = 6,
         };
 
         static timing_error_detector *make(
@@ -62,7 +62,13 @@ namespace gr {
         void advance_input_clock() {
             d_input_clock = (d_input_clock + 1) % d_inputs_per_symbol;
         }
-        void revert_input_clock();
+        void revert_input_clock()
+        {
+            if (d_input_clock == 0)
+                d_input_clock = d_inputs_per_symbol - 1;
+            else
+                d_input_clock--;
+        }
         void sync_reset_input_clock() {
             d_input_clock = d_inputs_per_symbol - 1;
         }
@@ -84,7 +90,10 @@ namespace gr {
     class NWR_API ted_mueller_and_muller : public timing_error_detector
     {
       public:
-        ted_mueller_and_muller(digital::constellation_sptr constellation);
+        ted_mueller_and_muller(digital::constellation_sptr constellation)
+          : timing_error_detector(timing_error_detector::TED_MUELLER_AND_MULLER,
+                                  1, 2, constellation)
+        {}
         ~ted_mueller_and_muller() {};
 
       private:
@@ -95,8 +104,69 @@ namespace gr {
     class NWR_API ted_mod_mueller_and_muller : public timing_error_detector
     {
       public:
-        ted_mod_mueller_and_muller(digital::constellation_sptr constellation);
+        ted_mod_mueller_and_muller(digital::constellation_sptr constellation)
+          : timing_error_detector(
+                              timing_error_detector::TED_MOD_MUELLER_AND_MULLER,
+                              1, 3, constellation)
+        {}
         ~ted_mod_mueller_and_muller() {};
+
+      private:
+        float compute_error_cf();
+        float compute_error_ff();
+    };
+
+    class NWR_API ted_zero_crossing : public timing_error_detector
+    {
+      public:
+        ted_zero_crossing(digital::constellation_sptr constellation)
+          : timing_error_detector(timing_error_detector::TED_ZERO_CROSSING,
+                                  2, 3, constellation)
+        {}
+        ~ted_zero_crossing() {};
+
+      private:
+        float compute_error_cf();
+        float compute_error_ff();
+    };
+
+    class NWR_API ted_gardner : public timing_error_detector
+    {
+      public:
+        ted_gardner()
+          : timing_error_detector(timing_error_detector::TED_GARDNER,
+                                  2, 3, digital::constellation_sptr())
+        {}
+        ~ted_gardner() {};
+
+      private:
+        float compute_error_cf();
+        float compute_error_ff();
+    };
+
+    class NWR_API ted_early_late : public timing_error_detector
+    {
+      public:
+        ted_early_late()
+          : timing_error_detector(timing_error_detector::TED_EARLY_LATE,
+                                  2, 4, digital::constellation_sptr())
+        {}
+        ~ted_early_late() {};
+
+      private:
+        float compute_error_cf();
+        float compute_error_ff();
+    };
+
+    class NWR_API ted_generalized_msk : public timing_error_detector
+    {
+      public:
+        ted_generalized_msk()
+          : timing_error_detector(
+                         timing_error_detector::TED_DANDREA_AND_MENGALI_GEN_MSK,
+                         2, 4, digital::constellation_sptr())
+        {}
+        ~ted_generalized_msk() {};
 
       private:
         float compute_error_cf();

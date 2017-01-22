@@ -29,12 +29,16 @@ namespace gr {
             ret = new ted_mod_mueller_and_muller(constellation);
             break;
         case TED_ZERO_CROSSING:
+            ret = new ted_zero_crossing(constellation);
             break;
         case TED_GARDNER:
+            ret = new ted_gardner();
             break;
         case TED_EARLY_LATE:
+            ret = new ted_early_late();
             break;
-        case TED_DANDREA_AND_MENGALLI_GEN_MSK:
+        case TED_DANDREA_AND_MENGALI_GEN_MSK:
+            ret = new ted_generalized_msk();
             break;
         default: 
             break;
@@ -71,7 +75,7 @@ namespace gr {
             break;
         case TED_GARDNER:
         case TED_EARLY_LATE:
-        case TED_DANDREA_AND_MENGALLI_GEN_MSK:
+        case TED_DANDREA_AND_MENGALI_GEN_MSK:
             break;
         case TED_NONE:
         default: 
@@ -153,15 +157,6 @@ namespace gr {
         sync_reset_input_clock();
     }
 
-    void
-    timing_error_detector::revert_input_clock()
-    {
-        if (d_input_clock == 0)
-            d_input_clock = d_inputs_per_symbol - 1;
-        else
-            d_input_clock--;
-    }
-
     gr_complex
     timing_error_detector::slice(const gr_complex &x)
     {
@@ -174,13 +169,6 @@ namespace gr {
     }
 
     /*************************************************************************/
-
-    ted_mueller_and_muller::ted_mueller_and_muller(
-                                      digital::constellation_sptr constellation)
-      : timing_error_detector(timing_error_detector::TED_MUELLER_AND_MULLER,
-                              1, 2, constellation)
-    {
-    }
 
     float 
     ted_mueller_and_muller::compute_error_cf()
@@ -199,13 +187,6 @@ namespace gr {
     }
 
     /*************************************************************************/
-
-    ted_mod_mueller_and_muller::ted_mod_mueller_and_muller(
-                                      digital::constellation_sptr constellation)
-      : timing_error_detector(timing_error_detector::TED_MOD_MUELLER_AND_MULLER,
-                              1, 3, constellation)
-    {
-    }
 
     float
     ted_mod_mueller_and_muller::compute_error_cf()
@@ -227,6 +208,79 @@ namespace gr {
            -((d_decision[0].real() - d_decision[2].real()) * d_input[1].real());
 
         return gr::branchless_clip(u/2.0f, 1.0f);
+    }
+
+    /*************************************************************************/
+
+    float
+    ted_zero_crossing::compute_error_cf()
+    {
+        return
+            ((d_decision[2].real() - d_decision[0].real()) * d_input[1].real())
+         +  ((d_decision[2].imag() - d_decision[0].imag()) * d_input[1].imag());
+    }
+
+    float
+    ted_zero_crossing::compute_error_ff()
+    {
+        return
+            ((d_decision[2].real() - d_decision[0].real()) * d_input[1].real());
+    }
+
+    /*************************************************************************/
+
+    float
+    ted_gardner::compute_error_cf()
+    {
+        return    ((d_input[2].real() - d_input[0].real()) * d_input[1].real())
+               +  ((d_input[2].imag() - d_input[0].imag()) * d_input[1].imag());
+    }
+
+    float
+    ted_gardner::compute_error_ff()
+    {
+        return    ((d_input[2].real() - d_input[0].real()) * d_input[1].real());
+    }
+
+    /*************************************************************************/
+
+    float
+    ted_early_late::compute_error_cf()
+    {
+        return    ((d_input[1].real() - d_input[3].real()) * d_input[2].real())
+               +  ((d_input[1].imag() - d_input[3].imag()) * d_input[2].imag());
+    }
+
+    float
+    ted_early_late::compute_error_ff()
+    {
+        return    ((d_input[1].real() - d_input[3].real()) * d_input[2].real());
+    }
+
+    /*************************************************************************/
+
+    float
+    ted_generalized_msk::compute_error_cf()
+    {
+        gr_complex u;
+
+        u =   (d_input[0] * d_input[0] * conj(d_input[2] * d_input[2]))
+            - (d_input[1] * d_input[1] * conj(d_input[3] * d_input[3]));
+
+        return gr::branchless_clip(u.real(), 3.0f);
+    }
+
+    float
+    ted_generalized_msk::compute_error_ff()
+    {
+        float u;
+
+        u =   (  d_input[0].real() * d_input[0].real()
+               * d_input[2].real() * d_input[2].real())
+            - (  d_input[1].real() * d_input[1].real()
+               * d_input[3].real() * d_input[3].real());
+
+        return gr::branchless_clip(u, 3.0f);
     }
 
   } /* namespace nwr */
