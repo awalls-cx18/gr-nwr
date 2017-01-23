@@ -44,6 +44,9 @@ namespace gr {
 
         virtual void input(const gr_complex &x);
         virtual void input(float x);
+        virtual bool needs_lookahead() { return d_needs_lookahead; }
+        virtual void input_lookahead(const gr_complex &x);
+        virtual void input_lookahead(float x);
         virtual float error() { return d_error; }
 
         virtual void revert();
@@ -56,6 +59,7 @@ namespace gr {
         timing_error_detector(enum ted_type type,
                               int inputs_per_symbol,
                               int error_computation_depth,
+                              bool needs_lookahead = false,
                               digital::constellation_sptr constellation =
                                                  digital::constellation_sptr());
 
@@ -85,6 +89,7 @@ namespace gr {
         int d_error_depth;
         std::deque<gr_complex> d_input;
         std::deque<gr_complex> d_decision;
+        bool d_needs_lookahead;
     };
 
     class NWR_API ted_mueller_and_muller : public timing_error_detector
@@ -92,7 +97,7 @@ namespace gr {
       public:
         ted_mueller_and_muller(digital::constellation_sptr constellation)
           : timing_error_detector(timing_error_detector::TED_MUELLER_AND_MULLER,
-                                  1, 2, constellation)
+                                  1, 2, false, constellation)
         {}
         ~ted_mueller_and_muller() {};
 
@@ -107,7 +112,7 @@ namespace gr {
         ted_mod_mueller_and_muller(digital::constellation_sptr constellation)
           : timing_error_detector(
                               timing_error_detector::TED_MOD_MUELLER_AND_MULLER,
-                              1, 3, constellation)
+                              1, 3, false, constellation)
         {}
         ~ted_mod_mueller_and_muller() {};
 
@@ -121,7 +126,7 @@ namespace gr {
       public:
         ted_zero_crossing(digital::constellation_sptr constellation)
           : timing_error_detector(timing_error_detector::TED_ZERO_CROSSING,
-                                  2, 3, constellation)
+                                  2, 3, false, constellation)
         {}
         ~ted_zero_crossing() {};
 
@@ -135,7 +140,7 @@ namespace gr {
       public:
         ted_gardner()
           : timing_error_detector(timing_error_detector::TED_GARDNER,
-                                  2, 3, digital::constellation_sptr())
+                                  2, 3, false, digital::constellation_sptr())
         {}
         ~ted_gardner() {};
 
@@ -149,7 +154,7 @@ namespace gr {
       public:
         ted_early_late()
           : timing_error_detector(timing_error_detector::TED_EARLY_LATE,
-                                  2, 4, digital::constellation_sptr())
+                                  2, 2, true, digital::constellation_sptr())
         {}
         ~ted_early_late() {};
 
@@ -164,7 +169,7 @@ namespace gr {
         ted_generalized_msk()
           : timing_error_detector(
                          timing_error_detector::TED_DANDREA_AND_MENGALI_GEN_MSK,
-                         2, 4, digital::constellation_sptr())
+                         2, 4, false, digital::constellation_sptr())
         {}
         ~ted_generalized_msk() {};
 

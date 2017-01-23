@@ -50,6 +50,7 @@ namespace gr {
                                       enum ted_type type,
                                       int inputs_per_symbol,
                                       int error_computation_depth,
+                                      bool needs_lookahead,
                                       digital::constellation_sptr constellation)
       : d_type(type),
         d_constellation(constellation),
@@ -58,7 +59,8 @@ namespace gr {
         d_inputs_per_symbol(inputs_per_symbol),
         d_error_depth(error_computation_depth),
         d_input(),
-        d_decision()
+        d_decision(),
+        d_needs_lookahead(needs_lookahead)
     {
         if (d_constellation && d_constellation->dimensionality() != 1)
             throw std::invalid_argument(
@@ -99,7 +101,7 @@ namespace gr {
         }
 
         advance_input_clock();
-        if (d_input_clock == 0) {
+        if (d_input_clock == 0 && d_needs_lookahead == false) {
             d_prev_error = d_error;
             d_error = compute_error_cf();
         }
@@ -117,10 +119,46 @@ namespace gr {
         }
 
         advance_input_clock();
-        if (d_input_clock == 0) {
+        if (d_input_clock == 0 && d_needs_lookahead == false) {
             d_prev_error = d_error;
             d_error = compute_error_ff();
         }
+    }
+
+    void
+    timing_error_detector::input_lookahead(const gr_complex &x)
+    {
+        if (d_input_clock != 0 || d_needs_lookahead == false)
+            return;
+
+        d_input.push_front(x);
+        if (d_constellation)
+            d_decision.push_front(slice(d_input[0]));
+
+        d_prev_error = d_error;
+        d_error = compute_error_cf();
+
+        if (d_constellation)
+            d_decision.pop_front();
+        d_input.pop_front();
+    }
+
+    void
+    timing_error_detector::input_lookahead(float x)
+    {
+        if (d_input_clock != 0 || d_needs_lookahead == false)
+            return;
+
+        d_input.push_front(gr_complex(x, 0.0f));
+        if (d_constellation)
+            d_decision.push_front(slice(d_input[0]));
+
+        d_prev_error = d_error;
+        d_error = compute_error_ff();
+
+        if (d_constellation)
+            d_decision.pop_front();
+        d_input.pop_front();
     }
 
     void
@@ -247,14 +285,14 @@ namespace gr {
     float
     ted_early_late::compute_error_cf()
     {
-        return    ((d_input[1].real() - d_input[3].real()) * d_input[2].real())
-               +  ((d_input[1].imag() - d_input[3].imag()) * d_input[2].imag());
+        return    ((d_input[0].real() - d_input[2].real()) * d_input[1].real())
+               +  ((d_input[0].imag() - d_input[2].imag()) * d_input[1].imag());
     }
 
     float
     ted_early_late::compute_error_ff()
     {
-        return    ((d_input[1].real() - d_input[3].real()) * d_input[2].real());
+        return    ((d_input[0].real() - d_input[2].real()) * d_input[1].real());
     }
 
     /*************************************************************************/
