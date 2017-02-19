@@ -189,7 +189,8 @@ namespace gr {
             std::deque<gr_complex>::iterator it;
             d_decision.clear();
             for (it = d_input.begin(); it != d_input.end(); ++it)
-                d_decision.push_back(slice(*it));
+                d_decision.push_back(gr_complex(0.0f, 0.0f));
+                //d_decision.push_back(slice(*it));
         }
 
         sync_reset_input_clock();
