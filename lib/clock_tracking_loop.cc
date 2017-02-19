@@ -59,9 +59,9 @@ namespace gr {
             throw std::out_of_range (
                            "clock_tracking_loop: damping factor must be > 0.0");
 
-        if (d_fn_norm < 0.0f or d_fn_norm > 0.5f)
+        if (d_fn_norm < 0.0f)
             throw std::out_of_range (
-             "clock_tracking_loop: loop bandwidth must be between 0.0 and 0.5");
+             "clock_tracking_loop: loop bandwidth must be greater than 0.0");
 
         update_gains();
     }
@@ -160,9 +160,9 @@ namespace gr {
     void
     clock_tracking_loop::set_loop_bandwidth(float bw)
     {
-        if (bw < 0.0f or bw > 0.5f)
+        if (bw < 0.0f)
             throw std::out_of_range (
-             "clock_tracking_loop: loop bandwidth must be between 0.0 and 0.5");
+             "clock_tracking_loop: loop bandwidth must be greater than 0.0");
 
         d_fn_norm = bw;
         update_gains();

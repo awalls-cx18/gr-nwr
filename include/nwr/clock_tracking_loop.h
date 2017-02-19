@@ -171,8 +171,13 @@ namespace gr {
      * tracking loop and can vary over time, so that setting the loop bandwidth
      * directly can be a problem.  However, we specify loop bandwidth in terms
      * of the normalized digital natural frequency \f$f_{n\_norm}\f$ of the loop.
-     * \f$f_{n\_norm}\f$ can only usefully take on the range \f$(0, 0.5)\f$, as \f$0.5\f$
-     * corresponds to the Nyquist frequency of the clock:
+     * \f$f_{n\_norm}\f$ can only usefully be a small positive number, close to
+     * zero.  The damping factor, \f$\zeta\f$, dictates the maximum value
+     * \f$f_{n\_norm}\f$ can practically take on.  In the extreme a case of
+     * \f$\zeta = 0.0\f$, \f$f_{n\_norm}\f$ is practically limited to the range
+     * \f$(0, 0.5)\f$, as \f$0.5\f$ then corresponds to the Nyquist frequency
+     * of the clock.  However, whatever the damping factor, large values of
+     * \f$f_{n\_norm}\f$ are usually not useful and yield poor results.
      * 
      * \f{align*}
      *     \omega_{n}T = \omega_{n\_norm} = 2 \pi f_{n\_norm} = 2 \pi f_{n} T =
@@ -251,8 +256,8 @@ namespace gr {
       float d_zeta;
 
       // Normalized natural frequency of the 2nd order loop transfer function.
-      // Its range should be in (0.0, 0.5), corresponding to the normalized
-      // approximate bandwidth of the loop as digital low-pass filter that is 
+      // It should be a small positive number, corresponding to the normalized
+      // natural frequency of the loop as digital low-pass filter that is
       // filtering the clock phase/timing error signal.
       // omega_n*T  = 2*pi*f_n*T = 2*pi*f_n_norm
       float d_fn_norm;
@@ -279,16 +284,15 @@ namespace gr {
        * This function instantiates a clock_tracking_loop object. 
        *
        * \param loop_bw
-       * Normalized approximate loop bandwidth.  The range is in (0.0, 0.5),
-       * corresponding to the normalized approximate bandwidth of the loop
-       * as a digital low-pass filter that is filtering the
-       * clock phase/timing error.  The lower bound, 0.0, corresponds to DC.
-       * The upper bound, 0.5, corresponds to F_clock/2.0, where F_clock is
-       * the frequency of the clock being estimated by this clock_tracking_loop.
+       * Normalized approximate loop bandwidth.
+       * It should be a small positive number, corresponding to the normalized
+       * natural frequency of the loop as digital low-pass filter that is
+       * filtering the clock phase/timing error.
+       *
        * Technically this parameter corresponds to the natural frequency
-       * of the 2nd order loop transfer function, but the natural freuqency
-       * is a good approximation of the passband width of that transfer
-       * function.
+       * of the 2nd order loop transfer function (scaled by 2*pi and by Fs),
+       * which is the radius of the pole locations in the s-plane of an
+       * underdamped analog 2nd order system.
        *
        * \param max_period
        * Maximum limit for the estimated clock period, in units of
@@ -391,21 +395,17 @@ namespace gr {
        * \brief Set the normalized approximate loop bandwidth.
        *
        * \details
-       * Set the normalized approximate loop bandwidth. The allowable
-       * range is in (0.0, 0.5), but useful values are usually close to 0.0,
-       * e.g. 0.045.
+       * Set the normalized approximate loop bandwidth.
+       * Useful values are usually close to 0.0, e.g. 0.045.
        *
-       * The range (0.0, 0.5) corresponds to the normalized approximate
-       * bandwidth of the loop as a digital low-pass filter that is
-       * filtering the clock phase/timing error.  The lower bound, 0.0,
-       * corresponds to DC. The upper bound, 0.5, corresponds to F_clock/2.0,
-       * where F_clock is the frequency of the clock being estimated by this
-       * clock_tracking_loop.
+       * It should be a small positive number, corresponding to the normalized
+       * natural frequency of the loop as digital low-pass filter that is
+       * filtering the clock phase/timing error.
        *
        * Technically this parameter corresponds to the natural frequency
-       * of the 2nd order loop transfer function, but the natural freuqency
-       * is a good approximation of the passband width of that transfer
-       * function.
+       * of the 2nd order loop transfer function (scaled by 2*pi and by Fs),
+       * which is the radius of the pole locations in the s-plane of an
+       * underdamped analog 2nd order system.
        *
        * The input parameter corresponds to f_n_norm in the following
        * relation:

@@ -19,22 +19,22 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_NWR_CLOCK_RECOVERY_MM_CC_H
-#define	INCLUDED_NWR_CLOCK_RECOVERY_MM_CC_H
+#ifndef INCLUDED_NWR_SYMBOL_SYNC_CC_H
+#define INCLUDED_NWR_SYMBOL_SYNC_CC_H
 
 #include <nwr/api.h>
 #include <gnuradio/block.h>
+#include <nwr/timing_error_detector.h>
 
 namespace gr {
   namespace nwr {
     
     /*!
-     * \brief Mueller and Müller (M&M) based clock recovery block with complex input, complex output.
+     * \brief Symbol Synchronizer block with complex input, complex output.
      * \ingroup synchronizers_blk
      *
      * \details
-     * This implements the modified Mueller and Müller (M&M) discrete-time
-     * error-tracking synchronizer.
+     * This implements a discrete-time error-tracking synchronizer.
      *
      * For this block to work properly, the input stream must meet the
      * following requirements:
@@ -42,31 +42,36 @@ namespace gr {
      * 1. the input pulses must have peaks (not flat), which usually can
      * be implemented by using a matched filter before this block.
      *
-     * 2. the input pulse peaks should nominally have a magnitude of 1.0.
+     * 2. the input pulses should nominally match the normalized
+     * slicer constellation, which is normalized to an average symbol
+     * magnitude of 1.0 over the entire constellation.
      *
-     * 3. the input should be properly rotated in I & Q so that the
-     * pulse peaks line up with the 45 degree QPSK constellation points:
-     * 1.0/sqrt(2.0) * [ 1+1j, -1+1j, -1-1j, 1-1j ].
-     *
-     * 4. the input baseband can be either QPSK or BPSK rotated to
-     * line up with the 45 degree QPSK constellation points.
-     *
-     * The complex version here is based on: Modified Mueller and
-     * Muller clock recovery circuit:
-     *
-     *    G. R. Danesfahani, T.G. Jeans, "Optimisation of modified Mueller
-     *    and Muller algorithm," Electronics Letters, Vol. 31, no. 13, 22
-     *    June 1995, pp. 1032 - 1033.
      */
-
-    class NWR_API clock_recovery_mm_cc : virtual public block
+    class NWR_API symbol_sync_cc : virtual public block
     {
     public:
-      // gr::nwr::clock_recovery_mm_cc::sptr
-      typedef boost::shared_ptr<clock_recovery_mm_cc> sptr;
+      // gr::nwr::symbol_sync_cc::sptr
+      typedef boost::shared_ptr<symbol_sync_cc> sptr;
 
       /*!
-       * Make a M&M clock recovery block.
+       * Make a Symbol Synchronizer block.
+       *
+       * \details
+       * This implements a discrete-time error-tracking synchronizer.
+       *
+       * For this block to work properly, the input stream must meet the
+       * following requirements:
+       *
+       * 1. the input pulses must have peaks (not flat), which usually can
+       * be implemented by using a matched filter before this block.
+       *
+       * 2. the input pulses should nominally match the normalized
+       * slicer constellation, which is normalized to an average symbol
+       * magnitude of 1.0 over the entire constellation.
+       *
+       * \param detector_type
+       * The enumerated type of timing error detector to use.
+       * See the timing_error_detector class for a list of possible types.
        *
        * \param sps
        * User specified nominal clock period in samples per symbol.
@@ -82,7 +87,7 @@ namespace gr {
        * Damping < 1.0f is an under-damped loop.
        * Damping = 1.0f is a critically-damped loop.
        * Damping > 1.0f is an over-damped loop.
-       * One should generally use an over-damped loop for clock recovery.
+       * One should generally use an over-damped loop for symbol clock tracking.
        *
        * \param max_deviation
        * Maximum absolute deviation of the average clock period estimate
@@ -90,12 +95,23 @@ namespace gr {
        *
        * \param osps
        * The number of output samples per symbol (default=1).
+       *
+       * \param slicer
+       * A constellation obj shared pointer that will be used by
+       * decision directed timing error detectors to make decisions.
+       * I.e. the timing error detector will use this constellation
+       * as a slicer, if the particular algorithm needs sliced
+       * symbols.
+       *
        */
-      static sptr make(float sps,
+      static sptr make(timing_error_detector::ted_type detector_type,
+                       float sps,
                        float loop_bw,
                        float damping_factor = 2.0f,
-		       float max_deviation = 1.5f,
-                       int osps = 1);
+                       float max_deviation = 1.5f,
+                       int osps = 1,
+                       digital::constellation_sptr slicer =
+                                                 digital::constellation_sptr());
       
       virtual float loop_bandwidth() const = 0;
       virtual float damping_factor() const = 0;
@@ -111,4 +127,4 @@ namespace gr {
   } /* namespace nwr */
 } /* namespace gr */
 
-#endif /* INCLUDED_NWR_CLOCK_RECOVERY_MM_CC_H */
+#endif /* INCLUDED_NWR_SYMBOL_SYNC_CC_H */
