@@ -49,7 +49,7 @@ namespace gr {
         virtual void input_lookahead(float x);
         virtual float error() { return d_error; }
 
-        virtual void revert();
+        virtual void revert(bool preserve_error = false);
         virtual void sync_reset();
 
       private:

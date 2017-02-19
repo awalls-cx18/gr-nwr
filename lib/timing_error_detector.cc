@@ -162,9 +162,9 @@ namespace gr {
     }
 
     void
-    timing_error_detector::revert()
+    timing_error_detector::revert(bool preserve_error)
     {
-        if (d_input_clock == 0)
+        if (d_input_clock == 0 and preserve_error != true)
             d_error = d_prev_error;
         revert_input_clock();
 

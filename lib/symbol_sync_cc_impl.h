@@ -24,6 +24,7 @@
 
 #include <nwr/symbol_sync_cc.h>
 #include <nwr/clock_tracking_loop.h>
+#include <nwr/timing_error_detector.h>
 #include <gnuradio/filter/mmse_fir_interpolator_cc.h>
 
 namespace gr {
@@ -64,17 +65,7 @@ namespace gr {
 
     private:
       // Timing Error Detector
-      float d_error;
-      float d_prev_error;
-      gr_complex d_p_3T; // y values
-      gr_complex d_p_2T;
-      gr_complex d_p_1T;
-      gr_complex d_p_0T;
-      gr_complex d_c_3T; // decisions
-      gr_complex d_c_2T;
-      gr_complex d_c_1T;
-      gr_complex d_c_0T;
-      int   d_ted_inputs_per_symbol_n;
+      timing_error_detector *d_ted;
 
       // Symbol Clock Tracking and Estimation
       clock_tracking_loop *d_clock;
@@ -127,12 +118,6 @@ namespace gr {
       float *d_out_error;
       float *d_out_instantaneous_clock_period;
       float *d_out_average_clock_period;
-
-      // Timing Error Detector
-      gr_complex slice(gr_complex x);
-      float ltiming_error_detector(gr_complex curr_y);
-      void revert_timing_error_detector_state();
-      void sync_reset_timing_error_detector();
 
       // Symbol Clock and Interpolator Positioning and Alignment
       void next_interpolator_phase(float increment,

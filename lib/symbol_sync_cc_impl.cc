@@ -62,13 +62,7 @@ namespace gr {
       : block("symbol_sync_cc",
               io_signature::make(1, 1, sizeof(gr_complex)),
               io_signature::makev(1, 4, std::vector<int>(4, sizeof(float)))),
-        d_error(0.0f),
-        d_prev_error(0.0f),
-        d_p_3T(0.0f, 0.0f),
-        d_p_2T(0.0f, 0.0f),
-        d_p_1T(0.0f, 0.0f),
-        d_p_0T(0.0f, 0.0f),
-        d_ted_inputs_per_symbol_n(1),
+        d_ted(NULL),
         d_interp(new filter::mmse_fir_interpolator_cc()),
         d_interp_phase(sps),
         d_interp_phase_wrapped(sps - floorf(sps)),
@@ -108,13 +102,18 @@ namespace gr {
       if (osps < 1)
         throw std::out_of_range("output samples per symbol must be > 0");
 
+      // Timing Error Detector
+      d_ted = timing_error_detector::make(detector_type, slicer);
+      if (d_ted == NULL)
+        throw std::runtime_error("unable to create timing_error_detector");
+
       // Block Internal Clocks
-      d_interps_per_symbol_n = boost::math::lcm(d_ted_inputs_per_symbol_n,
+      d_interps_per_symbol_n = boost::math::lcm(d_ted->inputs_per_symbol(),
                                                 d_osps_n);
       d_interps_per_ted_input_n =
-                             d_interps_per_symbol_n / d_ted_inputs_per_symbol_n;
+                            d_interps_per_symbol_n / d_ted->inputs_per_symbol();
       d_interps_per_output_sample_n =
-                             d_interps_per_symbol_n / d_osps_n;
+                            d_interps_per_symbol_n / d_osps_n;
 
       d_interps_per_symbol = static_cast<float>(d_interps_per_symbol_n);
       d_interps_per_ted_input = static_cast<float>(d_interps_per_ted_input_n);
@@ -139,10 +138,7 @@ namespace gr {
                                         damping_factor);
 
       // Timing Error Detector
-      d_c_3T = slice(d_p_3T);
-      d_c_2T = slice(d_p_2T);
-      d_c_1T = slice(d_p_1T);
-      d_c_0T = slice(d_p_0T);
+      d_ted->sync_reset();
 
       // Tag Propagation and Clock Tracking Reset/Resync
       set_relative_rate (d_osps / sps);
@@ -154,88 +150,9 @@ namespace gr {
 
     symbol_sync_cc_impl::~symbol_sync_cc_impl()
     {
+      delete d_ted;
       delete d_interp;
       delete d_clock;
-    }
-
-    //
-    // Timing Error Detector
-    //
-    gr_complex
-    symbol_sync_cc_impl::slice(gr_complex x)
-    {
-        // A 45 degree QPSK slicer: [ 1+1j, -1+1j, -1-1j, 1-1j ] / sqrt(2)
-        float k = M_SQRT1_2;
-
-        float real = -k;
-        float imag = -k;
-
-        if (x.real() > 0.0f)
-            real = k;
-
-        if (x.imag() > 0.0f)
-            imag = k;
-
-        return gr_complex(real, imag);
-    }
-
-    float
-    symbol_sync_cc_impl::ltiming_error_detector(gr_complex curr_y)
-    {
-        d_prev_error = d_error;
-
-        d_p_3T = d_p_2T;
-        d_p_2T = d_p_1T;
-        d_p_1T = d_p_0T;
-        d_p_0T = curr_y;
-
-        d_c_3T = d_c_2T;
-        d_c_2T = d_c_1T;
-        d_c_1T = d_c_0T;
-        d_c_0T = slice(curr_y);
-
-        gr_complex u;
-
-        u =    (d_p_0T - d_p_2T) * conj(d_c_1T)
-            - ((d_c_0T - d_c_2T) * conj(d_p_1T));
-
-        d_error = u.real();
-        d_error = gr::branchless_clip(d_error, 1.0f);
-
-        return d_error;
-    }
-
-    void
-    symbol_sync_cc_impl::revert_timing_error_detector_state()
-    {
-        d_error = d_prev_error;
-
-        d_p_0T = d_p_1T;
-        d_p_1T = d_p_2T;
-        d_p_2T = d_p_3T;
-
-        d_c_0T = d_c_1T;
-        d_c_1T = d_c_2T;
-        d_c_2T = d_c_3T;
-    }
-
-    void
-    symbol_sync_cc_impl::sync_reset_timing_error_detector()
-    {
-        const gr_complex zero(0.0f, 0.0f);
-
-        d_error = 0.0f;
-        d_prev_error = 0.0f;
-
-        d_p_3T = zero;
-        d_p_2T = zero;
-        d_p_1T = zero;
-        d_p_0T = zero;
-
-        d_c_3T = zero;
-        d_c_2T = zero;
-        d_c_1T = zero;
-        d_c_0T = zero;
     }
 
     //
@@ -585,9 +502,45 @@ namespace gr {
 
         // Timing Error Detector
         if (ted_input_clock())
-            error = ltiming_error_detector(interp_output);
-        else
-            error = d_error;
+            d_ted->input(interp_output);
+        if (symbol_clock() and d_ted->needs_lookahead()) {
+            // N.B. symbol_clock() == true implies ted_input_clock() == true
+            // N.B. symbol_clock() == true implies output_sample_clock() == true
+
+            // We must interpolate ahead to the *next* ted_input_clock, so the
+            // ted will compute the error for *this* symbol.
+            next_interpolator_phase(d_interps_per_ted_input
+                                    * (d_clock->get_inst_period()
+                                       / d_interps_per_symbol),
+                                    look_ahead_phase,
+                                    look_ahead_phase_n,
+                                    look_ahead_phase_wrapped);
+
+            if (ii + look_ahead_phase_n >= ni) {
+                // We can't compute the look ahead interpolated output
+                // because there's not enough input.
+                // Revert the actions we took in the loop so far, and bail out.
+
+                // Symbol Clock Tracking and Estimation
+                // We haven't advanced the clock loop yet; no revert needed.
+
+                // Timing Error Detector
+                d_ted->revert(true); // keep the error value; it's still good
+
+                // Symbol Clock and Interpolator Positioning & Alignment
+                // Nothing to do
+
+                // Block Internal Clocks
+                revert_internal_clocks();
+                break;
+            }
+            // Give the ted the look ahead input that it needs to compute
+            // the error for *this* symbol.
+            interp_output = d_interp->interpolate(&in[ii + look_ahead_phase_n],
+                                                  look_ahead_phase_wrapped);
+            d_ted->input_lookahead(interp_output);
+        }
+        error = d_ted->error();
 
         if (symbol_clock()) {
             // Symbol Clock Tracking and Estimation
@@ -607,6 +560,9 @@ namespace gr {
         // Symbol Clock, Interpolator Positioning & Alignment, and 
         // Tag Propagation
         if (symbol_clock()) {
+            // N.B. symbol_clock() == true implies ted_input_clock() == true
+            // N.B. symbol_clock() == true implies output_sample_clock() == true
+
             // This check and revert is needed either when
             // a) the samples per symbol to get to the next symbol is greater
             // than d_interp->ntaps() (normally 8); thus we would consume()
@@ -619,18 +575,17 @@ namespace gr {
                                     look_ahead_phase_wrapped);
 
             if (ii + look_ahead_phase_n >= ni) {
+                // We can't move forward because there's not enough input.
+                // Revert the actions we took in the loop so far, and bail out.
 
                 // Symbol Clock Tracking and Estimation
-                // if (symbol_clock()), which is always true here.
                 d_clock->revert_loop();
 
                 // Timing Error Detector
-                if (ted_input_clock())
-                    revert_timing_error_detector_state();
+                d_ted->revert();
 
                 // Symbol Clock and Interpolator Positioning & Alignment
-                // if (output_sample_clock())
-                //     Nothing to do;
+                // Nothing to do;
 
                 // Block Internal Clocks
                 revert_internal_clocks();
@@ -649,8 +604,8 @@ namespace gr {
             sync_reset_internal_clocks();
 
             // Timing Error Detector
-            sync_reset_timing_error_detector();
-            error = d_error;
+            d_ted->sync_reset();
+            error = d_ted->error();
 
             // Symbol Clock Tracking and Estimation
 
