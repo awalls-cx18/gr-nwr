@@ -63,7 +63,9 @@ namespace gr {
        *
        * \param loop_bw
        * Approximate normailzed loop bandwidth of the symbol clock tracking
-       * loop. It should be in the range (0.0f, 0.5f).
+       * loop. It should nominally be close to 0, but greater than 0.  If
+       * unsure, start with a number around 0.040, and experiment to find the
+       * value that works best for your situation.
        *
        * \param damping_factor
        * Damping factor of the symbol clock tracking loop.
