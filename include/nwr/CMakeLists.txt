@@ -21,6 +21,7 @@ install(FILES
     add_tag_value_ff.h
     clock_recovery_mm_ff.h
     clock_recovery_mm_cc.h
+    interp_differentiator_taps.h
     same_burst_decoder.h
     symbol_sync_ff.h
     symbol_sync_cc.h
