@@ -126,7 +126,7 @@ objective (double x[], int *ndim)
 void initpt (double x[], int ndim)
 {
   int i;
-  double omega_c_n;
+  double w_c;
   double start;
   double t;
   double arg;
@@ -159,15 +159,26 @@ void initpt (double x[], int ndim)
    * Performing integration by parts of the above expression, using these hints:
    *   integral [u*dv] = u*v - integral [v*du]
    *   u = j*w
-   *   dv = exp(j*w*(n-mu))*dw
+   *   dv = exp(j*w*(n+mu))*dw
    *
    * We eventually get an infinitely long, but decaying impulse response:
    *
-   *   h[n] = omega_c_n * cos(omega_c_n * (n + mu))/(pi*(n + mu))
-   *                    - sin(omega_c_n * (n + mu))/(pi*(n + mu)^2)
+   * h[n] = (w_c/pi)/(n+mu) * [cos(pi*(w_c/pi)*(n+mu)) - sinc((w_c/pi)*(n+mu))]
    *
-   * omega_c_n is the normalized radian cutoff frequency:
-   * 2*pi*fc*Ts, with fc <= Fs/2 and Fs = 1/Ts
+   *      = [ w_c*(n+mu)*cos(w_c*(n+mu)) - sin(w_c*(n+mu)) ] / (pi*(n+mu)^2)
+   *
+   * w_c is the normalized radian cutoff frequency:
+   * 2*pi*fc*Ts, with fc <= Fs/2 and Fs = 1/Ts, so w_c <= pi
+   *
+   * For the case of w_c = pi and mu = 0, the cos() term alternates
+   * between +/- 1 and the sinc() term goes to 0 except at n == 0, so
+   * we get the following:
+   *
+   *    h[n] = (-1)^n / n for n != 0
+   *         = 0          for n == 0
+   * or
+   *
+   *    h[n] = ..., 1/5, -1/4, 1/3, -1/2, 1, 0, -1, 1/2, -1/3, 1/4, -1/5, ...
    *
    * Compare with:
    * Eqns (7.99) and (7.100), "Discrete Time Signal Processing",
@@ -176,13 +187,13 @@ void initpt (double x[], int ndim)
    */
 
   /* Truncated, bandlimited, time shifted, differentiator filter */
-  omega_c_n = 2.0 * M_PI * global_B * Ts;
+  w_c = 2.0 * M_PI * global_B * Ts;
   start = (double)(-ndim/2) + global_mu;
 
   for (i = 0; i < ndim; i++){
     t = (double)(i) + start;
-    arg = omega_c_n * t;
-    denom = M_PI*t*t; // always >= 0.0
+    arg = w_c * t;
+    denom = M_PI*t*t; /* always >= 0.0 */
     if (denom < 1e-9)
        x[i] = 0.0;
     else
