@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <gsl/gsl_integration.h>
 
 #define	NSTEPS		 10	// how many steps of mu are in the generated table
 #define	MAX_NSTEPS	256
@@ -32,6 +33,7 @@ extern void initpt (double x[], int ntaps);
 extern double objective (double x[], int *ntaps);
 extern double global_mu;
 extern double global_B;
+extern gsl_integration_workspace *global_gsl_int_workspace;
 
 // fortran
 extern double prax2_ (double (fct)(double x[], int *ntaps),
@@ -122,6 +124,13 @@ main (int argc, char **argv)
     exit (1);
   }
 
+  global_gsl_int_workspace = gsl_integration_workspace_alloc(4000);
+  if (global_gsl_int_workspace == NULL) {
+    fprintf (stderr, "%s: unable to allocate GSL integration work space\n",
+             argv[0]);
+    exit (1);
+  }
+
   step_size = 1.0/nsteps;
 
   // compute optimal values for mu <= 1.0
@@ -143,6 +152,8 @@ main (int argc, char **argv)
       fprintf (stderr, "Objective: %g\n", result);
     }
   }
+
+  gsl_integration_workspace_free(global_gsl_int_workspace);
 
   // now print out the table
 
