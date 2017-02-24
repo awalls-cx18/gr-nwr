@@ -25,6 +25,8 @@ list(APPEND nwr_sources
     add_tag_value_ff_impl.cc
     clock_recovery_mm_ff_impl.cc
     clock_recovery_mm_cc_impl.cc
+    mmse_interp_differentiator_ff.cc
+    mmse_interp_differentiator_cc.cc
     same_burst_decoder_impl.cc
     symbol_sync_ff_impl.cc
     symbol_sync_cc_impl.cc
@@ -63,6 +65,8 @@ include_directories(${CPPUNIT_INCLUDE_DIRS})
 list(APPEND test_nwr_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_nwr.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_nwr.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/qa_mmse_interp_differentiator_ff.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/qa_mmse_interp_differentiator_cc.cc
 )
 
 add_executable(test-nwr ${test_nwr_sources})
