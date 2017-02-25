@@ -75,6 +75,14 @@
             <name>D'Andrea and Mengalli Gen MSK</name>
             <key>nwr.timing_error_detector.TED_DANDREA_AND_MENGALLI_GEN_MSK</key>
         </option>
+        <option>
+            <name>y[n]y'[n] Maximum Likelyhood</name>
+            <key>nwr.timing_error_detector.TED_SIGNAL_TIMES_SLOPE_ML</key>
+        </option>
+        <option>
+            <name>sgn(y[n])y'[n] Maximum Likelyhood</name>
+            <key>nwr.timing_error_detector.TED_SIGNUM_TIMES_SLOPE_ML</key>
+        </option>
     </param>
     <param>
         <name>TED Slicer Constellation</name>

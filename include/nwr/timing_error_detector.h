@@ -46,6 +46,8 @@ namespace gr {
             TED_GARDNER                      = 4,
             TED_EARLY_LATE                   = 5,
             TED_DANDREA_AND_MENGALI_GEN_MSK  = 6,
+            TED_SIGNAL_TIMES_SLOPE_ML        = 7, // ML approx. for small signal
+            TED_SIGNUM_TIMES_SLOPE_ML        = 8, // ML approx. for large signal
         };
 
         static timing_error_detector *make(
@@ -198,6 +200,36 @@ namespace gr {
                          2, 4, false, false, digital::constellation_sptr())
         {}
         ~ted_generalized_msk() {};
+
+      private:
+        float compute_error_cf();
+        float compute_error_ff();
+    };
+
+    class NWR_API ted_signal_times_slope_ml : public timing_error_detector
+    {
+      public:
+        ted_signal_times_slope_ml()
+          : timing_error_detector(
+                               timing_error_detector::TED_SIGNAL_TIMES_SLOPE_ML,
+                               1, 1, false, true, digital::constellation_sptr())
+        {}
+        ~ted_signal_times_slope_ml() {};
+
+      private:
+        float compute_error_cf();
+        float compute_error_ff();
+    };
+
+    class NWR_API ted_signum_times_slope_ml : public timing_error_detector
+    {
+      public:
+        ted_signum_times_slope_ml()
+          : timing_error_detector(
+                               timing_error_detector::TED_SIGNUM_TIMES_SLOPE_ML,
+                               1, 1, false, true, digital::constellation_sptr())
+        {}
+        ~ted_signum_times_slope_ml() {};
 
       private:
         float compute_error_cf();

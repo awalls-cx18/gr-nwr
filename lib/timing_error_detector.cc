@@ -55,6 +55,12 @@ namespace gr {
         case TED_DANDREA_AND_MENGALI_GEN_MSK:
             ret = new ted_generalized_msk();
             break;
+        case TED_SIGNAL_TIMES_SLOPE_ML:
+            ret = new ted_signal_times_slope_ml();
+            break;
+        case TED_SIGNUM_TIMES_SLOPE_ML:
+            ret = new ted_signum_times_slope_ml();
+            break;
         default: 
             break;
         }
@@ -96,6 +102,8 @@ namespace gr {
         case TED_GARDNER:
         case TED_EARLY_LATE:
         case TED_DANDREA_AND_MENGALI_GEN_MSK:
+        case TED_SIGNAL_TIMES_SLOPE_ML:
+        case TED_SIGNUM_TIMES_SLOPE_ML:
             break;
         case TED_NONE:
         default: 
@@ -363,6 +371,40 @@ namespace gr {
                * d_input[3].real() * d_input[3].real());
 
         return gr::branchless_clip(u, 3.0f);
+    }
+
+    /*************************************************************************/
+
+    float
+    ted_signal_times_slope_ml::compute_error_cf()
+    {
+        return (  d_input[0].real() * d_input_derivative[0].real()
+                + d_input[0].imag() * d_input_derivative[0].imag()) / 2.0f;
+    }
+
+    float
+    ted_signal_times_slope_ml::compute_error_ff()
+    {
+        return (  d_input[0].real() * d_input_derivative[0].real());
+    }
+
+    /*************************************************************************/
+
+    float
+    ted_signum_times_slope_ml::compute_error_cf()
+    {
+        return (   (d_input[0].real() < 0.0f ? -d_input_derivative[0].real()
+                                             :  d_input_derivative[0].real())
+                +  (d_input[0].imag() < 0.0f ? -d_input_derivative[0].imag()
+                                             :  d_input_derivative[0].imag()))
+               / 2.0f;
+    }
+
+    float
+    ted_signum_times_slope_ml::compute_error_ff()
+    {
+        return (d_input[0].real() < 0.0f ? -d_input_derivative[0].real()
+                                         :  d_input_derivative[0].real());
     }
 
   } /* namespace nwr */
