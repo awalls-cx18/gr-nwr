@@ -79,8 +79,8 @@ namespace gr {
        * \param loop_bw
        * Approximate normailzed loop bandwidth of the symbol clock tracking
        * loop. It should nominally be close to 0, but greater than 0.  If
-       * unsure, start with a number around 0.040, and experiment to find the
-       * value that works best for your situation.
+       * unsure, start with a number around 2*pi*0.040, and experiment to find
+       * the value that works best for your situation.
        *
        * \param damping_factor
        * Damping factor of the symbol clock tracking loop.
@@ -118,7 +118,7 @@ namespace gr {
       virtual float alpha() const = 0;
       virtual float beta() const = 0;
 
-      virtual void set_loop_bandwidth (float fn_norm) = 0;
+      virtual void set_loop_bandwidth (float omega_n_norm) = 0;
       virtual void set_damping_factor (float zeta) = 0;
       virtual void set_alpha (float alpha) = 0;
       virtual void set_beta (float beta) = 0;

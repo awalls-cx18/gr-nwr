@@ -55,8 +55,8 @@ namespace gr {
       float alpha() const { return d_clock->get_alpha(); }
       float beta() const { return d_clock->get_beta(); }
 
-      void set_loop_bandwidth (float fn_norm) {
-          d_clock->set_loop_bandwidth(fn_norm);
+      void set_loop_bandwidth (float omega_n_norm) {
+          d_clock->set_loop_bandwidth(omega_n_norm);
       }
       void set_damping_factor (float zeta) {
           d_clock->set_damping_factor(zeta);

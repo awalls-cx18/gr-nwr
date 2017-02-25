@@ -41,7 +41,7 @@ namespace gr {
         d_inst_period(nominal_period),
         d_phase(0.0f),
         d_zeta(damping),
-        d_fn_norm(loop_bw), 
+        d_omega_n_norm(loop_bw),
         d_alpha(0.0f),
         d_beta(0.0f),
         d_prev_avg_period(nominal_period),
@@ -59,7 +59,7 @@ namespace gr {
             throw std::out_of_range (
                            "clock_tracking_loop: damping factor must be > 0.0");
 
-        if (d_fn_norm < 0.0f)
+        if (d_omega_n_norm < 0.0f)
             throw std::out_of_range (
              "clock_tracking_loop: loop bandwidth must be greater than 0.0");
 
@@ -76,7 +76,7 @@ namespace gr {
         float omega_n_T, omega_d_T, zeta_omega_n_T, k1, k2, cosx_omega_d_T;
         float alpha, beta;
 
-        omega_n_T = 2.0f * M_PI * d_fn_norm;
+        omega_n_T = d_omega_n_norm;
         zeta_omega_n_T = d_zeta * omega_n_T;
         k2 = expf(-zeta_omega_n_T);
         k1 = 2.0f/k2;
@@ -164,7 +164,7 @@ namespace gr {
             throw std::out_of_range (
              "clock_tracking_loop: loop bandwidth must be greater than 0.0");
 
-        d_fn_norm = bw;
+        d_omega_n_norm = bw;
         update_gains();
     }
 
@@ -246,7 +246,7 @@ namespace gr {
     float
     clock_tracking_loop::get_loop_bandwidth() const
     {
-        return d_fn_norm;
+        return d_omega_n_norm;
     }
 
     float

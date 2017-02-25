@@ -170,14 +170,14 @@ namespace gr {
      * It should be noted that the clock period \f$T\f$ is being estimated by the clock
      * tracking loop and can vary over time, so that setting the loop bandwidth
      * directly can be a problem.  However, we specify loop bandwidth in terms
-     * of the normalized digital natural frequency \f$f_{n\_norm}\f$ of the loop.
-     * \f$f_{n\_norm}\f$ can only usefully be a small positive number, close to
+     * of the normalized digital natural radian frequency \f$\omega_{n\_norm}\f$ of the loop.
+     * \f$\omega_{n\_norm}\f$ can only usefully be a small positive number, close to
      * zero.  The damping factor, \f$\zeta\f$, dictates the maximum value
-     * \f$f_{n\_norm}\f$ can practically take on.  In the extreme a case of
-     * \f$\zeta = 0.0\f$, \f$f_{n\_norm}\f$ is practically limited to the range
-     * \f$(0, 0.5)\f$, as \f$0.5\f$ then corresponds to the Nyquist frequency
+     * \f$\omega_{n\_norm}\f$ can practically take on.  In the extreme a case of
+     * \f$\zeta = 0.0\f$, \f$\omega_{n\_norm}\f$ is practically limited to the range
+     * \f$(0, \pi)\f$, as \f$\pi\f$ then corresponds to the Nyquist frequency
      * of the clock.  However, whatever the damping factor, large values of
-     * \f$f_{n\_norm}\f$ are usually not useful and yield poor results.
+     * \f$\omega_{n\_norm}\f$ are usually not useful and yield poor results.
      * 
      * \f{align*}
      *     \omega_{n}T = \omega_{n\_norm} = 2 \pi f_{n\_norm} = 2 \pi f_{n} T =
@@ -255,12 +255,12 @@ namespace gr {
       // Zeta equal to 1.0 yields a crtically-damped loop.
       float d_zeta;
 
-      // Normalized natural frequency of the 2nd order loop transfer function.
-      // It should be a small positive number, corresponding to the normalized
-      // natural frequency of the loop as digital low-pass filter that is
-      // filtering the clock phase/timing error signal.
-      // omega_n*T  = 2*pi*f_n*T = 2*pi*f_n_norm
-      float d_fn_norm;
+      // Normalized natural radian frequency of the 2nd order loop transfer
+      // function.  It should be a small positive number, corresponding to
+      // the normalized natural radian frequency of the loop as digital
+      // low-pass filter that is filtering the clock phase/timing error signal.
+      // omega_n_norm = omega_n*T  = 2*pi*f_n*T = 2*pi*f_n_norm
+      float d_omega_n_norm;
 
       // Proportional gain of the PI loop filter (aka gain_mu)
       // (aka gain_mu in some clock recovery blocks)
@@ -286,11 +286,11 @@ namespace gr {
        * \param loop_bw
        * Normalized approximate loop bandwidth.
        * It should be a small positive number, corresponding to the normalized
-       * natural frequency of the loop as digital low-pass filter that is
+       * natural radian frequency of the loop as digital low-pass filter that is
        * filtering the clock phase/timing error.
        *
-       * Technically this parameter corresponds to the natural frequency
-       * of the 2nd order loop transfer function (scaled by 2*pi and by Fs),
+       * Technically this parameter corresponds to the natural radian frequency
+       * of the 2nd order loop transfer function (scaled by Fs),
        * which is the radius of the pole locations in the s-plane of an
        * underdamped analog 2nd order system.
        *
@@ -396,18 +396,18 @@ namespace gr {
        *
        * \details
        * Set the normalized approximate loop bandwidth.
-       * Useful values are usually close to 0.0, e.g. 0.045.
+       * Useful values are usually close to 0.0, e.g. 2*pi*0.045.
        *
        * It should be a small positive number, corresponding to the normalized
-       * natural frequency of the loop as digital low-pass filter that is
+       * natural radian frequency of the loop as digital low-pass filter that is
        * filtering the clock phase/timing error.
        *
-       * Technically this parameter corresponds to the natural frequency
-       * of the 2nd order loop transfer function (scaled by 2*pi and by Fs),
+       * Technically this parameter corresponds to the natural radian frequency
+       * of the 2nd order loop transfer function (scaled by Fs),
        * which is the radius of the pole locations in the s-plane of an
        * underdamped analog 2nd order system.
        *
-       * The input parameter corresponds to f_n_norm in the following
+       * The input parameter corresponds to omega_n_norm in the following
        * relation:
        *
        *     omega_n_norm = omega_n*T = 2*pi*f_n*T = 2*pi*f_n_norm
