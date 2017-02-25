@@ -8185,7 +8185,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>name</key>
-      <value>"S+N"</value>
+      <value>"RSSI"</value>
     </param>
     <param>
       <key>nconnections</key>
