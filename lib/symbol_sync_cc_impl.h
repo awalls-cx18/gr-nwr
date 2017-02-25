@@ -25,6 +25,7 @@
 #include <nwr/symbol_sync_cc.h>
 #include <nwr/clock_tracking_loop.h>
 #include <nwr/timing_error_detector.h>
+#include <nwr/mmse_interp_differentiator_cc.h>
 #include <gnuradio/filter/mmse_fir_interpolator_cc.h>
 
 namespace gr {
@@ -78,6 +79,9 @@ namespace gr {
       float d_prev_interp_phase;
       float d_prev_interp_phase_wrapped;
       int   d_prev_interp_phase_n;
+
+      // Interpolating Differentiator, if needed by the TED
+      mmse_interp_differentiator_cc *d_interp_diff;
 
       // Block Internal Clocks
       // 4 clocks that run synchronously, aligned to the Symbol Clock:

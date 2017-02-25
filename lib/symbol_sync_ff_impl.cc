@@ -70,6 +70,7 @@ namespace gr {
         d_prev_interp_phase(sps),
         d_prev_interp_phase_wrapped(sps - floorf(sps)),
         d_prev_interp_phase_n(static_cast<int>(floorf(sps))),
+        d_interp_diff(NULL),
         d_inst_output_period(sps / static_cast<float>(osps)),
         d_inst_clock_period(sps),
         d_avg_clock_period(sps),
@@ -106,6 +107,14 @@ namespace gr {
       d_ted = timing_error_detector::make(detector_type, slicer);
       if (d_ted == NULL)
         throw std::runtime_error("unable to create timing_error_detector");
+
+      if (d_ted->needs_derivative()) {
+        // Interpolating Differentiator
+        d_interp_diff = new mmse_interp_differentiator_ff();
+        if (d_interp_diff == NULL)
+          throw
+              std::runtime_error("unable to create mmse_interp_differentiator");
+      }
 
       // Block Internal Clocks
       d_interps_per_symbol_n = boost::math::lcm(d_ted->inputs_per_symbol(),
@@ -150,6 +159,8 @@ namespace gr {
 
     symbol_sync_ff_impl::~symbol_sync_ff_impl()
     {
+      if (d_interp_diff != NULL)
+        delete d_interp_diff;
       delete d_ted;
       delete d_interp;
       delete d_clock;
@@ -477,6 +488,7 @@ namespace gr {
       int ii = 0; // input index
       int oo = 0; // output index
       float interp_output;
+      float interp_derivative = 0.0f;
       float error;
       float look_ahead_phase = 0.0f;
       int look_ahead_phase_n = 0;
@@ -501,8 +513,12 @@ namespace gr {
             out[oo] = interp_output;
 
         // Timing Error Detector
-        if (ted_input_clock())
-            d_ted->input(interp_output);
+        if (ted_input_clock()) {
+            if (d_ted->needs_derivative())
+                interp_derivative =
+                  d_interp_diff->differentiate(&in[ii], d_interp_phase_wrapped);
+            d_ted->input(interp_output, interp_derivative);
+        }
         if (symbol_clock() and d_ted->needs_lookahead()) {
             // N.B. symbol_clock() == true implies ted_input_clock() == true
             // N.B. symbol_clock() == true implies output_sample_clock() == true
@@ -538,7 +554,11 @@ namespace gr {
             // the error for *this* symbol.
             interp_output = d_interp->interpolate(&in[ii + look_ahead_phase_n],
                                                   look_ahead_phase_wrapped);
-            d_ted->input_lookahead(interp_output);
+            if (d_ted->needs_derivative())
+                interp_derivative =
+                      d_interp_diff->differentiate(&in[ii + look_ahead_phase_n],
+                                                   look_ahead_phase_wrapped);
+            d_ted->input_lookahead(interp_output, interp_derivative);
         }
         error = d_ted->error();
 

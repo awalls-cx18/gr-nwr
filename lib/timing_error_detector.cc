@@ -66,6 +66,7 @@ namespace gr {
                                       int inputs_per_symbol,
                                       int error_computation_depth,
                                       bool needs_lookahead,
+                                      bool needs_derivative,
                                       digital::constellation_sptr constellation)
       : d_type(type),
         d_constellation(constellation),
@@ -75,7 +76,9 @@ namespace gr {
         d_error_depth(error_computation_depth),
         d_input(),
         d_decision(),
-        d_needs_lookahead(needs_lookahead)
+        d_input_derivative(),
+        d_needs_lookahead(needs_lookahead),
+        d_needs_derivative(needs_derivative)
     {
         if (d_constellation && d_constellation->dimensionality() != 1)
             throw std::invalid_argument(
@@ -105,7 +108,7 @@ namespace gr {
     }
 
     void
-    timing_error_detector::input(const gr_complex &x)
+    timing_error_detector::input(const gr_complex &x, const gr_complex &dx)
     {
         d_input.push_front(x);
         d_input.pop_back();
@@ -113,6 +116,11 @@ namespace gr {
         if (d_constellation) {
             d_decision.push_front(slice(d_input[0]));
             d_decision.pop_back();
+        }
+
+        if (d_needs_derivative) {
+            d_input_derivative.push_front(dx);
+            d_input_derivative.pop_back();
         }
 
         advance_input_clock();
@@ -123,7 +131,7 @@ namespace gr {
     }
 
     void
-    timing_error_detector::input(float x)
+    timing_error_detector::input(float x, float dx)
     {
         d_input.push_front(gr_complex(x, 0.0f));
         d_input.pop_back();
@@ -131,6 +139,11 @@ namespace gr {
         if (d_constellation) {
             d_decision.push_front(slice(d_input[0]));
             d_decision.pop_back();
+        }
+
+        if (d_needs_derivative) {
+            d_input_derivative.push_front(gr_complex(dx, 0.0f));
+            d_input_derivative.pop_back();
         }
 
         advance_input_clock();
@@ -141,7 +154,8 @@ namespace gr {
     }
 
     void
-    timing_error_detector::input_lookahead(const gr_complex &x)
+    timing_error_detector::input_lookahead(const gr_complex &x,
+                                           const gr_complex &dx)
     {
         if (d_input_clock != 0 || d_needs_lookahead == false)
             return;
@@ -149,17 +163,21 @@ namespace gr {
         d_input.push_front(x);
         if (d_constellation)
             d_decision.push_front(slice(d_input[0]));
+        if (d_needs_derivative)
+            d_input_derivative.push_front(dx);
 
         d_prev_error = d_error;
         d_error = compute_error_cf();
 
+        if (d_needs_derivative)
+            d_input_derivative.pop_front();
         if (d_constellation)
             d_decision.pop_front();
         d_input.pop_front();
     }
 
     void
-    timing_error_detector::input_lookahead(float x)
+    timing_error_detector::input_lookahead(float x, float dx)
     {
         if (d_input_clock != 0 || d_needs_lookahead == false)
             return;
@@ -167,10 +185,14 @@ namespace gr {
         d_input.push_front(gr_complex(x, 0.0f));
         if (d_constellation)
             d_decision.push_front(slice(d_input[0]));
+        if (d_needs_derivative)
+            d_input_derivative.push_front(gr_complex(dx, 0.0f));
 
         d_prev_error = d_error;
         d_error = compute_error_ff();
 
+        if (d_needs_derivative)
+            d_input_derivative.pop_front();
         if (d_constellation)
             d_decision.pop_front();
         d_input.pop_front();
@@ -182,6 +204,11 @@ namespace gr {
         if (d_input_clock == 0 and preserve_error != true)
             d_error = d_prev_error;
         revert_input_clock();
+
+        if (d_needs_derivative) {
+            d_input_derivative.push_back(d_input_derivative.back());
+            d_input_derivative.pop_front();
+        }
 
         if (d_constellation) {
             d_decision.push_back(d_decision.back());
@@ -199,6 +226,7 @@ namespace gr {
         d_prev_error = 0.0f;
 
         d_input.assign(d_error_depth, gr_complex(0.0f, 0.0f));
+        d_input_derivative.assign(d_error_depth, gr_complex(0.0f, 0.0f));
 
         if (d_constellation) {
             std::deque<gr_complex>::iterator it;

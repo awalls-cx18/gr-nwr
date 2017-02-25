@@ -57,11 +57,17 @@ namespace gr {
 
         virtual int inputs_per_symbol() { return d_inputs_per_symbol; }
 
-        virtual void input(const gr_complex &x);
-        virtual void input(float x);
+        virtual void input(const gr_complex &x,
+                           const gr_complex &dx = gr_complex(0.0f, 0.0f));
+        virtual void input(float x,
+                           float dx = 0.0f);
         virtual bool needs_lookahead() { return d_needs_lookahead; }
-        virtual void input_lookahead(const gr_complex &x);
-        virtual void input_lookahead(float x);
+        virtual void input_lookahead(const gr_complex &x,
+                                     const gr_complex &dx =
+                                                        gr_complex(0.0f, 0.0f));
+        virtual void input_lookahead(float x,
+                                     float dx = 0.0f);
+        virtual bool needs_derivative() { return d_needs_derivative; }
         virtual float error() { return d_error; }
 
         virtual void revert(bool preserve_error = false);
@@ -75,6 +81,7 @@ namespace gr {
                               int inputs_per_symbol,
                               int error_computation_depth,
                               bool needs_lookahead = false,
+                              bool needs_derivative = false,
                               digital::constellation_sptr constellation =
                                                  digital::constellation_sptr());
 
@@ -104,7 +111,9 @@ namespace gr {
         int d_error_depth;
         std::deque<gr_complex> d_input;
         std::deque<gr_complex> d_decision;
+        std::deque<gr_complex> d_input_derivative;
         bool d_needs_lookahead;
+        bool d_needs_derivative;
     };
 
     class NWR_API ted_mueller_and_muller : public timing_error_detector
@@ -112,7 +121,7 @@ namespace gr {
       public:
         ted_mueller_and_muller(digital::constellation_sptr constellation)
           : timing_error_detector(timing_error_detector::TED_MUELLER_AND_MULLER,
-                                  1, 2, false, constellation)
+                                  1, 2, false, false, constellation)
         {}
         ~ted_mueller_and_muller() {};
 
@@ -127,7 +136,7 @@ namespace gr {
         ted_mod_mueller_and_muller(digital::constellation_sptr constellation)
           : timing_error_detector(
                               timing_error_detector::TED_MOD_MUELLER_AND_MULLER,
-                              1, 3, false, constellation)
+                              1, 3, false, false, constellation)
         {}
         ~ted_mod_mueller_and_muller() {};
 
@@ -141,7 +150,7 @@ namespace gr {
       public:
         ted_zero_crossing(digital::constellation_sptr constellation)
           : timing_error_detector(timing_error_detector::TED_ZERO_CROSSING,
-                                  2, 3, false, constellation)
+                                  2, 3, false, false, constellation)
         {}
         ~ted_zero_crossing() {};
 
@@ -155,7 +164,8 @@ namespace gr {
       public:
         ted_gardner()
           : timing_error_detector(timing_error_detector::TED_GARDNER,
-                                  2, 3, false, digital::constellation_sptr())
+                                  2, 3, false, false,
+                                  digital::constellation_sptr())
         {}
         ~ted_gardner() {};
 
@@ -169,7 +179,8 @@ namespace gr {
       public:
         ted_early_late()
           : timing_error_detector(timing_error_detector::TED_EARLY_LATE,
-                                  2, 2, true, digital::constellation_sptr())
+                                  2, 2, true, false,
+                                  digital::constellation_sptr())
         {}
         ~ted_early_late() {};
 
@@ -184,7 +195,7 @@ namespace gr {
         ted_generalized_msk()
           : timing_error_detector(
                          timing_error_detector::TED_DANDREA_AND_MENGALI_GEN_MSK,
-                         2, 4, false, digital::constellation_sptr())
+                         2, 4, false, false, digital::constellation_sptr())
         {}
         ~ted_generalized_msk() {};
 
