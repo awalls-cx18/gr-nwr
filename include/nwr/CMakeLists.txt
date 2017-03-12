@@ -22,6 +22,7 @@ install(FILES
     clock_recovery_mm_ff.h
     clock_recovery_mm_cc.h
     interp_differentiator_taps.h
+    interpolating_resampler.h
     mmse_interp_differentiator_ff.h
     mmse_interp_differentiator_cc.h
     same_burst_decoder.h

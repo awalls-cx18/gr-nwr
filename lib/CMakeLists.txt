@@ -25,6 +25,7 @@ list(APPEND nwr_sources
     add_tag_value_ff_impl.cc
     clock_recovery_mm_ff_impl.cc
     clock_recovery_mm_cc_impl.cc
+    interpolating_resampler.cc
     mmse_interp_differentiator_ff.cc
     mmse_interp_differentiator_cc.cc
     same_burst_decoder_impl.cc
