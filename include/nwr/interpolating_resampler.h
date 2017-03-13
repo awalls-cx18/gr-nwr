@@ -52,6 +52,7 @@ namespace gr {
         virtual float phase()         { return d_phase; }
         virtual int   phase_n()       { return d_phase_n; }
         virtual float phase_wrapped() { return d_phase_wrapped; }
+        virtual float prev_phase_wrapped() { return d_prev_phase_wrapped; }
 
         virtual void next_phase(float increment,
                                 float &phase,
