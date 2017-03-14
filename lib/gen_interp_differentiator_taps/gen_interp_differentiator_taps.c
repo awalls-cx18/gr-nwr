@@ -164,11 +164,11 @@ main (int argc, char **argv)
  */\n\n");
 
 
-  printf ("static const int	NTAPS     = %4d;\n", ntaps);
-  printf ("static const int	NSTEPS    = %4d;\n", nsteps);
-  printf ("static const double	BANDWIDTH = %g;\n\n", global_B);
+  printf ("static const int	DNTAPS     = %4d;\n", ntaps);
+  printf ("static const int	DNSTEPS    = %4d;\n", nsteps);
+  printf ("static const double	DBANDWIDTH = %g;\n\n", global_B);
 
-  printf ("static const float taps[NSTEPS+1][NTAPS] = {\n");
+  printf ("static const float Dtaps[DNSTEPS+1][DNTAPS] = {\n");
   printf ("  //    -4            -3            -2            -1             0             1             2             3                mu\n");
 
 

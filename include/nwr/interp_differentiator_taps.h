@@ -21,11 +21,11 @@
  * DO NOT EDIT BY HAND.
  */
 
-static const int	NTAPS     =    8;
-static const int	NSTEPS    =  128;
-static const double	BANDWIDTH = 0.25;
+static const int	DNTAPS     =    8;
+static const int	DNSTEPS    =  128;
+static const double	DBANDWIDTH = 0.25;
 
-static const float taps[NSTEPS+1][NTAPS] = {
+static const float Dtaps[DNSTEPS+1][DNTAPS] = {
   //    -4            -3            -2            -1             0             1             2             3                mu
   { -1.97975e-02,  1.09180e-01, -3.53697e-01,  1.00394e+00, -1.76425e-01, -6.98940e-01,  1.60378e-01, -2.55693e-02 }, //   0/128
   { -1.98041e-02,  1.09378e-01, -3.55314e-01,  1.01662e+00, -1.98983e-01, -6.86147e-01,  1.58694e-01, -2.53710e-02 }, //   1/128
