@@ -43,8 +43,9 @@ namespace gr {
         switch (d_type) {
         case IR_MMSE_8TAP:
             break;
-        case IR_PFB_MF:
         case IR_PFB_NO_MF:
+            break;
+        case IR_PFB_MF:
         case IR_NONE:
         default: 
             throw std::invalid_argument(
@@ -115,18 +116,20 @@ namespace gr {
         case IR_MMSE_8TAP:
             ret = new interp_resampler_mmse_8tap_cc(derivative);
             break;
+        case IR_PFB_NO_MF:
+            ret = new interp_resampler_pfb_no_mf_cc(derivative, nfilts);
+            break;
         case IR_PFB_MF:
+            if (nfilts <= 1)
+               throw std::invalid_argument("interpolating_resampler_ccf: "
+                                           "number of polyphase filter arms "
+                                           "must be greater than 1");
             if (taps.size() < nfilts)
                throw std::invalid_argument("interpolating_resampler_ccf: "
                                            "length of the prototype filter taps"
                                            " must be greater than or equal to "
                                            "the number of polyphase filter arms"
                                            ".");
-        case IR_PFB_NO_MF:
-            if (nfilts <= 1)
-               throw std::invalid_argument("interpolating_resampler_ccf: "
-                                           "number of polyphase filter arms "
-                                           "must be greater than 1");
         case IR_NONE:
         default: 
             throw std::invalid_argument("interpolating_resampler_ccf: invalid "
@@ -149,18 +152,20 @@ namespace gr {
         case IR_MMSE_8TAP:
             ret = new interp_resampler_mmse_8tap_ff(derivative);
             break;
+        case IR_PFB_NO_MF:
+            ret = new interp_resampler_pfb_no_mf_ff(derivative, nfilts);
+            break;
         case IR_PFB_MF:
+            if (nfilts <= 1)
+               throw std::invalid_argument("interpolating_resampler_fff: "
+                                           "number of polyphase filter arms "
+                                           "must be greater than 1");
             if (taps.size() < nfilts)
                throw std::invalid_argument("interpolating_resampler_fff: "
                                            "length of the prototype filter taps"
                                            " must be greater than or equal to "
                                            "the number of polyphase filter arms"
                                            ".");
-        case IR_PFB_NO_MF:
-            if (nfilts <= 1)
-               throw std::invalid_argument("interpolating_resampler_fff: "
-                                           "number of polyphase filter arms "
-                                           "must be greater than 1");
         case IR_NONE:
         default: 
             throw std::invalid_argument("interpolating_resampler_fff: invalid "
@@ -264,6 +269,205 @@ namespace gr {
     interp_resampler_mmse_8tap_ff::ntaps() const
     {
         return d_interp->ntaps();
+    }
+
+    /*************************************************************************/
+
+#include <gnuradio/filter/interpolator_taps.h>
+#include <nwr/interp_differentiator_taps.h>
+
+    interp_resampler_pfb_no_mf_cc::interp_resampler_pfb_no_mf_cc(
+                                                                bool derivative,
+                                                                int nfilts)
+    : interpolating_resampler_ccf(interpolating_resampler::IR_PFB_NO_MF,
+                                  derivative),
+      d_nfilters(0),
+      d_filters(),
+      d_diff_filters()
+    {
+        if (nfilts <= 1)
+            throw std::invalid_argument("interpolating_resampler_pfb_no_mf_cc: "
+                                        "number of polyphase filter arms "
+                                        "must be greater than 1");
+
+        // Round up the number of filter arms to the current or next power of 2
+        d_nfilters = 
+               1 << (static_cast<int>(log2f(static_cast<float>(nfilts-1))) + 1);
+
+        // N.B. We assume in this class: NSTEPS == DNSTEPS and NTAPS == DNTAPS
+
+        // Limit to the maximum number of precomputed MMSE tap sets
+        if (d_nfilters <= 0 or d_nfilters > NSTEPS)
+            d_nfilters = NSTEPS;
+
+        // Create our polyphase filter arms for the steps from 0.0 to 1.0 from
+        // the MMSE interpolating filter and MMSE interpolating differentiator
+        // taps rows.
+        // N.B. We create an extra final row for an offset of 1.0, because it's
+        // easier than dealing with wrap around from 0.99... to 0.0 shifted
+        // by 1 tap.
+        d_filters = 
+         std::vector<gr::filter::kernel::fir_filter_ccf*>(d_nfilters + 1, NULL);
+        d_diff_filters = 
+         std::vector<gr::filter::kernel::fir_filter_ccf*>(d_nfilters + 1, NULL);
+
+        std::vector<float> t(NTAPS, 0);
+        int incr = NSTEPS/d_nfilters;
+        int src, dst;
+        for (src = 0, dst = 0; src <= NSTEPS; src += incr, dst++) {
+
+            t.assign(&taps[src][0], &taps[src][NTAPS]);
+            d_filters[dst] = new gr::filter::kernel::fir_filter_ccf(1, t);
+            if (d_filters[dst] == NULL)
+                throw std::runtime_error("unable to create fir_filter_ccf");
+
+            if (d_derivative) {
+                t.assign(&Dtaps[src][0], &Dtaps[src][DNTAPS]);
+                d_diff_filters[dst] =
+                                   new gr::filter::kernel::fir_filter_ccf(1, t);
+                if (d_diff_filters[dst] == NULL)
+                    throw std::runtime_error("unable to create fir_filter_ccf");
+            }
+        }
+    }
+
+    interp_resampler_pfb_no_mf_cc::~interp_resampler_pfb_no_mf_cc()
+    {
+        for (int i = 0; i <= d_nfilters; i++) {
+            delete d_filters[i];
+            if (d_derivative)
+                delete d_diff_filters[i];
+        }
+    }
+
+    gr_complex
+    interp_resampler_pfb_no_mf_cc::interpolate(const gr_complex input[],
+                                               float mu) const
+    {
+        int arm = static_cast<int>(rint(mu * d_nfilters));
+
+        if (arm < 0 or arm > d_nfilters)
+            throw std::runtime_error("interp_resampler_pfb_no_mf_cc: mu is not "
+                                     "in the range [0.0, 1.0]");
+
+        return d_filters[arm]->filter(input);
+    }
+
+    gr_complex
+    interp_resampler_pfb_no_mf_cc::differentiate(const gr_complex input[],
+                                                 float mu) const
+    {
+        int arm = static_cast<int>(rint(mu * d_nfilters));
+
+        if (arm < 0 or arm > d_nfilters)
+            throw std::runtime_error("interp_resampler_pfb_no_mf_cc: mu is not "
+                                     "in the range [0.0, 1.0]");
+
+        return d_diff_filters[arm]->filter(input);
+    }
+
+    unsigned int
+    interp_resampler_pfb_no_mf_cc::ntaps() const
+    {
+        return NTAPS;
+    }
+
+    /*************************************************************************/
+
+    interp_resampler_pfb_no_mf_ff::interp_resampler_pfb_no_mf_ff(
+                                                                bool derivative,
+                                                                int nfilts)
+    : interpolating_resampler_fff(interpolating_resampler::IR_PFB_NO_MF,
+                                  derivative),
+      d_nfilters(0),
+      d_filters(),
+      d_diff_filters()
+    {
+        if (nfilts <= 1)
+            throw std::invalid_argument("interpolating_resampler_pfb_no_mf_ff: "
+                                        "number of polyphase filter arms "
+                                        "must be greater than 1");
+
+        // Round up the number of filter arms to the current or next power of 2
+        d_nfilters = 
+               1 << (static_cast<int>(log2f(static_cast<float>(nfilts-1))) + 1);
+
+        // N.B. We assume in this class: NSTEPS == DNSTEPS and NTAPS == DNTAPS
+
+        // Limit to the maximum number of precomputed MMSE tap sets
+        if (d_nfilters <= 0 or d_nfilters > NSTEPS)
+            d_nfilters = NSTEPS;
+
+        // Create our polyphase filter arms for the steps from 0.0 to 1.0 from
+        // the MMSE interpolating filter and MMSE interpolating differentiator
+        // taps rows.
+        // N.B. We create an extra final row for an offset of 1.0, because it's
+        // easier than dealing with wrap around from 0.99... to 0.0 shifted
+        // by 1 tap.
+        d_filters = 
+         std::vector<gr::filter::kernel::fir_filter_fff*>(d_nfilters + 1, NULL);
+        d_diff_filters = 
+         std::vector<gr::filter::kernel::fir_filter_fff*>(d_nfilters + 1, NULL);
+
+        std::vector<float> t(NTAPS, 0);
+        int incr = NSTEPS/d_nfilters;
+        int src, dst;
+        for (src = 0, dst = 0; src <= NSTEPS; src += incr, dst++) {
+
+            t.assign(&taps[src][0], &taps[src][NTAPS]);
+            d_filters[dst] = new gr::filter::kernel::fir_filter_fff(1, t);
+            if (d_filters[dst] == NULL)
+                throw std::runtime_error("unable to create fir_filter_fff");
+
+            if (d_derivative) {
+                t.assign(&Dtaps[src][0], &Dtaps[src][DNTAPS]);
+                d_diff_filters[dst] =
+                                   new gr::filter::kernel::fir_filter_fff(1, t);
+                if (d_diff_filters[dst] == NULL)
+                    throw std::runtime_error("unable to create fir_filter_fff");
+            }
+        }
+    }
+
+    interp_resampler_pfb_no_mf_ff::~interp_resampler_pfb_no_mf_ff()
+    {
+        for (int i = 0; i <= d_nfilters; i++) {
+            delete d_filters[i];
+            if (d_derivative)
+                delete d_diff_filters[i];
+        }
+    }
+
+    float
+    interp_resampler_pfb_no_mf_ff::interpolate(const float input[],
+                                               float mu) const
+    {
+        int arm = static_cast<int>(rint(mu * d_nfilters));
+
+        if (arm < 0 or arm > d_nfilters)
+            throw std::runtime_error("interp_resampler_pfb_no_mf_ff: mu is not "
+                                     "in the range [0.0, 1.0]");
+
+        return d_filters[arm]->filter(input);
+    }
+
+    float
+    interp_resampler_pfb_no_mf_ff::differentiate(const float input[],
+                                                 float mu) const
+    {
+        int arm = static_cast<int>(rint(mu * d_nfilters));
+
+        if (arm < 0 or arm > d_nfilters)
+            throw std::runtime_error("interp_resampler_pfb_no_mf_ff: mu is not "
+                                     "in the range [0.0, 1.0]");
+
+        return d_diff_filters[arm]->filter(input);
+    }
+
+    unsigned int
+    interp_resampler_pfb_no_mf_ff::ntaps() const
+    {
+        return NTAPS;
     }
 
     /*************************************************************************/

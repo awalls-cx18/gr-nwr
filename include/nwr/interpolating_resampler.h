@@ -160,6 +160,44 @@ namespace gr {
 
     /*************************************************************************/
 
+    class NWR_API interp_resampler_pfb_no_mf_cc
+                  : public interpolating_resampler_ccf
+    {
+      public:
+        interp_resampler_pfb_no_mf_cc(bool derivative = false,
+                                      int nfilts = 128);
+        ~interp_resampler_pfb_no_mf_cc();
+
+        unsigned int ntaps() const;
+        gr_complex interpolate(const gr_complex input[], float mu) const;
+        gr_complex differentiate(const gr_complex input[], float mu) const;
+
+      private:
+        int d_nfilters;
+        std::vector<gr::filter::kernel::fir_filter_ccf*> d_filters;
+        std::vector<gr::filter::kernel::fir_filter_ccf*> d_diff_filters;
+    };
+
+    class NWR_API interp_resampler_pfb_no_mf_ff
+                  : public interpolating_resampler_fff
+    {
+      public:
+        interp_resampler_pfb_no_mf_ff(bool derivative = false,
+                                      int nfilts = 128);
+        ~interp_resampler_pfb_no_mf_ff();
+
+        unsigned int ntaps() const;
+        float interpolate(const float input[], float mu) const;
+        float differentiate(const float input[], float mu) const;
+
+      private:
+        int d_nfilters;
+        std::vector<gr::filter::kernel::fir_filter_fff*> d_filters;
+        std::vector<gr::filter::kernel::fir_filter_fff*> d_diff_filters;
+    };
+
+    /*************************************************************************/
+
   } /* namespace nwr */
 } /* namespace gr */
 
