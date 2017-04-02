@@ -28,6 +28,7 @@ list(APPEND nwr_sources
     interpolating_resampler.cc
     mmse_interp_differentiator_ff.cc
     mmse_interp_differentiator_cc.cc
+    pll_refout_cc_impl.cc
     same_burst_decoder_impl.cc
     symbol_sync_ff_impl.cc
     symbol_sync_cc_impl.cc

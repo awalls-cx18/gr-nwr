@@ -11,6 +11,7 @@
 
 #define NWR_API
 #define DIGITAL_API
+#define BLOCKS_API
 
 %include "gnuradio.i"			// the common stuff
 
@@ -27,12 +28,15 @@
 #include "nwr/add_tag_value_ff.h"
 #include "nwr/clock_recovery_mm_ff.h"
 #include "nwr/clock_recovery_mm_cc.h"
+#include "gnuradio/blocks/control_loop.h"
+#include "nwr/pll_refout_cc.h"
 #include "nwr/same_burst_decoder.h"
 #include "nwr/symbol_sync_ff.h"
 #include "nwr/symbol_sync_cc.h"
 %}
 
 %include "gnuradio/digital/constellation.h"
+%include "gnuradio/blocks/control_loop.h"
 %include "nwr/timing_error_detector.h"
 
 %include "nwr/lms_da_equalizer_ff.h"
@@ -49,6 +53,8 @@ GR_SWIG_BLOCK_MAGIC2(nwr, add_tag_value_ff);
 GR_SWIG_BLOCK_MAGIC2(nwr, clock_recovery_mm_ff);
 %include "nwr/clock_recovery_mm_cc.h"
 GR_SWIG_BLOCK_MAGIC2(nwr, clock_recovery_mm_cc);
+%include "nwr/pll_refout_cc.h"
+GR_SWIG_BLOCK_MAGIC2(nwr, pll_refout_cc);
 %include "nwr/same_burst_decoder.h"
 GR_SWIG_BLOCK_MAGIC2(nwr, same_burst_decoder);
 %include "nwr/symbol_sync_ff.h"

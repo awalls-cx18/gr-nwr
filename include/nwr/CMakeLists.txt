@@ -25,6 +25,7 @@ install(FILES
     interpolating_resampler.h
     mmse_interp_differentiator_ff.h
     mmse_interp_differentiator_cc.h
+    pll_refout_cc.h
     same_burst_decoder.h
     symbol_sync_ff.h
     symbol_sync_cc.h
