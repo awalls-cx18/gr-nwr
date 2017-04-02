@@ -21,6 +21,7 @@
 %{
 #include "gnuradio/digital/constellation.h"
 #include "nwr/timing_error_detector.h"
+#include "nwr/interpolating_resampler.h"
 #include "nwr/lms_da_equalizer_ff.h"
 #include "nwr/burst_detect_and_tag.h"
 #include "nwr/correction_estimator_ff.h"
@@ -38,6 +39,7 @@
 %include "gnuradio/digital/constellation.h"
 %include "gnuradio/blocks/control_loop.h"
 %include "nwr/timing_error_detector.h"
+%include "nwr/interpolating_resampler.h"
 
 %include "nwr/lms_da_equalizer_ff.h"
 GR_SWIG_BLOCK_MAGIC2(nwr, lms_da_equalizer_ff);

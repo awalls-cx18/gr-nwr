@@ -39,7 +39,10 @@ namespace gr {
                          float damping_factor,
                          float max_deviation,
                          int osps,
-                         digital::constellation_sptr slicer)
+                         digital::constellation_sptr slicer,
+                         interpolating_resampler::ir_type interp_type,
+                         int n_filters,
+                         const std::vector<float> &taps)
     {
       return gnuradio::get_initial_sptr
         (new symbol_sync_cc_impl(detector_type,
@@ -48,7 +51,10 @@ namespace gr {
                                  damping_factor,
                                  max_deviation,
                                  osps,
-                                 slicer));
+                                 slicer,
+                                 interp_type,
+                                 n_filters,
+                                 taps));
     }
 
     symbol_sync_cc_impl::symbol_sync_cc_impl(
@@ -58,7 +64,10 @@ namespace gr {
                                   float damping_factor,
                                   float max_deviation,
                                   int osps,
-                                  digital::constellation_sptr slicer)
+                                  digital::constellation_sptr slicer,
+                                  interpolating_resampler::ir_type interp_type,
+                                  int n_filters,
+                                  const std::vector<float> &taps)
       : block("symbol_sync_cc",
               io_signature::make(1, 1, sizeof(gr_complex)),
               io_signature::makev(1, 4, std::vector<int>(4, sizeof(float)))),
@@ -102,10 +111,9 @@ namespace gr {
         throw std::runtime_error("unable to create timing_error_detector");
 
       // Interpolating Resampler
-      d_interp = interpolating_resampler_ccf::make(
-                                          interpolating_resampler::IR_MMSE_8TAP,
-                                          d_ted->needs_derivative(),
-                                          0, std::vector<float>());
+      d_interp = interpolating_resampler_ccf::make(interp_type,
+                                                   d_ted->needs_derivative(),
+                                                   n_filters, taps);
       if (d_interp == NULL)
        throw std::runtime_error("unable to create interpolating_resampler_ccf");
 

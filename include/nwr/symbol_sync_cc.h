@@ -25,6 +25,7 @@
 #include <nwr/api.h>
 #include <gnuradio/block.h>
 #include <nwr/timing_error_detector.h>
+#include <nwr/interpolating_resampler.h>
 
 namespace gr {
   namespace nwr {
@@ -103,6 +104,17 @@ namespace gr {
        * as a slicer, if the particular algorithm needs sliced
        * symbols.
        *
+       * \param interp_type
+       * The enumerated type of interpolating resampler to use.
+       * See the interpolating resampler class for a list of possible types.
+       *
+       * \param n_filters
+       * The number of arms in the polyphase filterbank of the interpolating
+       * resampler, if using an interpolating resampler that uses a PFB.
+       *
+       * \param taps
+       * The prototype filter for the polyphase filterbank of the interpolating
+       * resampler, if using an interpolating resampler that uses a PFB.
        */
       static sptr make(timing_error_detector::ted_type detector_type,
                        float sps,
@@ -111,7 +123,11 @@ namespace gr {
                        float max_deviation = 1.5f,
                        int osps = 1,
                        digital::constellation_sptr slicer =
-                                                 digital::constellation_sptr());
+                                                 digital::constellation_sptr(),
+                       interpolating_resampler::ir_type interp_type = 
+                                          interpolating_resampler::IR_MMSE_8TAP,
+                       int n_filters = 128,
+                       const std::vector<float> &taps = std::vector<float>());
       
       virtual float loop_bandwidth() const = 0;
       virtual float damping_factor() const = 0;

@@ -39,7 +39,10 @@ namespace gr {
                           float damping_factor,
                           float max_deviation,
                           int osps,
-                          digital::constellation_sptr slicer);
+                          digital::constellation_sptr slicer,
+                          interpolating_resampler::ir_type interp_type,
+                          int n_filters,
+                          const std::vector<float> &taps);
       ~symbol_sync_ff_impl();
 
       void forecast(int noutput_items, gr_vector_int &ninput_items_required);

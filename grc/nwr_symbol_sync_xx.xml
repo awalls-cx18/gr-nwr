@@ -25,7 +25,7 @@
     <category>[nwr]</category>
     <import>import nwr</import>
     <import>from gnuradio import digital</import>
-    <make>nwr.symbol_sync_$(type)($ted_type, $sps, $loop_bw, $damping, $max_dev, $osps, $constellation)</make>
+    <make>nwr.symbol_sync_$(type)($ted_type, $sps, $loop_bw, $damping, $max_dev, $osps, $constellation, $resamp_type, $nfilters, $pfb_mf_taps)</make>
 
     <callback>set_loop_bandwidth($loop_bw)</callback>
     <callback>set_damping_factor($damping)</callback>
@@ -54,34 +54,42 @@
         <option>
             <name>Mueller and Müller</name>
             <key>nwr.timing_error_detector.TED_MUELLER_AND_MULLER</key>
+            <opt>hide_constellation:part</opt>
         </option>
         <option>
             <name>Modified Mueller and Müller</name>
             <key>nwr.timing_error_detector.TED_MOD_MUELLER_AND_MULLER</key>
+            <opt>hide_constellation:part</opt>
         </option>
         <option>
             <name>Zero Crossing</name>
             <key>nwr.timing_error_detector.TED_ZERO_CROSSING</key>
+            <opt>hide_constellation:part</opt>
         </option>
         <option>
             <name>Gardner</name>
             <key>nwr.timing_error_detector.TED_GARDNER</key>
+            <opt>hide_constellation:all</opt>
         </option>
         <option>
             <name>Early-Late</name>
             <key>nwr.timing_error_detector.TED_EARLY_LATE</key>
+            <opt>hide_constellation:all</opt>
         </option>
         <option>
-            <name>D'Andrea and Mengalli Gen MSK</name>
-            <key>nwr.timing_error_detector.TED_DANDREA_AND_MENGALLI_GEN_MSK</key>
+            <name>D'Andrea and Mengali Gen MSK</name>
+            <key>nwr.timing_error_detector.TED_DANDREA_AND_MENGALI_GEN_MSK</key>
+            <opt>hide_constellation:all</opt>
         </option>
         <option>
             <name>y[n]y'[n] Maximum Likelyhood</name>
             <key>nwr.timing_error_detector.TED_SIGNAL_TIMES_SLOPE_ML</key>
+            <opt>hide_constellation:all</opt>
         </option>
         <option>
             <name>sgn(y[n])y'[n] Maximum Likelyhood</name>
             <key>nwr.timing_error_detector.TED_SIGNUM_TIMES_SLOPE_ML</key>
+            <opt>hide_constellation:all</opt>
         </option>
     </param>
     <param>
@@ -89,7 +97,7 @@
         <key>constellation</key>
         <value>digital.constellation_bpsk().base()</value>
         <type>raw</type>
-        <hide>part</hide>
+        <hide>$ted_type.hide_constellation</hide>
     </param>
     <param>
         <name>Samples per Symbol</name>
@@ -120,6 +128,43 @@
         <key>osps</key>
         <value>1</value>
         <type>int</type>
+    </param>
+    <param>
+        <name>Interpolating Resampler</name>
+        <key>resamp_type</key>
+        <type>enum</type>
+        <option>
+            <name>MMSE, 8 tap FIR</name>
+            <key>nwr.interpolating_resampler.IR_MMSE_8TAP</key>
+            <opt>hide_nfilters:all</opt>
+            <opt>hide_pfb_mf_taps:all</opt>
+        </option>
+        <option>
+            <name>Polyphase Filterbank, MMSE</name>
+            <key>nwr.interpolating_resampler.IR_PFB_NO_MF</key>
+            <opt>hide_nfilters:</opt>
+            <opt>hide_pfb_mf_taps:all</opt>
+        </option>
+        <option>
+            <name>Polyphase Filterbank, MF</name>
+            <key>nwr.interpolating_resampler.IR_PFB_MF</key>
+            <opt>hide_nfilters:</opt>
+            <opt>hide_pfb_mf_taps:</opt>
+        </option>
+    </param>
+    <param>
+        <name>Filterbank Arms</name>
+        <key>nfilters</key>
+        <value>128</value>
+        <type>int</type>
+        <hide>$resamp_type.hide_nfilters</hide>
+    </param>
+    <param>
+        <name>PFB MF Taps</name>
+        <key>pfb_mf_taps</key>
+        <value>[]</value>
+        <type>real_vector</type>
+        <hide>$resamp_type.hide_pfb_mf_taps</hide>
     </param>
 
     <sink>
