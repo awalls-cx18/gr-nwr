@@ -216,6 +216,9 @@ namespace gr {
         const unsigned int d_taps_per_filter;
         std::vector<gr::filter::kernel::fir_filter_ccf*> d_filters;
         std::vector<gr::filter::kernel::fir_filter_ccf*> d_diff_filters;
+
+        std::vector< std::vector<float> > d_taps;
+        std::vector< std::vector<float> > d_diff_taps;
     };
 
     class NWR_API interp_resampler_pfb_mf_fff
@@ -236,6 +239,9 @@ namespace gr {
         const unsigned int d_taps_per_filter;
         std::vector<gr::filter::kernel::fir_filter_fff*> d_filters;
         std::vector<gr::filter::kernel::fir_filter_fff*> d_diff_filters;
+
+        std::vector< std::vector<float> > d_taps;
+        std::vector< std::vector<float> > d_diff_taps;
     };
 
   } /* namespace nwr */

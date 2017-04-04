@@ -469,7 +469,9 @@ namespace gr {
                                      ceil(  static_cast<double>(taps.size())
                                           / static_cast<double>(nfilts     )))),
       d_filters(),
-      d_diff_filters()
+      d_diff_filters(),
+      d_taps(),
+      d_diff_taps()
     {
         if (d_nfilters <= 1)
             throw std::invalid_argument("interpolating_resampler_pfb_mf_ccf: "
@@ -519,6 +521,10 @@ namespace gr {
             diff_taps.pop_front();
         }
 
+        // Squash the differentiation noise spikes at the filter ends.
+        diff_taps[0] = 0.0f;
+        diff_taps[diff_taps.size()-1] = 0.0f;
+
         // Normalize the prototype derviative filter gain to the number of
         // filter arms
         n = diff_taps.size();
@@ -545,30 +551,32 @@ namespace gr {
 
         m = taps.size();
         n = diff_taps.size();
-        std::vector<float> t(d_taps_per_filter, 0);
+        d_taps.resize(d_nfilters+1);
+        d_diff_taps.resize(d_nfilters+1);
         signed int taps_per_filter = static_cast<signed int>(d_taps_per_filter);
 
         for (i = 0; i <= d_nfilters; i++) {
-            t.assign(d_taps_per_filter, 0);
+            d_taps[i] = std::vector<float>(d_taps_per_filter, 0.0f);
             for (j = 0; j < taps_per_filter; j++) {
                 k = i+j*d_nfilters;
                 if (k < m)
-                    t[j] = taps[k];
+                    d_taps[i][j] = taps[k];
             }
-            d_filters[i] = new gr::filter::kernel::fir_filter_ccf(1, t);
+            d_filters[i] = new gr::filter::kernel::fir_filter_ccf(1, d_taps[i]);
             if (d_filters[i] == NULL)
                 throw std::runtime_error("unable to create fir_filter_ccf");
 
             if (not d_derivative)
                 continue;
 
-            t.assign(d_taps_per_filter, 0);
+            d_diff_taps[i] = std::vector<float>(d_taps_per_filter, 0.0f);
             for (j = 0; j < taps_per_filter; j++) {
                 k = i+j*d_nfilters;
                 if (k < n)
-                    t[j] = taps[k];
+                    d_diff_taps[i][j] = diff_taps[k];
             }
-            d_diff_filters[i] = new gr::filter::kernel::fir_filter_ccf(1, t);
+            d_diff_filters[i] =
+                      new gr::filter::kernel::fir_filter_ccf(1, d_diff_taps[i]);
             if (d_diff_filters[i] == NULL)
                 throw std::runtime_error("unable to create fir_filter_ccf");
         }
@@ -628,7 +636,9 @@ namespace gr {
                                      ceil(  static_cast<double>(taps.size())
                                           / static_cast<double>(nfilts     )))),
       d_filters(),
-      d_diff_filters()
+      d_diff_filters(),
+      d_taps(),
+      d_diff_taps()
     {
         if (d_nfilters <= 1)
             throw std::invalid_argument("interpolating_resampler_pfb_mf_fff: "
@@ -678,6 +688,10 @@ namespace gr {
             diff_taps.pop_front();
         }
 
+        // Squash the differentiation noise spikes at the filter ends.
+        diff_taps[0] = 0.0f;
+        diff_taps[diff_taps.size()-1] = 0.0f;
+
         // Normalize the prototype derviative filter gain to the number of
         // filter arms
         n = diff_taps.size();
@@ -704,30 +718,32 @@ namespace gr {
 
         m = taps.size();
         n = diff_taps.size();
-        std::vector<float> t(d_taps_per_filter, 0);
+        d_taps.resize(d_nfilters+1);
+        d_diff_taps.resize(d_nfilters+1);
         signed int taps_per_filter = static_cast<signed int>(d_taps_per_filter);
 
         for (i = 0; i <= d_nfilters; i++) {
-            t.assign(d_taps_per_filter, 0);
+            d_taps[i] = std::vector<float>(d_taps_per_filter, 0.0f);
             for (j = 0; j < taps_per_filter; j++) {
                 k = i+j*d_nfilters;
                 if (k < m)
-                    t[j] = taps[k];
+                    d_taps[i][j] = taps[k];
             }
-            d_filters[i] = new gr::filter::kernel::fir_filter_fff(1, t);
+            d_filters[i] = new gr::filter::kernel::fir_filter_fff(1, d_taps[i]);
             if (d_filters[i] == NULL)
                 throw std::runtime_error("unable to create fir_filter_fff");
 
             if (not d_derivative)
                 continue;
 
-            t.assign(d_taps_per_filter, 0);
+            d_diff_taps[i] = std::vector<float>(d_taps_per_filter, 0.0f);
             for (j = 0; j < taps_per_filter; j++) {
                 k = i+j*d_nfilters;
                 if (k < n)
-                    t[j] = taps[k];
+                    d_diff_taps[i][j] = diff_taps[k];
             }
-            d_diff_filters[i] = new gr::filter::kernel::fir_filter_fff(1, t);
+            d_diff_filters[i] =
+                      new gr::filter::kernel::fir_filter_fff(1, d_diff_taps[i]);
             if (d_diff_filters[i] == NULL)
                 throw std::runtime_error("unable to create fir_filter_fff");
         }
