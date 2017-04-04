@@ -198,6 +198,46 @@ namespace gr {
 
     /*************************************************************************/
 
+    class NWR_API interp_resampler_pfb_mf_ccf
+                  : public interpolating_resampler_ccf
+    {
+      public:
+        interp_resampler_pfb_mf_ccf(const std::vector<float> &taps,
+                                    int nfilts = 32,
+                                    bool derivative = false);
+        ~interp_resampler_pfb_mf_ccf();
+
+        unsigned int ntaps() const;
+        gr_complex interpolate(const gr_complex input[], float mu) const;
+        gr_complex differentiate(const gr_complex input[], float mu) const;
+
+      private:
+        int d_nfilters;
+        const unsigned int d_taps_per_filter;
+        std::vector<gr::filter::kernel::fir_filter_ccf*> d_filters;
+        std::vector<gr::filter::kernel::fir_filter_ccf*> d_diff_filters;
+    };
+
+    class NWR_API interp_resampler_pfb_mf_fff
+                  : public interpolating_resampler_fff
+    {
+      public:
+        interp_resampler_pfb_mf_fff(const std::vector<float> &taps,
+                                    int nfilts = 32,
+                                    bool derivative = false);
+        ~interp_resampler_pfb_mf_fff();
+
+        unsigned int ntaps() const;
+        float interpolate(const float input[], float mu) const;
+        float differentiate(const float input[], float mu) const;
+
+      private:
+        int d_nfilters;
+        const unsigned int d_taps_per_filter;
+        std::vector<gr::filter::kernel::fir_filter_fff*> d_filters;
+        std::vector<gr::filter::kernel::fir_filter_fff*> d_diff_filters;
+    };
+
   } /* namespace nwr */
 } /* namespace gr */
 
