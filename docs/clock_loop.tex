@@ -1,0 +1,303 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{dsp,chains}
+
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+\newcommand{\z}{\mathpzc{z}}
+
+\title{Symbol Clock Phase Tracking Loop}
+\date{2017-04-08}
+\author{Andy Walls}
+
+\begin{document}
+
+\pagenumbering{gobble}
+\maketitle
+\newpage
+
+\pagenumbering{arabic}
+
+\begin{figure}
+  \begin{tikzpicture}
+    \matrix[row sep=2.5mm, column sep=10mm]
+    {
+      \node[dspnodeopen, dsp/label=above] (m00) {$\theta_i[n]$}; &
+      \node[dspmultiplier, dsp/label=above]    (m01) {PD};            &
+      \node[dspnodefull, dsp/label=above] (m02) {$e[n]$};        &
+      \node[dspsquare]                    (m03) {$\alpha$};      &
+      \node[coordinate]                   (m04) {};              &
+      \node[coordinate]                   (m05) {};              &
+      \node[coordinate]                   (m06) {};              &
+      \node[coordinate]                   (m07) {};              \\
+
+      \node[coordinate]                   (m10) {};              &
+      \node[coordinate]                   (m11) {};              &
+      \node[coordinate]                   (m12) {};              &
+      \node[coordinate]                   (m13) {};              &
+      \node[coordinate]                   (m14) {};              &
+      \node[coordinate]                   (m15) {};              &
+      \node[coordinate]                   (m16) {};              &
+      \node[coordinate]                   (m17) {};              \\
+
+      \node[coordinate]                   (m20) {};              &
+      \node[coordinate]                   (m21) {};              &
+      \node[coordinate]                   (m22) {};              &
+      \node[dspsquare]                    (m23) {$\beta$};       &
+      \node[dspadder]                     (m24) {};              &
+      \node[coordinate]                   (m25) {};              &
+      \node[dspnodefull, dsp/label=above] (m26) {$\bar{\theta}_{inc}[n]$};  &
+      \node[dspadder]                     (m27) {};              \\
+
+      \node[coordinate]                   (m30) {};              &
+      \node[coordinate]                   (m31) {};              &
+      \node[coordinate]                   (m32) {};              &
+      \node[coordinate]                   (m33) {};              &
+      \node[coordinate]                   (m34) {};              &
+      \node[dspsquare]                    (m35) {$\z^{-1}$};     &
+      \node[coordinate]                   (m36) {};              &
+      \node[coordinate]                   (m37) {};              \\
+
+      \node[coordinate]                   (m40) {};              &
+      \node[coordinate]                   (m41) {};              &
+      \node[coordinate]                   (m42) {};              &
+      \node[coordinate]                   (m43) {};              &
+      \node[coordinate]                   (m44) {};              &
+      \node[coordinate]                   (m45) {};              &
+      \node[coordinate]                   (m46) {};              &
+      \node[coordinate]                   (m47) {};              \\
+
+      \node[coordinate]                   (m50) {};              &
+      \node[coordinate]                   (m51) {};              &
+      \node[dspnodefull, dsp/label=above] (m52) {$\theta_o[n]$}; &
+      \node[dspsquare]                    (m53) {$\z^{-1}$};     &
+      \node[coordinate]                   (m54) {};              &
+      \node[dspadder]                     (m55) {};              &
+      \node[coordinate]                   (m56) {};              &
+      \node[coordinate]                   (m57) {};              \\
+
+      \node[coordinate]                   (m60) {};              &
+      \node[coordinate]                   (m61) {};              &
+      \node[coordinate]                   (m62) {};              &
+      \node[coordinate]                   (m63) {};              &
+      \node[coordinate]                   (m64) {};              &
+      \node[coordinate]                   (m65) {};              &
+      \node[coordinate]                   (m66) {};              &
+      \node[coordinate]                   (m67) {};              \\
+    };
+    \begin{scope}[start chain]
+      \chainin (m00);
+      \chainin (m01) [join=by dspconn];
+      \chainin (m03) [join=by dspconn];
+      \chainin (m07) [join=by dspline];
+      \chainin (m27) [join=by dspconn];
+      \chainin (m57) [join=by dspline];
+      \chainin (m56) [join=by dspline, label=$\hat{\theta}_{inc}{[n]}$ ];
+      \chainin (m55) [join=by dspconn];
+      \chainin (m54) [join=by dspline, label=$\theta_o{[n+1]}$ ];
+      \chainin (m53) [join=by dspconn];
+      \chainin (m51) [join=by dspline];
+      \chainin (m11) [join=by dspline];
+      \chainin (m01) [join=by dspconn];
+    \end{scope}
+    \begin{scope}[start chain]
+      \chainin (m02);
+      \chainin (m22) [join=by dspline];
+      \chainin (m23) [join=by dspconn];
+      \chainin (m24) [join=by dspconn];
+      \chainin (m27) [join=by dspconn];
+    \end{scope}
+    \begin{scope}[start chain]
+      \chainin (m26);
+      \chainin (m36) [join=by dspline];
+      \chainin (m35) [join=by dspconn];
+      \chainin (m34) [join=by dspline];
+      \chainin (m24) [join=by dspconn];
+    \end{scope}
+    \begin{scope}[start chain]
+      \chainin (m52);
+      \chainin (m62) [join=by dspline];
+      \chainin (m65) [join=by dspline];
+      \chainin (m55) [join=by dspconn];
+    \end{scope}
+  \end{tikzpicture}
+  \caption{Symbol Clock Phase Tracking Loop Model}
+\end{figure}
+
+The symbol clock tracking loop, with an ideal clock phase error detector and a
+PI filter, has a discrete time difference equation in terms of the phase error,
+$e[n]$, proportional gain, $\alpha$, and the integral gain, $\beta$, as follows:
+
+\begin{align*}
+   e[n] &= \theta_i[n] - \theta_o[n] \\
+   \theta_o[n+1] &= \theta_o[n] + \alpha e[n] + \sum_{k=0}^{n}{\beta e[n-k]}\\
+   \theta_o[n+1] &= \theta_o[n]
+                  + \alpha\theta_i[n] - \alpha\theta_o[n]
+                  + \beta\sum_{k=0}^{n}{\theta_i[n-k]}
+                  - \beta\sum_{k=0}^{n}{\theta_o[n-k]}\\
+\end{align*}
+
+Assuming $n \rightarrow \infty$ and taking the Z transform:
+
+\begin{align*}
+    z&\Theta_o(z) = \Theta_o(z) + \alpha\Theta_i(z) - \alpha\Theta_o(z)
+               + \beta\frac{z}{z-1}\Theta_i(z) - \beta\frac{z}{z-1}\Theta_o(z)\\
+    \\
+    &\Theta_o(z)\left[z - 1 + \alpha + \beta\frac{z}{z-1}\right]
+     = \Theta_i(z)\left[\alpha + \beta\frac{z}{z-1}\right]\\
+\end{align*}
+
+After some algebraic manipulation, one arrives at the following symbol clock
+tracking loop phase-transfer function, in terms of the proportional gain,
+$\alpha$, and the integral gain, $\beta$:
+
+\begin{align*}
+   H(z) &= \dfrac {\Theta_o(z)}{\Theta_i(z)}
+         = (\alpha + \beta)z^{-1} \cdot
+          \dfrac{
+                 1
+                 - \dfrac{\alpha}{\alpha + \beta} z^{-1}
+                }
+                {
+                 1
+                 - 2 \left(1 - \dfrac{\alpha + \beta}{2}\right) z^{-1}
+                 + (1 - \alpha) z^{-2}
+                } \\
+\end{align*}
+
+With Z-plane zeros and poles:
+
+\begin{align*}
+    z_{1} &= \frac{\alpha}{\alpha+\beta} \\
+    z_{2} &\rightarrow \infty \\
+    p_{1,2} &= \left(1-\frac{\alpha+\beta}{2}\right) \pm
+           \sqrt{\left(1-\frac{\alpha+\beta}{2}\right)^{2}
+                 - \left(1-\alpha\right)}\\
+\end{align*}
+
+Mapping the above phase-transfer function to the standard form of a transfer
+function for an analog second order control loop mapped to the digital domain
+with the mapping $z = e^{sT}$ applied to the s-plane poles,
+$s_{1,2} = -\zeta\omega_{n} \pm \omega_{n}\sqrt{\zeta^{2}-1}$, one obtains an
+alternate form of the transfer function, directly related to the damping factor 
+$\zeta$, the natural radian frequency $\omega_{n}$, the damped radian frequency
+of oscillation $\omega_{d}$, and the symbol clock period $T$:
+
+\begin{align*}
+   H(z) &=
+      \begin{cases}
+         \dfrac{
+                [2 -2\cos(\omega_{d}T)e^{-\zeta\omega_{n}T}] z 
+                -2\sinh(\zeta\omega_{n}T)e^{-\zeta\omega_{n}T} 
+               }
+               {
+                z^{2}
+                - 2 \cos(\omega_{d}T) e^{-\zeta\omega_{n}T} z
+                + e^{-2\zeta\omega_{n}T}
+               }
+               & \quad \text{for} \quad \zeta < 1 \quad \text{with}
+               \quad \omega_{d}T = \omega_{n}T \sqrt{1 - \zeta^{2}}
+               \\
+\\
+         \dfrac{
+                [2 -2(1)e^{-\zeta\omega_{n}T}] z 
+                -2\sinh(\zeta\omega_{n}T)e^{-\zeta\omega_{n}T} 
+               }
+               {
+                z^{2}
+                - 2(1)e^{-\zeta\omega_{n}T} z
+                + e^{-2\zeta\omega_{n}T}
+               }
+               & \quad \text{for} \quad \zeta = 1 \quad \text{with}
+               \quad \omega_{d}T = 0
+               \\
+\\
+         \dfrac{
+                [2 -2\cosh(\omega_{d}T)e^{-\zeta\omega_{n}T}] z 
+                -2\sinh(\zeta\omega_{n}T)e^{-\zeta\omega_{n}T} 
+               }
+               {
+                z^{2}
+                - 2 \cosh(\omega_{d}T) e^{-\zeta\omega_{n}T} z
+                + e^{-2\zeta\omega_{n}T}
+               }
+               & \quad \text{for} \quad \zeta > 1 \quad \text{with}
+               \quad \omega_{d}T = \omega_{n}T \sqrt{\zeta^{2} - 1}
+               \\
+      \end{cases}
+\\
+\end{align*}
+
+The PI filter gains, expressed in terms of the damping factor $\zeta$,
+the natural radian frequency $\omega_{n}$, the damped radian frequency of
+oscillation $\omega_{d}$, and the symbol clock period $T$ are:
+
+\begin{align*}
+   \alpha &= 2e^{-\zeta\omega_{n}T} \sinh(\zeta\omega_{n}T) \\
+\\
+   \beta  &=
+      \begin{cases}
+         2
+         -2e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) + \cos(\omega_{d}T)] &
+         \text{for} \quad \zeta < 1 \quad (under \: damped)\\
+         2
+         -2e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) + 1] &
+         \text{for} \quad \zeta = 1 \quad (critically \: damped)\\
+         2
+         -2e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) +\cosh(\omega_{d}T)] &
+         \text{for} \quad \zeta > 1 \quad (over \: damped)\\
+      \end{cases} \\
+\\
+\end{align*}
+
+The digital loop bandwith of an underdamped symbol clock tracking loop is
+approximately $\omega_{n}$.  However the symbol clock period, $T$, is being
+estimated by the symbol clock tracking loop and can vary over time, so that
+setting the loop bandwidth directly can be a problem.  To avoid that difficulty,
+one can specify the normalized loop bandwidth in terms of the normalized digital
+natural radian frequency, $\omega_{n\_norm}$.
+
+\begin{align*}
+    \omega_{n}T = \omega_{n\_norm} = 2 \pi f_{n\_norm} = 2 \pi f_{n} T =
+    \pi \dfrac{f_{n}}{\left(\dfrac{F_{c}}{2}\right)}
+\end{align*}
+
+* A note on symbol clock phase vs. interpolating resampler sample phase,
+since most GNURadio symbol synchronization blocks seem to have the same
+implementation error:
+
+In general, the symbol clock phase, that the symbol clock tracking loop
+estimates and tracks, cannot be used alone to derive the interpolating resampler
+sample phase used in symbol synchronization, except in the very special case of
+the symbol clock period being exactly divisible by the input sample stream
+sample period.  Since this is never guaranteed in tracking real symbol clocks,
+one should not use the symbol clock phase alone to compute the interpolating
+resampler sample phase.
+
+Consider, in the analog time domain, the optimum symbol sampling instants
+$t_{k}$, of an analog input signal $x(t)$, at an optimal symbol clock
+phase $\tau_{0}$ and the symbol clock period $T_{c}$:
+
+\begin{align*}
+   t_{k} &= \tau_{0} + k T_{c} \\
+   y_{k} &= x(t_{k}) = x(\tau_{0} + k T_{c}) \\
+\end{align*}
+
+If one divides the $t_{k}$ times by the input sample stream sample period
+$T_{i}$, the correct interpolating resampler sample phase $\tau_{0\_i}$ will
+get a contribution from the term $T_{c\_remainder}$ (which is an error) as shown
+below:
+
+\begin{align*}
+   \dfrac{t_{k}}{T_{i}} &= \dfrac{\tau_{0}}{T_{i}} + \dfrac{k T_{c}}{T_{i}} \\
+    &= (m + \tau_{0\_remainder}) + (n + T_{c\_remainder}) \\
+    &= \tau_{0\_remainder} + T_{c\_remainder} + (m + n) \\
+    &= \tau_{0\_i} + k^{\prime}
+\end{align*}
+
+So instead of using the symbol clock sample phase alone to obtain the
+interpolating resampler sample phase, one should use the previous interpolating
+resampler sample phase and the instantaneous clock period estimate provided by
+the symbol clock tracking loop.
+\end{document}
