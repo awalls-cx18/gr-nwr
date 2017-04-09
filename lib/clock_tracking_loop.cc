@@ -1,7 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2011,2013 Free Software Foundation, Inc.
- * Copyright (C) 2016  Andy Walls <awalls.cx18@gmail.com>
+ * Copyright (C) 2016-2017  Andy Walls <awalls.cx18@gmail.com>
  *
  * GNU Radio is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,13 +73,12 @@ namespace gr {
     void
     clock_tracking_loop::update_gains()
     {
-        float omega_n_T, omega_d_T, zeta_omega_n_T, k1, k2, cosx_omega_d_T;
+        float omega_n_T, omega_d_T, zeta_omega_n_T, k1, cosx_omega_d_T;
         float alpha, beta;
 
         omega_n_T = d_omega_n_norm;
         zeta_omega_n_T = d_zeta * omega_n_T;
-        k2 = expf(-zeta_omega_n_T);
-        k1 = 2.0f/k2;
+        k1 = 2.0f * expf(-zeta_omega_n_T);
 
         if (d_zeta > 1.0f) { // Over-damped (or critically-damped too)
 
@@ -100,8 +99,8 @@ namespace gr {
             // cos ----------^^^
         }
 
-        alpha = k1 * (cosx_omega_d_T - k2);
-        beta  = k1 * (coshf(zeta_omega_n_T) - cosx_omega_d_T);
+        alpha = k1 * sinhf(zeta_omega_n_T);
+        beta  = 2.0f - (alpha + k1 * cosx_omega_d_T);
 
         set_alpha(alpha);
         set_beta(beta);

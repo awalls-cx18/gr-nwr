@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<?grc format='1' created='3.7.11'?>
+<?grc format='1' created='3.7.12'?>
 <flow_graph>
   <timestamp>Mon Jan 12 16:38:01 2015</timestamp>
   <block>
@@ -299,7 +299,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>value</key>
-      <value>2.0*math.exp(zeta*omega_n_norm)*((math.cosh(omega_d_norm) if zeta &gt; 1.0 else math.cos(omega_d_norm))-math.exp(-zeta*omega_n_norm))</value>
+      <value>2.0*math.exp(-zeta*omega_n_norm)*math.sinh(zeta*omega_n_norm)</value>
     </param>
   </block>
   <block>
@@ -432,7 +432,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>value</key>
-      <value>2.0*math.exp(zeta*omega_n_norm)*(math.cosh(zeta*omega_n_norm)-(math.cosh(omega_d_norm) if zeta &gt; 1.0 else math.cos(omega_d_norm)))</value>
+      <value>2.0-gain_mu-2.0*math.exp(-zeta*omega_n_norm)*(math.cosh(omega_d_norm) if zeta &gt; 1.0 else math.cos(omega_d_norm))</value>
     </param>
   </block>
   <block>
@@ -513,7 +513,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>value</key>
-      <value>2.0*math.pi*0.043</value>
+      <value>0.49</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -2165,6 +2165,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
       <value>True</value>
     </param>
     <param>
+      <key>nfilters</key>
+      <value>128</value>
+    </param>
+    <param>
       <key>_coordinate</key>
       <value>(2888, 48)</value>
     </param>
@@ -2179,6 +2183,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>id</key>
       <value>nwr_symbol_sync_xx_0</value>
+    </param>
+    <param>
+      <key>resamp_type</key>
+      <value>nwr.interpolating_resampler.IR_MMSE_8TAP</value>
     </param>
     <param>
       <key>loop_bw</key>
@@ -2199,6 +2207,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>osps</key>
       <value>osps</value>
+    </param>
+    <param>
+      <key>pfb_mf_taps</key>
+      <value>[]</value>
     </param>
     <param>
       <key>sps</key>

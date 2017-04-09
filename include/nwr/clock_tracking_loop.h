@@ -1,7 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2011,2013 Free Software Foundation, Inc.
- * Copyright (C) 2016  Andy Walls <awalls.cx18@gmail.com>
+ * Copyright (C) 2016-2017  Andy Walls <awalls.cx18@gmail.com>
  *
  * GNU Radio is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,68 +75,69 @@ namespace gr {
      * \f$\alpha\f$ and the integral gain \f$\beta\f$ as follows:
      * 
      * \f{align*}
-     *    H(z) &= \dfrac{
-     *                  \dfrac{\alpha + \beta}{1 + \alpha + \beta}
-     *                  - \dfrac{\alpha}{1 + \alpha + \beta} z^{-1}
-     *                 }
-     *                 {
-     *                  1
-     *                  - 2 \dfrac{1 + \frac{\alpha}{2}}{1 + \alpha + \beta} z^{-1}
-     *                  + \dfrac{1}{1 + \alpha + \beta} z^{-2}
-     *                 } \\
+     *    H(z) &= \dfrac {\Theta_o(z)}{\Theta_i(z)}
+     *          = (\alpha + \beta)z^{-1} \cdot
+     *            \dfrac{
+     *                   1
+     *                   - \dfrac{\alpha}{\alpha + \beta} z^{-1}
+     *                  }
+     *                  {
+     *                   1
+     *                   - 2 \left(1 - \dfrac{\alpha + \beta}{2}\right) z^{-1}
+     *                   + (1 - \alpha) z^{-2}
+     *                  } \\
      * \f}
-     * 
+     *
      * Mapping the above phase-transfer function to the standard form of a transfer
-     * function for a second order control loop in the digital domain, one gets an
-     * alternate form of the transfer function, directly related to the
-     * damping factor \f$\zeta\f$, the natural radian frequency \f$\omega_{n}\f$, the
-     * damped radian frequency of oscillation \f$\omega_{d}\f$, and the clock period \f$T\f$:
+     * function for an analog second order control loop mapped to the digital domain
+     * with the mapping \f$z = e^{sT}\f$ applied to the s-plane poles,
+     * \f$s_{1,2} = -\zeta\omega_{n} \pm \omega_{n}\sqrt{\zeta^{2}-1}\f$, one obtains an
+     * alternate form of the transfer function, directly related to the damping factor
+     * \f$\zeta\f$, the natural radian frequency \f$\omega_{n}\f$, the damped radian frequency
+     * of oscillation \f$\omega_{d}\f$, and the symbol clock period \f$T\f$:
      * 
      * \f{align*}
-     *    H(z) &=
-     *       \begin{cases}
-     *          2e^{-\zeta\omega_{n}T} \cdot
-     *          \dfrac{
-     *                 \cosh(\zeta\omega_{n}T) z^{2} +
-     *                 [e^{-\zeta\omega_{n}T} - \cos(\omega_{d}T)] z
-     *                }
-     *                {
-     *                 z^{2}
-     *                 - 2 \cos(\omega_{d}T) e^{-\zeta\omega_{n}T} z
-     *                 + e^{-2\zeta\omega_{n}T}
-     *                }
-     *                & \quad \text{for} \quad \zeta < 1 \quad \text{with}
-     *                \quad \omega_{d}T = \omega_{n}T \sqrt{1 - \zeta^{2}}
-     *                \quad (under \: damped)\\
+     *   H(z) &=
+     *      \begin{cases}
+     *         \dfrac{
+     *                [2 -2\cos(\omega_{d}T)e^{-\zeta\omega_{n}T}] z 
+     *                -2\sinh(\zeta\omega_{n}T)e^{-\zeta\omega_{n}T} 
+     *               }
+     *               {
+     *                z^{2}
+     *                - 2 \cos(\omega_{d}T) e^{-\zeta\omega_{n}T} z
+     *                + e^{-2\zeta\omega_{n}T}
+     *               }
+     *               & \quad \text{for} \quad \zeta < 1 \quad \text{with}
+     *               \quad \omega_{d}T = \omega_{n}T \sqrt{1 - \zeta^{2}}
+     *               \\
      * \\
-     *          2e^{-\zeta\omega_{n}T} \cdot
-     *          \dfrac{
-     *                 \cosh(\zeta\omega_{n}T) z^{2} +
-     *                 [e^{-\zeta\omega_{n}T} - 1] z
-     *                }
-     *                {
-     *                 z^{2}
-     *                 - 2(1)e^{-\zeta\omega_{n}T} z
-     *                 + e^{-2\zeta\omega_{n}T}
-     *                }
-     *                & \quad \text{for} \quad \zeta = 1 \quad \text{with}
-     *                \quad \omega_{d}T = 0
-     *                \quad (critically \: damped)\\
+     *         \dfrac{
+     *                [2 -2(1)e^{-\zeta\omega_{n}T}] z 
+     *                -2\sinh(\zeta\omega_{n}T)e^{-\zeta\omega_{n}T} 
+     *               }
+     *               {
+     *                z^{2}
+     *                - 2(1)e^{-\zeta\omega_{n}T} z
+     *                + e^{-2\zeta\omega_{n}T}
+     *               }
+     *               & \quad \text{for} \quad \zeta = 1 \quad \text{with}
+     *               \quad \omega_{d}T = 0
+     *               \\
      * \\
-     *          2e^{-\zeta\omega_{n}T} \cdot
-     *          \dfrac{
-     *                 \cosh(\zeta\omega_{n}T) z^{2} +
-     *                 [e^{-\zeta\omega_{n}T} - \cosh(\omega_{d}T)] z
-     *                }
-     *                {
-     *                 z^{2}
-     *                 - 2 \cosh(\omega_{d}T) e^{-\zeta\omega_{n}T} z
-     *                 + e^{-2\zeta\omega_{n}T}
-     *                }
-     *                & \quad \text{for} \quad \zeta > 1 \quad \text{with}
-     *                \quad \omega_{d}T = \omega_{n}T \sqrt{\zeta^{2} - 1}
-     *                \quad (over \: damped)\\
-     *       \end{cases}
+     *         \dfrac{
+     *                [2 -2\cosh(\omega_{d}T)e^{-\zeta\omega_{n}T}] z 
+     *                -2\sinh(\zeta\omega_{n}T)e^{-\zeta\omega_{n}T} 
+     *               }
+     *               {
+     *                z^{2}
+     *                - 2 \cosh(\omega_{d}T) e^{-\zeta\omega_{n}T} z
+     *                + e^{-2\zeta\omega_{n}T}
+     *               }
+     *               & \quad \text{for} \quad \zeta > 1 \quad \text{with}
+     *               \quad \omega_{d}T = \omega_{n}T \sqrt{\zeta^{2} - 1}
+     *               \\
+     *      \end{cases}
      * \\
      * \f}
      * 
@@ -145,25 +146,20 @@ namespace gr {
      * oscillation \f$\omega_{d}\f$, and the clock period \f$T\f$ are:
      * 
      * \f{align*}
-     *    \alpha &=
-     *       \begin{cases}
-     *          -2e^{\zeta\omega_{n}T} [e^{-\zeta\omega_{n}T} - \cos(\omega_{d}T)] &
-     *          \text{for} \quad \zeta < 1 \quad (under \: damped)\\
-     *          -2e^{\zeta\omega_{n}T} [e^{-\zeta\omega_{n}T} - 1] &
-     *          \text{for} \quad \zeta = 1 \quad (critcally \: damped)\\
-     *          -2e^{\zeta\omega_{n}T} [e^{-\zeta\omega_{n}T} - \cosh(\omega_{d}T)] &
-     *          \text{for} \quad \zeta > 1 \quad (over \: damped)\\
-     *       \end{cases} \\
+     *   \alpha &= 2e^{-\zeta\omega_{n}T} \sinh(\zeta\omega_{n}T) \\
      * \\
-     *    \beta  &=
-     *       \begin{cases}
-     *          2e^{\zeta\omega_{n}T} [\cosh(\zeta\omega_{n}T) - \cos(\omega_{d}T)] &
-     *          \text{for} \quad \zeta < 1 \quad (under \: damped)\\
-     *          2e^{\zeta\omega_{n}T} [\cosh(\zeta\omega_{n}T) - 1] &
-     *          \text{for} \quad \zeta = 1 \quad (critically \: damped)\\
-     *          2e^{\zeta\omega_{n}T} [\cosh(\zeta\omega_{n}T) - \cosh(\omega_{d}T)] &
-     *          \text{for} \quad \zeta > 1 \quad (over \: damped)\\
-     *       \end{cases} \\
+     *   \beta  &=
+     *      \begin{cases}
+     *         2
+     *         -2e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) + \cos(\omega_{d}T)] &
+     *         \text{for} \quad \zeta < 1 \quad (under \: damped)\\
+     *         2
+     *         -2e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) + 1] &
+     *         \text{for} \quad \zeta = 1 \quad (critically \: damped)\\
+     *         2
+     *         -2e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) +\cosh(\omega_{d}T)] &
+     *         \text{for} \quad \zeta > 1 \quad (over \: damped)\\
+     *      \end{cases} \\
      * \\
      * \f}
      * 
@@ -184,14 +180,18 @@ namespace gr {
      *     \pi \dfrac{f_{n}}{\left(\dfrac{F_{c}}{2}\right)}
      * \f}
      * 
-     * A note on symbol clock phase vs. interpolator sample phase:
-     * In general, the symbol clock phase, that this class estimates and tracks,
-     * cannot be used alone to derive the interpolator sample phase, except in the
-     * very special case of the symbol clock period being exactly divisible by
-     * the input sample stream sample period.  Since this is never guaranteed in
-     * tracking real symbol clocks, one should not use the symbol clock phase
-     * to compute the interpolator sample phase.
-     * 
+     * * A note on symbol clock phase vs. interpolating resampler sample phase,
+     * since most GNURadio symbol synchronization blocks seem to have the same
+     * implementation error:
+     *
+     * In general, the symbol clock phase, that the symbol clock tracking loop
+     * estimates and tracks, cannot be used alone to derive the interpolating resampler
+     * sample phase used in symbol synchronization, except in the very special case of
+     * the symbol clock period being exactly divisible by the input sample stream
+     * sample period.  Since this is never guaranteed in tracking real symbol clocks,
+     * one should not use the symbol clock phase alone to compute the interpolating
+     * resampler sample phase.
+     *
      * Consider, in the analog time domain, the optimum symbol sampling instants
      * \f$t_{k}\f$, of an analog input signal \f$x(t)\f$, at an optimal symbol clock
      * phase \f$\tau_{0}\f$ and the symbol clock period \f$T_{c}\f$:
@@ -202,8 +202,9 @@ namespace gr {
      * \f}
      * 
      * If one divides the \f$t_{k}\f$ times by the input sample stream sample period
-     * \f$T_{i}\f$, the correct interpolator sample phase \f$\tau_{0\_i}\f$ will get a
-     * contribution from the term \f$T_{c\_remainder}\f$ as shown below:
+     * \f$T_{i}\f$, the correct interpolating resampler sample phase \f$\tau_{0\_i}\f$ will
+     * get a contribution from the term \f$T_{c\_remainder}\f$ (which is an error) as shown
+     * below:
      * 
      * \f{align*}
      *    \dfrac{t_{k}}{T_{i}} &= \dfrac{\tau_{0}}{T_{i}} + \dfrac{k T_{c}}{T_{i}} \\
@@ -212,9 +213,10 @@ namespace gr {
      *     &= \tau_{0\_i} + k^{\prime}
      * \f}
      * 
-     * So instead of using the clock sample phase alone to obtain the interpolator
-     * sample phase, one should use the previous interpolator sample phase and 
-     * the instantaneous clock period estimate provided by this class.
+     * So instead of using the symbol clock sample phase alone to obtain the
+     * interpolating resampler sample phase, one should use the previous interpolating
+     * resampler sample phase and the instantaneous clock period estimate provided by
+     * the symbol clock tracking loop.
      *
      */
     class NWR_API clock_tracking_loop
