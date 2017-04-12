@@ -8,7 +8,7 @@
 \newcommand{\z}{\mathpzc{z}}
 
 \title{Symbol Clock Phase Tracking Loop}
-\date{2017-04-08}
+\date{2017-04-11}
 \author{Andy Walls}
 
 \begin{document}
@@ -47,7 +47,8 @@
       \node[dspsquare]                    (m23) {$\beta$};       &
       \node[dspadder]                     (m24) {};              &
       \node[coordinate]                   (m25) {};              &
-      \node[dspnodefull, dsp/label=above] (m26) {$\bar{\theta}_{inc}[n]$};  &
+      \node[dspnodefull, dsp/label=above] (m26) {$\bar{\theta}_{inc}[n]
+                                                  \propto \bar{T}      $};  &
       \node[dspadder]                     (m27) {};              \\
 
       \node[coordinate]                   (m30) {};              &
@@ -93,7 +94,7 @@
       \chainin (m07) [join=by dspline];
       \chainin (m27) [join=by dspconn];
       \chainin (m57) [join=by dspline];
-      \chainin (m56) [join=by dspline, label=$\hat{\theta}_{inc}{[n]}$ ];
+      \chainin (m56) [join=by dspline, label=$\hat{\theta}_{inc}{[n]} \propto\hat{T}$ ];
       \chainin (m55) [join=by dspconn];
       \chainin (m54) [join=by dspline, label=$\theta_o{[n+1]}$ ];
       \chainin (m53) [join=by dspconn];
@@ -251,7 +252,7 @@ oscillation $\omega_{d}$, and the symbol clock period $T$ are:
 \\
 \end{align*}
 
-The digital loop bandwith of an underdamped symbol clock tracking loop is
+The digital loop bandwidth of an underdamped symbol clock tracking loop is
 approximately $\omega_{n}$.  However the symbol clock period, $T$, is being
 estimated by the symbol clock tracking loop and can vary over time, so that
 setting the loop bandwidth directly can be a problem.  To avoid that difficulty,
