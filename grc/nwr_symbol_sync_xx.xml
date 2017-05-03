@@ -82,6 +82,11 @@
             <opt>hide_constellation:all</opt>
         </option>
         <option>
+            <name>Mengali and D'Andrea GMSK</name>
+            <key>nwr.timing_error_detector.TED_MENGALI_AND_DANDREA_GMSK</key>
+            <opt>hide_constellation:all</opt>
+        </option>
+        <option>
             <name>y[n]y'[n] Maximum Likelyhood</name>
             <key>nwr.timing_error_detector.TED_SIGNAL_TIMES_SLOPE_ML</key>
             <opt>hide_constellation:all</opt>

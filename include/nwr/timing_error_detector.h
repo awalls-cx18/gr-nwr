@@ -45,9 +45,10 @@ namespace gr {
             TED_ZERO_CROSSING                = 2, // Decision directed     
             TED_GARDNER                      = 4,
             TED_EARLY_LATE                   = 5,
-            TED_DANDREA_AND_MENGALI_GEN_MSK  = 6,
+            TED_DANDREA_AND_MENGALI_GEN_MSK  = 6, // Operates on the CPM signal
             TED_SIGNAL_TIMES_SLOPE_ML        = 7, // ML approx. for small signal
             TED_SIGNUM_TIMES_SLOPE_ML        = 8, // ML approx. for large signal
+            TED_MENGALI_AND_DANDREA_GMSK     = 9, // Operates on the CPM signal
         };
 
         static timing_error_detector *make(
@@ -200,6 +201,21 @@ namespace gr {
                          2, 4, false, false, digital::constellation_sptr())
         {}
         ~ted_generalized_msk() {};
+
+      private:
+        float compute_error_cf();
+        float compute_error_ff();
+    };
+
+    class NWR_API ted_gaussian_msk : public timing_error_detector
+    {
+      public:
+        ted_gaussian_msk()
+          : timing_error_detector(
+                         timing_error_detector::TED_MENGALI_AND_DANDREA_GMSK,
+                         2, 4, false, false, digital::constellation_sptr())
+        {}
+        ~ted_gaussian_msk() {};
 
       private:
         float compute_error_cf();

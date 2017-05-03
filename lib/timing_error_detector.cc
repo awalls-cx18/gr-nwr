@@ -61,6 +61,9 @@ namespace gr {
         case TED_SIGNUM_TIMES_SLOPE_ML:
             ret = new ted_signum_times_slope_ml();
             break;
+        case TED_MENGALI_AND_DANDREA_GMSK:
+            ret = new ted_gaussian_msk();
+            break;
         default: 
             break;
         }
@@ -104,6 +107,7 @@ namespace gr {
         case TED_DANDREA_AND_MENGALI_GEN_MSK:
         case TED_SIGNAL_TIMES_SLOPE_ML:
         case TED_SIGNUM_TIMES_SLOPE_ML:
+        case TED_MENGALI_AND_DANDREA_GMSK:
             break;
         case TED_NONE:
         default: 
@@ -368,6 +372,32 @@ namespace gr {
         u =   (  d_input[0].real() * d_input[0].real()
                * d_input[2].real() * d_input[2].real())
             - (  d_input[1].real() * d_input[1].real()
+               * d_input[3].real() * d_input[3].real());
+
+        return gr::branchless_clip(u, 3.0f);
+    }
+
+    /*************************************************************************/
+
+    float
+    ted_gaussian_msk::compute_error_cf()
+    {
+        gr_complex u;
+
+        u =  -(d_input[0] * d_input[0] * conj(d_input[2] * d_input[2]))
+            + (d_input[1] * d_input[1] * conj(d_input[3] * d_input[3]));
+
+        return gr::branchless_clip(u.real(), 3.0f);
+    }
+
+    float
+    ted_gaussian_msk::compute_error_ff()
+    {
+        float u;
+
+        u =  -(  d_input[0].real() * d_input[0].real()
+               * d_input[2].real() * d_input[2].real())
+            + (  d_input[1].real() * d_input[1].real()
                * d_input[3].real() * d_input[3].real());
 
         return gr::branchless_clip(u, 3.0f);
