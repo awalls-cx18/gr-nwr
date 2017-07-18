@@ -21,6 +21,7 @@ namespace gr {
 
     correction_estimator_ff::sptr
     correction_estimator_ff::make(int inspection_length,
+                                  int inspection_offset,
                                   float peak_ref,
                                   float trough_ref,
                                   const std::string &offset_corr_key,
@@ -34,7 +35,7 @@ namespace gr {
                                   const std::string &eob_key)
     {
       return gnuradio::get_initial_sptr
-        (new correction_estimator_ff_impl(inspection_length,
+        (new correction_estimator_ff_impl(inspection_length, inspection_offset,
                                           peak_ref, trough_ref,
                                           offset_corr_key, scale_corr_key,
                                           scale_eob_zero,
@@ -45,6 +46,7 @@ namespace gr {
 
     correction_estimator_ff_impl::correction_estimator_ff_impl(
                                           int inspection_length,
+                                          int inspection_offset,
                                           float peak_ref,
                                           float trough_ref,
                                           const std::string &offset_corr_key,
@@ -60,6 +62,7 @@ namespace gr {
               gr::io_signature::make(1, 1, sizeof(float)),
               gr::io_signature::make(1, 1, sizeof(float))),
         d_inspection_len(inspection_length),
+        d_inspection_offset(inspection_offset),
         d_peak_ref(peak_ref),
         d_trough_ref(trough_ref),
         d_timing_win_start(timing_win_start),
@@ -75,7 +78,7 @@ namespace gr {
         d_src_id(pmt::intern(alias())),
         d_tags()
     {
-        set_output_multiple(d_inspection_len * 2);
+        set_output_multiple((d_inspection_offset + d_inspection_len) * 2);
     }
 
     correction_estimator_ff_impl::~correction_estimator_ff_impl()
@@ -87,22 +90,58 @@ namespace gr {
                                                       double &offset_corr,
                                                       double &scale_corr)
     {
-        // Keeping it simple: just use the max peak and the min trough
-        float in_min = in[0];
-        float in_max = in[0];
+        int i;
+        const float *bb = &in[d_inspection_offset];
 
-        for (int i = 1; i < d_inspection_len; i++) {
-            in_min = std::min(in_min, in[i]);
-            in_max = std::max(in_max, in[i]);
+        // Find the max peak and the min trough and their midpoint
+        float bb_min = bb[0];
+        float bb_max = bb[0];
+
+        for (i = 1; i < d_inspection_len; i++) {
+            bb_min = std::min(bb_min, bb[i]);
+            bb_max = std::max(bb_max, bb[i]);
         } 
+        float bb_mid = (bb_max + bb_min)/2.0f;
 
-        // (in_max + offset_corr) * scale_corr = d_peak_ref
-        // (in_min + offset_corr) * scale_corr = d_trough_ref
+        // Find the peaks and troughs.
+        std::vector<unsigned int> peaks;
+        std::vector<unsigned int> troughs;
+        for (i = 1; i < d_inspection_len - 1; i++) {
+            if (bb[i] > bb[i-1] and
+                bb[i] > bb[i+1] and
+                bb[i] - bb_mid > (0.9f * (bb_max - bb_mid)))
+                peaks.push_back(i);
+            if (bb[i] < bb[i-1] and
+                bb[i] < bb[i+1] and
+                bb[i] - bb_mid < (0.9f * (bb_min - bb_mid)))
+                troughs.push_back(i);
+        }
+
+        std::vector<unsigned int>::iterator it;
+        float bb_max_avg = 0.0f;
+        for (it = peaks.begin(), i = 0; it != peaks.end(); ++it, i++)
+            bb_max_avg += bb[*it];
+        if (bb_max_avg == 0.0f)
+            bb_max_avg = bb_max;
+        else
+            bb_max_avg /= (float) i;
+
+        float bb_min_avg = 0.0f;
+        for (it = troughs.begin(), i = 0; it != troughs.end(); ++it, i++)
+            bb_min_avg += bb[*it];
+        if (bb_min_avg == 0.0f)
+            bb_min_avg = bb_min;
+        else
+            bb_min_avg /= (float) i;
+
+        // (bb_max_avg + offset_corr) * scale_corr = d_peak_ref
+        // (bb_min_avg + offset_corr) * scale_corr = d_trough_ref
         // So after some algebra ...
 
-        offset_corr = (d_trough_ref * in_max - d_peak_ref * in_min)
+        offset_corr = (d_trough_ref * bb_max_avg - d_peak_ref * bb_min_avg)
                       / (d_peak_ref - d_trough_ref);
-        scale_corr = (d_peak_ref - d_trough_ref) / (in_max - in_min);
+        scale_corr = (d_peak_ref - d_trough_ref) / (bb_max_avg - bb_min_avg);
+        return;
     }
 
     bool 
@@ -114,8 +153,8 @@ namespace gr {
         if (d_timing_win_start < 0 or
             d_timing_win_end < 0 or
             d_timing_win_start >= d_timing_win_end or
-            d_timing_win_start > d_inspection_len or
-            d_timing_win_end > d_inspection_len)
+            d_timing_win_start > (d_inspection_offset + d_inspection_len) or
+            d_timing_win_end > (d_inspection_offset + d_inspection_len))
             return false;
 
         unsigned int i, j, k, l;
@@ -222,7 +261,8 @@ namespace gr {
             } else if (pmt::eq(t->key, d_sob_key)) {
                 // SOB
                 idx = static_cast<int>(t->offset - nitems_rd);
-                if (idx + d_inspection_len - 1 >= noutput_items) {
+                if (idx + d_inspection_offset + d_inspection_len - 1
+                                                             >= noutput_items) {
                     // We don't have all of the samples that we wish to
                     // process, from the start of the burst, in this call to
                     // work().  Bail out, processing all the samples before

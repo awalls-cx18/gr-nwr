@@ -7,12 +7,19 @@
   <key>nwr_correction_estimator_ff</key>
   <category>[nwr]</category>
   <import>import nwr</import>
-  <make>nwr.correction_estimator_ff($inspection_length, $peak_ref, $trough_ref, $offset_corr_key, $scale_corr_key, $scale_eob_zero, $timing_win_start, $timing_win_end, $time_est_key, $clock_est_key, $sob_key, $eob_key)</make>
+  <make>nwr.correction_estimator_ff($inspection_length, $inspection_offset, $peak_ref, $trough_ref, $offset_corr_key, $scale_corr_key, $scale_eob_zero, $timing_win_start, $timing_win_end, $time_est_key, $clock_est_key, $sob_key, $eob_key)</make>
 
   <param>
     <name>Inspection Length</name>
     <key>inspection_length</key>
     <value></value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Inspection Offset</name>
+    <key>inspection_offset</key>
+    <value>0</value>
     <type>int</type>
   </param>
 

@@ -29,10 +29,6 @@ namespace gr {
      * the estimated corrections.  It also tags the end of the burst to
      * indicate the end of corrections (offset of 0.0 and scale of 1.0 or
      * optionally 0.0).
-     *
-     * The algorithm used is the simplest possible acting on the highest
-     * measured peak, and the lowest measured trough.  When that doesn't
-     * work well enough, maybe I'll change it to something more sophisticated.
      */
     class NWR_API correction_estimator_ff : virtual public gr::sync_block
     {
@@ -43,6 +39,7 @@ namespace gr {
        * \brief Make a simple correction estimator  (float input/float output)
        *
        * \param inspection_length Number of samples to use for the estimates
+       * \param inspection_offset Number of samples to skip before inspection
        * \param peak_ref          Expected peak level
        * \param trough_ref        Expected trough level
        * \param offset_corr_key   Tag name to use for the offset correction
@@ -56,6 +53,7 @@ namespace gr {
        * \param eob_key           Tag name that indicates the end of a burst
        */
       static sptr make(int inspection_length,
+                       int inspection_offset = 0,
                        float peak_ref = 1.0f,
                        float trough_ref = -1.0f,
                        const std::string &offset_corr_key = "offset_corr",

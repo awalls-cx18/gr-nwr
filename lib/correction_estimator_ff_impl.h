@@ -22,6 +22,7 @@ namespace gr {
     {
      private:
       int d_inspection_len;
+      int d_inspection_offset;
       float d_peak_ref;
       float d_trough_ref;
       int d_timing_win_start;
@@ -47,6 +48,7 @@ namespace gr {
 
      public:
       correction_estimator_ff_impl(int inspection_length,
+                                   int inspection_offset,
                                    float peak_ref,
                                    float trough_ref,
                                    const std::string &offset_corr_key,
