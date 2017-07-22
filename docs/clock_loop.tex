@@ -8,7 +8,7 @@
 \newcommand{\z}{\mathpzc{z}}
 
 \title{Symbol Clock Phase Tracking Loop}
-\date{2017-04-11}
+\date{2017-07-21}
 \author{Andy Walls}
 
 \begin{document}
@@ -25,12 +25,13 @@
     {
       \node[dspnodeopen, dsp/label=above] (m00) {$\theta_i[n]$}; &
       \node[dspmultiplier, dsp/label=above]    (m01) {PD};            &
-      \node[dspnodefull, dsp/label=above] (m02) {$e[n]$};        &
-      \node[dspsquare]                    (m03) {$\alpha$};      &
-      \node[coordinate]                   (m04) {};              &
+      \node[dspsquare]                    (m02) {$K_{pd}$};      &
+      \node[dspnodefull, dsp/label=above] (m03) {$e[n]$};        &
+      \node[dspsquare]                    (m04) {$\alpha$};      &
       \node[coordinate]                   (m05) {};              &
       \node[coordinate]                   (m06) {};              &
-      \node[coordinate]                   (m07) {};              \\
+      \node[coordinate]                   (m07) {};              &
+      \node[coordinate]                   (m08) {};              \\
 
       \node[coordinate]                   (m10) {};              &
       \node[coordinate]                   (m11) {};              &
@@ -39,26 +40,29 @@
       \node[coordinate]                   (m14) {};              &
       \node[coordinate]                   (m15) {};              &
       \node[coordinate]                   (m16) {};              &
-      \node[coordinate]                   (m17) {};              \\
+      \node[coordinate]                   (m17) {};              &
+      \node[coordinate]                   (m18) {};              \\
 
       \node[coordinate]                   (m20) {};              &
       \node[coordinate]                   (m21) {};              &
       \node[coordinate]                   (m22) {};              &
-      \node[dspsquare]                    (m23) {$\beta$};       &
-      \node[dspadder]                     (m24) {};              &
-      \node[coordinate]                   (m25) {};              &
-      \node[dspnodefull, dsp/label=above] (m26) {$\bar{\theta}_{inc}[n]
+      \node[coordinate]                   (m23) {};              &
+      \node[dspsquare]                    (m24) {$\beta$};       &
+      \node[dspadder]                     (m25) {};              &
+      \node[coordinate]                   (m26) {};              &
+      \node[dspnodefull, dsp/label=above] (m27) {$\bar{\theta}_{inc}[n]
                                                   \propto \bar{T}      $};  &
-      \node[dspadder]                     (m27) {};              \\
+      \node[dspadder]                     (m28) {};              \\
 
       \node[coordinate]                   (m30) {};              &
       \node[coordinate]                   (m31) {};              &
       \node[coordinate]                   (m32) {};              &
       \node[coordinate]                   (m33) {};              &
       \node[coordinate]                   (m34) {};              &
-      \node[dspsquare]                    (m35) {$\z^{-1}$};     &
-      \node[coordinate]                   (m36) {};              &
-      \node[coordinate]                   (m37) {};              \\
+      \node[coordinate]                   (m35) {};              &
+      \node[dspsquare]                    (m36) {$\z^{-1}$};     &
+      \node[coordinate]                   (m37) {};              &
+      \node[coordinate]                   (m38) {};              \\
 
       \node[coordinate]                   (m40) {};              &
       \node[coordinate]                   (m41) {};              &
@@ -67,16 +71,18 @@
       \node[coordinate]                   (m44) {};              &
       \node[coordinate]                   (m45) {};              &
       \node[coordinate]                   (m46) {};              &
-      \node[coordinate]                   (m47) {};              \\
+      \node[coordinate]                   (m47) {};              &
+      \node[coordinate]                   (m48) {};              \\
 
       \node[coordinate]                   (m50) {};              &
       \node[coordinate]                   (m51) {};              &
-      \node[dspnodefull, dsp/label=above] (m52) {$\theta_o[n]$}; &
-      \node[dspsquare]                    (m53) {$\z^{-1}$};     &
-      \node[coordinate]                   (m54) {};              &
-      \node[dspadder]                     (m55) {};              &
-      \node[coordinate]                   (m56) {};              &
-      \node[coordinate]                   (m57) {};              \\
+      \node[coordinate]                   (m52) {};              &
+      \node[dspnodefull, dsp/label=above] (m53) {$\theta_o[n]$}; &
+      \node[dspsquare]                    (m54) {$\z^{-1}$};     &
+      \node[coordinate]                   (m55) {};              &
+      \node[dspadder]                     (m56) {};              &
+      \node[coordinate]                   (m57) {};              &
+      \node[coordinate]                   (m58) {};              \\
 
       \node[coordinate]                   (m60) {};              &
       \node[coordinate]                   (m61) {};              &
@@ -85,85 +91,91 @@
       \node[coordinate]                   (m64) {};              &
       \node[coordinate]                   (m65) {};              &
       \node[coordinate]                   (m66) {};              &
-      \node[coordinate]                   (m67) {};              \\
+      \node[coordinate]                   (m67) {};              &
+      \node[coordinate]                   (m68) {};              \\
     };
     \begin{scope}[start chain]
       \chainin (m00);
       \chainin (m01) [join=by dspconn];
-      \chainin (m03) [join=by dspconn];
-      \chainin (m07) [join=by dspline];
-      \chainin (m27) [join=by dspconn];
-      \chainin (m57) [join=by dspline];
-      \chainin (m56) [join=by dspline, label=$\hat{\theta}_{inc}{[n]} \propto\hat{T}$ ];
-      \chainin (m55) [join=by dspconn];
-      \chainin (m54) [join=by dspline, label=$\theta_o{[n+1]}$ ];
-      \chainin (m53) [join=by dspconn];
+      \chainin (m02) [join=by dspconn];
+      \chainin (m04) [join=by dspconn];
+      \chainin (m08) [join=by dspline];
+      \chainin (m28) [join=by dspconn];
+      \chainin (m58) [join=by dspline];
+      \chainin (m57) [join=by dspline, label=$\hat{\theta}_{inc}{[n]} \propto\hat{T}$ ];
+      \chainin (m56) [join=by dspconn];
+      \chainin (m55) [join=by dspline, label=$\theta_o{[n+1]}$ ];
+      \chainin (m54) [join=by dspconn];
       \chainin (m51) [join=by dspline];
       \chainin (m11) [join=by dspline];
       \chainin (m01) [join=by dspconn];
     \end{scope}
     \begin{scope}[start chain]
-      \chainin (m02);
-      \chainin (m22) [join=by dspline];
-      \chainin (m23) [join=by dspconn];
+      \chainin (m03);
+      \chainin (m23) [join=by dspline];
       \chainin (m24) [join=by dspconn];
-      \chainin (m27) [join=by dspconn];
+      \chainin (m25) [join=by dspconn];
+      \chainin (m28) [join=by dspconn];
     \end{scope}
     \begin{scope}[start chain]
-      \chainin (m26);
-      \chainin (m36) [join=by dspline];
-      \chainin (m35) [join=by dspconn];
-      \chainin (m34) [join=by dspline];
-      \chainin (m24) [join=by dspconn];
+      \chainin (m27);
+      \chainin (m37) [join=by dspline];
+      \chainin (m36) [join=by dspconn];
+      \chainin (m35) [join=by dspline];
+      \chainin (m25) [join=by dspconn];
     \end{scope}
     \begin{scope}[start chain]
-      \chainin (m52);
-      \chainin (m62) [join=by dspline];
-      \chainin (m65) [join=by dspline];
-      \chainin (m55) [join=by dspconn];
+      \chainin (m53);
+      \chainin (m63) [join=by dspline];
+      \chainin (m66) [join=by dspline];
+      \chainin (m56) [join=by dspconn];
     \end{scope}
   \end{tikzpicture}
   \caption{Symbol Clock Phase Tracking Loop Model}
 \end{figure}
 
 The symbol clock tracking loop, with an ideal clock phase error detector and a
-PI filter, has a discrete time difference equation in terms of the phase error,
-$e[n]$, proportional gain, $\alpha$, and the integral gain, $\beta$, as follows:
+PI filter, has a discrete time difference equation in terms of the phase
+detector gain, $K_{pd}$; scaled phase error, $e[n]$; proportional gain,
+$\alpha$; and the integral gain, $\beta$; as follows:
 
 \begin{align*}
-   e[n] &= \theta_i[n] - \theta_o[n] \\
+   e[n] &= K_{pd}(\theta_i[n] - \theta_o[n]) \\
    \theta_o[n+1] &= \theta_o[n] + \alpha e[n] + \sum_{k=0}^{n}{\beta e[n-k]}\\
-   \theta_o[n+1] &= \theta_o[n]
-                  + \alpha\theta_i[n] - \alpha\theta_o[n]
+   \theta_o[n+1] &= \theta_o[n] + K_{pd} \left(
+                    \alpha\theta_i[n] - \alpha\theta_o[n]
                   + \beta\sum_{k=0}^{n}{\theta_i[n-k]}
-                  - \beta\sum_{k=0}^{n}{\theta_o[n-k]}\\
+                  - \beta\sum_{k=0}^{n}{\theta_o[n-k]} \right) \\
 \end{align*}
 
 Assuming $n \rightarrow \infty$ and taking the Z transform:
 
 \begin{align*}
-    z&\Theta_o(z) = \Theta_o(z) + \alpha\Theta_i(z) - \alpha\Theta_o(z)
-               + \beta\frac{z}{z-1}\Theta_i(z) - \beta\frac{z}{z-1}\Theta_o(z)\\
+    z&\Theta_o(z) = \Theta_o(z) + K_{pd} \left(
+                    \alpha\Theta_i(z) - \alpha\Theta_o(z)
+                  + \beta\frac{z}{z-1}\Theta_i(z)
+                  - \beta\frac{z}{z-1}\Theta_o(z) \right) \\
     \\
-    &\Theta_o(z)\left[z - 1 + \alpha + \beta\frac{z}{z-1}\right]
-     = \Theta_i(z)\left[\alpha + \beta\frac{z}{z-1}\right]\\
+    &\Theta_o(z)\left[z - 1 + 
+                      K_{pd}\left(\alpha + \beta\frac{z}{z-1}\right)\right]
+     = \Theta_i(z)K_{pd}\left[\alpha + \beta\frac{z}{z-1}\right]\\
 \end{align*}
 
 After some algebraic manipulation, one arrives at the following symbol clock
-tracking loop phase-transfer function, in terms of the proportional gain,
-$\alpha$, and the integral gain, $\beta$:
+tracking loop phase-transfer function, in terms of the phase detector gain,
+$K_{pd}$; proportional gain, $\alpha$; and the integral gain, $\beta$:
 
 \begin{align*}
    H(z) &= \dfrac {\Theta_o(z)}{\Theta_i(z)}
-         = (\alpha + \beta)z^{-1} \cdot
+         = K_{pd}(\alpha + \beta)z^{-1} \cdot
           \dfrac{
                  1
                  - \dfrac{\alpha}{\alpha + \beta} z^{-1}
                 }
                 {
                  1
-                 - 2 \left(1 - \dfrac{\alpha + \beta}{2}\right) z^{-1}
-                 + (1 - \alpha) z^{-2}
+                 - 2 \left(1 - K_{pd}\dfrac{\alpha + \beta}{2}\right) z^{-1}
+                 + (1 - K_{pd}\alpha) z^{-2}
                 } \\
 \end{align*}
 
@@ -172,9 +184,9 @@ With Z-plane zeros and poles:
 \begin{align*}
     z_{1} &= \frac{\alpha}{\alpha+\beta} \\
     z_{2} &\rightarrow \infty \\
-    p_{1,2} &= \left(1-\frac{\alpha+\beta}{2}\right) \pm
-           \sqrt{\left(1-\frac{\alpha+\beta}{2}\right)^{2}
-                 - \left(1-\alpha\right)}\\
+    p_{1,2} &= \left(1-K_{pd}\frac{\alpha+\beta}{2}\right) \pm
+           \sqrt{\left(1-K_{pd}\frac{\alpha+\beta}{2}\right)^{2}
+                 - \left(1-K_{pd}\alpha\right)}\\
 \end{align*}
 
 Mapping the above phase-transfer function to the standard form of a transfer
@@ -230,23 +242,27 @@ of oscillation $\omega_{d}$, and the symbol clock period $T$:
 \\
 \end{align*}
 
-The PI filter gains, expressed in terms of the damping factor $\zeta$,
-the natural radian frequency $\omega_{n}$, the damped radian frequency of
-oscillation $\omega_{d}$, and the symbol clock period $T$ are:
+The PI filter gains, expressed in terms of the damping factor, $\zeta$;
+the natural radian frequency, $\omega_{n}$; the damped radian frequency of
+oscillation, $\omega_{d}$; the phase detector gain, $K_{pd}$; and the symbol
+clock period, $T$ are:
 
 \begin{align*}
-   \alpha &= 2e^{-\zeta\omega_{n}T} \sinh(\zeta\omega_{n}T) \\
+   \alpha &= \dfrac{2}{K_{pd}}e^{-\zeta\omega_{n}T} \sinh(\zeta\omega_{n}T) \\
 \\
    \beta  &=
       \begin{cases}
-         2
-         -2e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) + \cos(\omega_{d}T)] &
-         \text{for} \quad \zeta < 1 \quad (under \: damped)\\
-         2
-         -2e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) + 1] &
-         \text{for} \quad \zeta = 1 \quad (critically \: damped)\\
-         2
-         -2e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) +\cosh(\omega_{d}T)] &
+         \dfrac{2}{K_{pd}} \left(1 -
+           e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) + \cos(\omega_{d}T)]
+          \right) &
+         \text{for} \quad \zeta < 1 \quad (under \: damped)\\ \\
+         \dfrac{2}{K_{pd}} \left(1 -
+           e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) + 1]
+          \right) &
+         \text{for} \quad \zeta = 1 \quad (critically \: damped)\\ \\
+         \dfrac{2}{K_{pd}} \left(1 -
+           e^{-\zeta\omega_{n}T} [\sinh(\zeta\omega_{n}T) +\cosh(\omega_{d}T)]
+          \right) &
          \text{for} \quad \zeta > 1 \quad (over \: damped)\\
       \end{cases} \\
 \\
@@ -263,6 +279,18 @@ natural radian frequency, $\omega_{n\_norm}$.
     \omega_{n}T = \omega_{n\_norm} = 2 \pi f_{n\_norm} = 2 \pi f_{n} T =
     \pi \dfrac{f_{n}}{\left(\dfrac{F_{c}}{2}\right)}
 \end{align*}
+
+In practice, the phase detector of the symbol clock tracking loop is implemented
+with an estimator of symbol clock phase error, called a Timing Error Detector
+(TED), which has some gain $K_{pd}$.  The gain, $K_{pd}$, is defined as the
+slope of a TED's S-Curve plot at a symbol clock phase offset of $\tau = 0$.
+The S-Curve shape and central slope, and hence the gain $K_{pd}$, depend on the
+TED's estimator espression, the input signal level, the pulse shaping filter,
+and the $E_s/N_0$ of the incomping signal.  The user must determine the TED's
+S-Curve by analysis or simulation of the particular situation, in order to
+determine an appropriate value for $K_{pd}$.
+
+\newpage
 
 * A note on symbol clock phase vs. interpolating resampler sample phase,
 since most GNURadio symbol synchronization blocks seem to have the same
