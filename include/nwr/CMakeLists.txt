@@ -13,21 +13,11 @@
 ########################################################################
 install(FILES
     api.h
-    clock_tracking_loop.h
     lms_da_equalizer_ff.h
     burst_detect_and_tag.h
     correction_estimator_ff.h
     multiply_by_tag_value_ff.h
     add_tag_value_ff.h
-    clock_recovery_mm_ff.h
-    clock_recovery_mm_cc.h
-    interp_differentiator_taps.h
-    interpolating_resampler.h
-    mmse_interp_differentiator_ff.h
-    mmse_interp_differentiator_cc.h
     pll_refout_cc.h
-    same_burst_decoder.h
-    symbol_sync_ff.h
-    symbol_sync_cc.h
-    timing_error_detector.h DESTINATION include/nwr
+    same_burst_decoder.h DESTINATION include/nwr
 )

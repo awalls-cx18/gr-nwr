@@ -17,22 +17,13 @@ include_directories(${Boost_INCLUDE_DIR} ${UHD_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS} ${UHD_LIBRARY_DIRS})
 
 list(APPEND nwr_sources
-    clock_tracking_loop.cc
     lms_da_equalizer_ff_impl.cc
     burst_detect_and_tag_impl.cc
     correction_estimator_ff_impl.cc
     multiply_by_tag_value_ff_impl.cc
     add_tag_value_ff_impl.cc
-    clock_recovery_mm_ff_impl.cc
-    clock_recovery_mm_cc_impl.cc
-    interpolating_resampler.cc
-    mmse_interp_differentiator_ff.cc
-    mmse_interp_differentiator_cc.cc
     pll_refout_cc_impl.cc
     same_burst_decoder_impl.cc
-    symbol_sync_ff_impl.cc
-    symbol_sync_cc_impl.cc
-    timing_error_detector.cc
 )
 
 set(nwr_sources "${nwr_sources}" PARENT_SCOPE)
@@ -67,8 +58,6 @@ include_directories(${CPPUNIT_INCLUDE_DIRS})
 list(APPEND test_nwr_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_nwr.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_nwr.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/qa_mmse_interp_differentiator_ff.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/qa_mmse_interp_differentiator_cc.cc
 )
 
 add_executable(test-nwr ${test_nwr_sources})
