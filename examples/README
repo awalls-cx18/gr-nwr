@@ -22,3 +22,11 @@ Example flowgraphs and data files for NWR:
    captures a Required Weekly TEST of EAS with SAME data modulation and
    EAS tone from WXM57 Heathsville, VA on WX2 (162.400 MHz):
    http://www.nws.noaa.gov/nwr/coverage/site2.php?State=VA&Site=WXM57
+
+5. aausat4_test_1.grc
+   A sample flowgraph for demodulating the one AAUSAT4 burst in the file
+   gqrx_20160420_105710_437400700_1200000_fc.raw.gz.
+   
+6. gqrx_20160420_105710_437400700_1200000_fc.raw.gz
+   A gzip compressed file containing 32 bit float complex I and Q.  It is a
+   capture of a single AAUSAT4 burst.
