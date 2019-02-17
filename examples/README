@@ -4,7 +4,6 @@ Example flowgraphs and data files for NWR:
 
 1. nwr_fg.grc
    The example flowgraph for NWR audio and SAME demodulation.
-   Depends on the gr-reveng OOT module for the Pattern Dump block.
 
 2. nwr_file_prune.grc
    A utility flowgraph for snipping out segments of a large I/Q capture file.

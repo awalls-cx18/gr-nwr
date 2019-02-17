@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<?grc format='1' created='3.7.12'?>
+<?grc format='1' created='3.7.13'?>
 <flow_graph>
   <timestamp>Tue Dec  9 12:11:23 2014</timestamp>
   <block>
@@ -78,12 +78,20 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
       <value>True</value>
     </param>
     <param>
+      <key>sizing_mode</key>
+      <value>fixed</value>
+    </param>
+    <param>
       <key>thread_safe_setters</key>
       <value></value>
     </param>
     <param>
       <key>title</key>
       <value>NOAA Weather Radio Receiver</value>
+    </param>
+    <param>
+      <key>placement</key>
+      <value>(0,0)</value>
     </param>
   </block>
   <block>
@@ -2003,7 +2011,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3536, 1084)</value>
+      <value>(3480, 788)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2438,7 +2446,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>file</key>
-      <value>/home/andy/grcs/nwr_band_162487500Hz_250ksps_201611091145.c32</value>
+      <value>/home/andy/grcs/nwr/nwr_band_162487500Hz_250ksps_201611091145.c32</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2540,7 +2548,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3712, 968)</value>
+      <value>(3752, 824)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2768,6 +2776,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>id</key>
       <value>blocks_moving_average_xx_0</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
     </param>
     <param>
       <key>length</key>
@@ -3402,6 +3414,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
       <value>False</value>
     </param>
     <param>
+      <key>single_key</key>
+      <value>""</value>
+    </param>
+    <param>
       <key>vlen</key>
       <value>1</value>
     </param>
@@ -3451,6 +3467,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>propagate_tags</key>
       <value>False</value>
+    </param>
+    <param>
+      <key>single_key</key>
+      <value>""</value>
     </param>
     <param>
       <key>vlen</key>
@@ -3842,7 +3862,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3464, 808)</value>
+      <value>(3336, 792)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3862,11 +3882,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
-    <key>digital_correlate_access_code_tag_bb</key>
-    <param>
-      <key>access_code</key>
-      <value>"101010111010101110101011"</value>
-    </param>
+    <key>digital_symbol_sync_xx</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -3880,36 +3896,76 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
       <value></value>
     </param>
     <param>
+      <key>damping</key>
+      <value>zeta</value>
+    </param>
+    <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>True</value>
+    </param>
+    <param>
+      <key>ted_gain</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>nfilters</key>
+      <value>128</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3616, 788)</value>
+      <value>(2968, 780)</value>
     </param>
     <param>
       <key>_rotation</key>
       <value>0</value>
     </param>
     <param>
+      <key>type</key>
+      <value>ff</value>
+    </param>
+    <param>
       <key>id</key>
-      <value>digital_correlate_access_code_tag_bb_0</value>
+      <value>digital_symbol_sync_xx_0</value>
+    </param>
+    <param>
+      <key>resamp_type</key>
+      <value>digital.IR_MMSE_8TAP</value>
+    </param>
+    <param>
+      <key>loop_bw</key>
+      <value>omega_n_norm</value>
     </param>
     <param>
       <key>maxoutbuf</key>
       <value>0</value>
     </param>
     <param>
+      <key>max_dev</key>
+      <value>1.5</value>
+    </param>
+    <param>
       <key>minoutbuf</key>
       <value>0</value>
     </param>
     <param>
-      <key>tagname</key>
-      <value>rx_start</value>
+      <key>osps</key>
+      <value>1</value>
     </param>
     <param>
-      <key>threshold</key>
-      <value>0</value>
+      <key>pfb_mf_taps</key>
+      <value>[]</value>
+    </param>
+    <param>
+      <key>sps</key>
+      <value>sps</value>
+    </param>
+    <param>
+      <key>constellation</key>
+      <value>digital.constellation_bpsk().base()</value>
+    </param>
+    <param>
+      <key>ted_type</key>
+      <value>digital.TED_MUELLER_AND_MULLER</value>
     </param>
   </block>
   <block>
@@ -5131,69 +5187,6 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
   </block>
   <block>
-    <key>nwr_clock_recovery_mm_xx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>damping</key>
-      <value>zeta</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(2968, 808)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>ff</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>nwr_clock_recovery_mm_xx_0</value>
-    </param>
-    <param>
-      <key>loop_bw</key>
-      <value>omega_n_norm</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>max_dev</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>osps</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>sps</key>
-      <value>sps</value>
-    </param>
-  </block>
-  <block>
     <key>nwr_correction_estimator_ff</key>
     <param>
       <key>alias</key>
@@ -5242,6 +5235,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>inspection_length</key>
       <value>int(sps*8*4)</value>
+    </param>
+    <param>
+      <key>inspection_offset</key>
+      <value>0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -5351,7 +5348,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3256, 624)</value>
+      <value>(3280, 624)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -7156,7 +7153,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3888, 964)</value>
+      <value>(3888, 932)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -7448,7 +7445,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>tr_tag</key>
-      <value>"rx_start"</value>
+      <value>"clock_est"</value>
     </param>
     <param>
       <key>type</key>
@@ -9842,6 +9839,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
       <value>aud_fs</value>
     </param>
     <param>
+      <key>stemplot</key>
+      <value>False</value>
+    </param>
+    <param>
       <key>tr_chan</key>
       <value>0</value>
     </param>
@@ -10203,6 +10204,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>srate</key>
       <value>same_fs</value>
+    </param>
+    <param>
+      <key>stemplot</key>
+      <value>False</value>
     </param>
     <param>
       <key>tr_chan</key>
@@ -10568,6 +10573,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
       <value>same_fs/sps</value>
     </param>
     <param>
+      <key>stemplot</key>
+      <value>False</value>
+    </param>
+    <param>
       <key>tr_chan</key>
       <value>0</value>
     </param>
@@ -10652,7 +10661,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3280, 1016)</value>
+      <value>(3360, 1000)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -10929,6 +10938,10 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <param>
       <key>srate</key>
       <value>same_fs/sps</value>
+    </param>
+    <param>
+      <key>stemplot</key>
+      <value>False</value>
     </param>
     <param>
       <key>tr_chan</key>
@@ -11624,13 +11637,55 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>digital_binary_slicer_fb_0</source_block_id>
-    <sink_block_id>digital_correlate_access_code_tag_bb_0</sink_block_id>
+    <sink_block_id>blocks_char_to_float_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>digital_correlate_access_code_tag_bb_0</source_block_id>
-    <sink_block_id>blocks_char_to_float_0</sink_block_id>
+    <source_block_id>digital_symbol_sync_xx_0</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
+    <source_key>3</source_key>
+    <sink_key>4</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_symbol_sync_xx_0</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
+    <source_key>2</source_key>
+    <sink_key>3</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_symbol_sync_xx_0</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
+    <source_key>1</source_key>
+    <sink_key>2</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_symbol_sync_xx_0</source_block_id>
+    <sink_block_id>blocks_float_to_complex_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_symbol_sync_xx_0</source_block_id>
+    <sink_block_id>digital_binary_slicer_fb_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_symbol_sync_xx_0</source_block_id>
+    <sink_block_id>nwr_same_burst_decoder_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_symbol_sync_xx_0</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_0_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_symbol_sync_xx_0</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -11767,54 +11822,6 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
-    <source_key>3</source_key>
-    <sink_key>4</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
-    <source_key>2</source_key>
-    <sink_key>3</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
-    <source_key>1</source_key>
-    <sink_key>2</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
-    <sink_block_id>blocks_float_to_complex_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
-    <sink_block_id>digital_binary_slicer_fb_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
-    <sink_block_id>nwr_same_burst_decoder_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>nwr_clock_recovery_mm_xx_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0_0_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>nwr_correction_estimator_ff_0</source_block_id>
     <sink_block_id>blocks_tag_debug_1</sink_block_id>
     <source_key>0</source_key>
@@ -11834,7 +11841,7 @@ See http://www.gnu.org/licenses/gpl-faq.en.html#GPLOutput</value>
   </connection>
   <connection>
     <source_block_id>nwr_multiply_by_tag_value_ff_0</source_block_id>
-    <sink_block_id>nwr_clock_recovery_mm_xx_0</sink_block_id>
+    <sink_block_id>digital_symbol_sync_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
