@@ -86,7 +86,7 @@ namespace gr {
     {
         if (!pmt::is_number(val))
             return;
-        d_phase_inc = pmt::to_double(val);
+        d_phase_inc = pmt::to_double(val) * d_scale_factor;
         set_phase_inc(d_phase_inc);
     }
 
