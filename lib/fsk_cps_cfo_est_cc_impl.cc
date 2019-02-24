@@ -153,6 +153,14 @@ namespace gr {
         d_max_bin_err_int = (int) ceilf(d_max_bin_error);
         if (d_max_bin_err_int < 1)
             d_max_bin_err_int = 1;
+#if 0
+        std::cerr << "Constructor:" << " target_delta:" << d_target_bin_delta
+                  << " max_bin_errf:" << d_max_bin_error
+                  << " max_bin_erri:" << d_max_bin_err_int
+                  << " n_bins:" << d_n_bins << " fft_size:" << d_fft_size
+                  << " bin_mag_order.size():" << d_bin_mag_order.size()
+                  << std::endl;
+#endif
     }
 
     fsk_cps_cfo_est_cc_impl::~fsk_cps_cfo_est_cc_impl()
@@ -209,18 +217,20 @@ namespace gr {
         // Find the indices of the largest two bins the proper distance apart
         bool found = false;
         int delta = 0;
+        float limit_ck = 0;
         // Loop through looking for properly spaced peaks, expanding the
         // allowed error limit, if a pass doesn't find an acceptable pair.
         int i, j;
-        for (int limit = 1; limit <= d_max_bin_err_int; limit++) {
+        int limit;
+        for (limit = 1; limit <= d_max_bin_err_int; limit++) {
             for (i = 0; i < (d_n_bins - 1); i++) {
                 for (j = i + 1; j < d_n_bins; j++) {
                     // Taking care when subtracting uint32_t numbers
                     delta = d_bin_mag_order[i] > d_bin_mag_order[j]
                             ? d_bin_mag_order[i] - d_bin_mag_order[j]
                             : d_bin_mag_order[j] - d_bin_mag_order[i];
-                    if (std::abs(d_target_bin_delta - (float) delta)
-                                                             <= (float) limit) {
+                    limit_ck = std::abs(d_target_bin_delta - (float) delta);
+                    if (limit_ck <= (float) limit) {
                         found = true;
                         break;
                     }
@@ -247,10 +257,26 @@ namespace gr {
         // We then cut that in half, since we squared the original signal
         // which doubled the frequencies.
         // We then convert from normalized radian frequency to Hz.
-        double w1, w2;
+        double w1, w2, ret;
         w1 = arg(d_cps[d_bin_mag_order[i]]);
         w2 = arg(d_cps[d_bin_mag_order[j]]);
-        return ((w1 + w2) / 2.0) / 2.0 * (d_samp_rate / 2.0) / M_PI;
+        ret = ((w1 + w2) / 2.0) / 2.0 * (d_samp_rate / 2.0) / M_PI;
+#if 0
+        std::cerr << "cfo:" << ret << " w1:" << w1 << " w2:" << w2
+                  << " cps[" << d_bin_mag_order[i] << "]:"
+                  << d_cps[d_bin_mag_order[i]]
+                  << " cps[" << d_bin_mag_order[j] << "]:"
+                  << d_cps[d_bin_mag_order[j]]
+                  << " i:" << i << " j:" << j
+                  << " limit:" << limit << " limit_ck:" << limit_ck
+                  << " delta:" << delta << " target_delta:" << d_target_bin_delta
+                  << " max_bin_errf:" << d_max_bin_error
+                  << " max_bin_erri:" << d_max_bin_err_int
+                  << " n_bins:" << d_n_bins << " fft_size:" << d_fft_size
+                  << " bin_mag_order.size():" << d_bin_mag_order.size()
+                  << std::endl;
+#endif
+        return ret;
     }
 
     int
