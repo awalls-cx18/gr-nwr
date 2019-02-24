@@ -8,7 +8,6 @@
   <category>[nwr]</category>
   <import>import nwr</import>
   <import>from gnuradio import fft</import>
-  <import>from gnuradio.fft import window</import>
   <make>nwr.fsk_cps_cfo_est_cc($samp_rate, $mod_index, $baud_rate, $tolerance, $fft_size, $wintype, $beta, $output_tag, $sob_tag, $periodic, $interval)</make>
 
   <param>
@@ -48,47 +47,47 @@
 
   <param>
     <name>Window</name>
-    <key>$wintype</key>
-    <value>window.WIN_BLACKMAN_HARRIS</value>
+    <key>wintype</key>
+    <value>fft.window.WIN_BLACKMAN_HARRIS</value>
     <type>enum</type>
     <option>
       <name>Hamming</name>
-      <key>window.WIN_HAMMING</key>
+      <key>fft.window.WIN_HAMMING</key>
       <opt>hide_beta:all</opt>
     </option>
     <option>
       <name>Hann</name>
-      <key>window.WIN_HANN</key>
+      <key>fft.window.WIN_HANN</key>
       <opt>hide_beta:all</opt>
     </option>
     <option>
       <name>Blackman</name>
-      <key>window.WIN_BLACKMAN</key>
+      <key>fft.window.WIN_BLACKMAN</key>
       <opt>hide_beta:all</opt>
     </option>
     <option>
       <name>Rectangular</name>
-      <key>window.WIN_RECTANGULAR</key>
+      <key>fft.window.WIN_RECTANGULAR</key>
       <opt>hide_beta:all</opt>
     </option>
     <option>
       <name>Kaiser</name>
-      <key>window.WIN_KAISER</key>
+      <key>fft.window.WIN_KAISER</key>
       <opt>hide_beta:none</opt>
     </option>
     <option>
       <name>Blackman-harris</name>
-      <key>window.WIN_BLACKMAN_HARRIS</key>
+      <key>fft.window.WIN_BLACKMAN_HARRIS</key>
       <opt>hide_beta:all</opt>
     </option>
     <option>
       <name>Bartlett</name>
-      <key>window.WIN_BARTLETT</key>
+      <key>fft.window.WIN_BARTLETT</key>
       <opt>hide_beta:all</opt>
     </option>
     <option>
       <name>Flat Top</name>
-      <key>window.WIN_FLATTOP</key>
+      <key>fft.window.WIN_FLATTOP</key>
       <opt>hide_beta:all</opt>
     </option>
   </param>
@@ -116,7 +115,7 @@
 
   <param>
     <name>Periodic Output</name>
-    <key>$periodic</key>
+    <key>periodic</key>
     <value>False</value>
     <type>enum</type>
     <option>
