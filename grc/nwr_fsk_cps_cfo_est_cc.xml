@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<!--
+  Copyright (C) 2019  Andy Walls awalls.cx18@gmail.com
+ -->
+<block>
+  <name>FSK CPS CFO Estimator</name>
+  <key>nwr_fsk_cps_cfo_est_cc</key>
+  <category>[nwr]</category>
+  <import>import nwr</import>
+  <import>from gnuradio import fft</import>
+  <import>from gnuradio.fft import window</import>
+  <make>nwr.fsk_cps_cfo_est_cc($samp_rate, $mod_index, $baud_rate, $tolerance, $fft_size, $wintype, $beta, $output_tag, $sob_tag, $periodic, $interval)</make>
+
+  <param>
+    <name>Sample Rate (samp/sec)</name>
+    <key>samp_rate</key>
+    <value>samp_rate</value>
+    <type>real</type>
+  </param>
+
+  <param>
+    <name>Modulation Index</name>
+    <key>mod_index</key>
+    <value>h</value>
+    <type>real</type>
+  </param>
+
+  <param>
+    <name>Baud Rate (symb/sec)</name>
+    <key>baud_rate</key>
+    <value>baud_rate</value>
+    <type>real</type>
+  </param>
+
+  <param>
+    <name>Tolerance (symb/sec)</name>
+    <key>tolerance</key>
+    <value>baud_rate * 0.05</value>
+    <type>real</type>
+  </param>
+
+  <param>
+    <name>FFT Size (samples)</name>
+    <key>fft_size</key>
+    <value>1024</value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Window</name>
+    <key>$wintype</key>
+    <value>window.WIN_BLACKMAN_HARRIS</value>
+    <type>enum</type>
+    <option>
+      <name>Hamming</name>
+      <key>window.WIN_HAMMING</key>
+      <opt>hide_beta:all</opt>
+    </option>
+    <option>
+      <name>Hann</name>
+      <key>window.WIN_HANN</key>
+      <opt>hide_beta:all</opt>
+    </option>
+    <option>
+      <name>Blackman</name>
+      <key>window.WIN_BLACKMAN</key>
+      <opt>hide_beta:all</opt>
+    </option>
+    <option>
+      <name>Rectangular</name>
+      <key>window.WIN_RECTANGULAR</key>
+      <opt>hide_beta:all</opt>
+    </option>
+    <option>
+      <name>Kaiser</name>
+      <key>window.WIN_KAISER</key>
+      <opt>hide_beta:none</opt>
+    </option>
+    <option>
+      <name>Blackman-harris</name>
+      <key>window.WIN_BLACKMAN_HARRIS</key>
+      <opt>hide_beta:all</opt>
+    </option>
+    <option>
+      <name>Bartlett</name>
+      <key>window.WIN_BARTLETT</key>
+      <opt>hide_beta:all</opt>
+    </option>
+    <option>
+      <name>Flat Top</name>
+      <key>window.WIN_FLATTOP</key>
+      <opt>hide_beta:all</opt>
+    </option>
+  </param>
+
+  <param>
+    <name>Beta</name>
+    <key>beta</key>
+    <value>4.55</value>
+    <type>real</type>
+  </param>
+
+  <param>
+    <name>Output Tag</name>
+    <key>output_tag</key>
+    <value>"cfo_est"</value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Start of Burst Tag</name>
+    <key>sob_tag</key>
+    <value>"rx_sob"</value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Periodic Output</name>
+    <key>$periodic</key>
+    <value>False</value>
+    <type>enum</type>
+    <option>
+      <name>No</name>
+      <key>False</key>
+      <opt>hide_interval:all</opt>
+    </option>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+      <opt>hide_interval:none</opt>
+    </option>
+  </param>
+
+  <param>
+    <name>Interval (sec)</name>
+    <key>interval</key>
+    <value>1.0</value>
+    <type>real</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>

@@ -40,3 +40,4 @@ GR_ADD_TEST(qa_add_tag_value_ff ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}
 GR_ADD_TEST(qa_pll_refout_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_pll_refout_cc.py)
 GR_ADD_TEST(qa_same_burst_decoder ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_same_burst_decoder.py)
 GR_ADD_TEST(qa_rotate_by_tag_value_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_rotate_by_tag_value_cc.py)
+GR_ADD_TEST(qa_fsk_cps_cfo_est_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fsk_cps_cfo_est_cc.py)

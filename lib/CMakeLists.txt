@@ -25,6 +25,7 @@ list(APPEND nwr_sources
     pll_refout_cc_impl.cc
     same_burst_decoder_impl.cc
     rotate_by_tag_value_cc_impl.cc
+    fsk_cps_cfo_est_cc_impl.cc
 )
 
 set(nwr_sources "${nwr_sources}" PARENT_SCOPE)

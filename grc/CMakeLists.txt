@@ -16,5 +16,6 @@ install(FILES
     nwr_add_tag_value_ff.xml
     nwr_pll_refout_cc.xml
     nwr_same_burst_decoder.xml
-    nwr_rotate_by_tag_value_cc.xml DESTINATION share/gnuradio/grc/blocks
+    nwr_rotate_by_tag_value_cc.xml
+    nwr_fsk_cps_cfo_est_cc.xml DESTINATION share/gnuradio/grc/blocks
 )

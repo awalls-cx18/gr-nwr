@@ -10,11 +10,15 @@
  */
 
 #define NWR_API
+#define FFT_API
 
 %include "gnuradio.i"			// the common stuff
 
 //load generated python docstrings
 %include "nwr_swig_doc.i"
+
+// So we understand the FFT window types
+%import "gnuradio/fft/window.h"
 
 %{
 #include "nwr/lms_da_equalizer_ff.h"
@@ -25,6 +29,7 @@
 #include "nwr/pll_refout_cc.h"
 #include "nwr/same_burst_decoder.h"
 #include "nwr/rotate_by_tag_value_cc.h"
+#include "nwr/fsk_cps_cfo_est_cc.h"
 %}
 
 %include "nwr/lms_da_equalizer_ff.h"
@@ -43,3 +48,5 @@ GR_SWIG_BLOCK_MAGIC2(nwr, pll_refout_cc);
 GR_SWIG_BLOCK_MAGIC2(nwr, same_burst_decoder);
 %include "nwr/rotate_by_tag_value_cc.h"
 GR_SWIG_BLOCK_MAGIC2(nwr, rotate_by_tag_value_cc);
+%include "nwr/fsk_cps_cfo_est_cc.h"
+GR_SWIG_BLOCK_MAGIC2(nwr, fsk_cps_cfo_est_cc);

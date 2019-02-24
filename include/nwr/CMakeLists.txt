@@ -20,5 +20,6 @@ install(FILES
     add_tag_value_ff.h
     pll_refout_cc.h
     same_burst_decoder.h
-    rotate_by_tag_value_cc.h DESTINATION include/nwr
+    rotate_by_tag_value_cc.h
+    fsk_cps_cfo_est_cc.h DESTINATION include/nwr
 )
