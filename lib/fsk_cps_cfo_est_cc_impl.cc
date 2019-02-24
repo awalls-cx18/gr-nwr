@@ -318,7 +318,7 @@ namespace gr {
                     cfo = compute_estimate(&in[idx], valid);
                     if (valid) {
                         // Add the tag to the output
-                        add_item_tag(0, t->offset, d_output_tag_key,
+                        add_item_tag(0, d_out_next_off, d_output_tag_key,
                                      pmt::from_double(cfo), d_src_id);
                     }
                     // Schedule the next periodic output
@@ -360,7 +360,7 @@ namespace gr {
                 cfo = compute_estimate(&in[idx], valid);
                 if (valid) {
                     // Add the tag to the output
-                    add_item_tag(0, t->offset, d_output_tag_key,
+                    add_item_tag(0, d_out_next_off, d_output_tag_key,
                                  pmt::from_double(cfo), d_src_id);
                 }
                 // Schedule the next periodic output
