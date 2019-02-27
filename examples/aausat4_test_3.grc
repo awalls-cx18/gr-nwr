@@ -907,7 +907,7 @@
     </param>
     <param>
       <key>verbose</key>
-      <value>False</value>
+      <value>True</value>
     </param>
   </block>
   <block>
@@ -1279,7 +1279,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1314,11 +1314,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(2080, 360)</value>
+      <value>(3352, 508)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1330,7 +1330,7 @@
     </param>
     <param>
       <key>type</key>
-      <value>complex</value>
+      <value>byte</value>
     </param>
     <param>
       <key>filter</key>
@@ -2177,7 +2177,7 @@
     </param>
     <param>
       <key>declare_dur</key>
-      <value>1.0 / baud_rate * 8 * (60+6+1+(2+4+23+2+32+1)*2-16)</value>
+      <value>1.0 / baud_rate * 8 * (60+6+1+(2+4+23+2+32+1)*2*0-16)</value>
     </param>
     <param>
       <key>eob_delay</key>
@@ -2209,7 +2209,7 @@
     </param>
     <param>
       <key>init_floor_est</key>
-      <value>1.7530e-6</value>
+      <value>(1.7530e-6)</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2237,7 +2237,7 @@
     </param>
     <param>
       <key>thresh_db</key>
-      <value>-5</value>
+      <value>-6</value>
     </param>
   </block>
   <block>
@@ -2395,7 +2395,7 @@
     </param>
     <param>
       <key>periodic</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>samp_rate</key>
@@ -2910,7 +2910,7 @@
     </param>
     <param>
       <key>tr_level</key>
-      <value>0.0</value>
+      <value>-80</value>
     </param>
     <param>
       <key>tr_mode</key>
@@ -5577,6 +5577,12 @@
   </connection>
   <connection>
     <source_block_id>digital_correlate_access_code_tag_xx_0</source_block_id>
+    <sink_block_id>blocks_tag_debug_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_correlate_access_code_tag_xx_0</source_block_id>
     <sink_block_id>pdu_utils_tags_to_pdu_X_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -5706,12 +5712,6 @@
     <sink_block_id>qtgui_time_sink_x_0_1_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>1</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>nwr_fsk_cps_cfo_est_cc_0</source_block_id>
-    <sink_block_id>blocks_tag_debug_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>nwr_fsk_cps_cfo_est_cc_0</source_block_id>
