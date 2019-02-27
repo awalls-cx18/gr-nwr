@@ -837,6 +837,80 @@
     </param>
   </block>
   <block>
+    <key>aausat_aausat4_beacon_parser</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(3912, 456)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>aausat_aausat4_beacon_parser_0</value>
+    </param>
+  </block>
+  <block>
+    <key>aausat_aausat4_fec</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(3696, 452)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>aausat_aausat4_fec_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>verbose</key>
+      <value>False</value>
+    </param>
+  </block>
+  <block>
     <key>analog_quadrature_demod_cf</key>
     <param>
       <key>alias</key>
@@ -899,7 +973,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3592, 612)</value>
+      <value>(3352, 612)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1182,11 +1256,42 @@
     </param>
     <param>
       <key>repeat</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>vlen</key>
       <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_message_debug</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(3744, 504)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_message_debug_0</value>
     </param>
   </block>
   <block>
@@ -1319,7 +1424,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3232, 616)</value>
+      <value>(2904, 456)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1339,7 +1444,7 @@
     </param>
   </block>
   <block>
-    <key>digital_correlate_access_code_bb</key>
+    <key>digital_correlate_access_code_tag_xx</key>
     <param>
       <key>access_code</key>
       <value>010011110101101000110100010000110101010101000010</value>
@@ -1350,9 +1455,7 @@
     </param>
     <param>
       <key>comment</key>
-      <value>This block adds a 64 sample delay because of
-its internal shift register.   However, this block
-doesn't adjust the tags for the 64 sample delay.</value>
+      <value></value>
     </param>
     <param>
       <key>affinity</key>
@@ -1360,11 +1463,11 @@ doesn't adjust the tags for the 64 sample delay.</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3376, 604)</value>
+      <value>(3104, 436)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1372,7 +1475,11 @@ doesn't adjust the tags for the 64 sample delay.</value>
     </param>
     <param>
       <key>id</key>
-      <value>digital_correlate_access_code_bb_0</value>
+      <value>digital_correlate_access_code_tag_xx_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1381,6 +1488,10 @@ doesn't adjust the tags for the 64 sample delay.</value>
     <param>
       <key>minoutbuf</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>tagname</key>
+      <value>"oz4cub"</value>
     </param>
     <param>
       <key>threshold</key>
@@ -1645,62 +1756,6 @@ doesn't adjust the tags for the 64 sample delay.</value>
     <param>
       <key>taps</key>
       <value>taps_ma</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>fff</value>
-    </param>
-  </block>
-  <block>
-    <key>fir_filter_xxx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Trivial filter to fix the tag misalignment caused by
-the correlate access code block</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>decim</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(3744, 604)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>fir_filter_xxx_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>samp_delay</key>
-      <value>64</value>
-    </param>
-    <param>
-      <key>taps</key>
-      <value>1</value>
     </param>
     <param>
       <key>type</key>
@@ -2455,6 +2510,144 @@ the correlate access code block</value>
     <param>
       <key>vlen</key>
       <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>pdu_utils_pack_unpack</key>
+    <param>
+      <key>bit_order</key>
+      <value>pdu_utils.BIT_ORDER_MSB_FIRST</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(3520, 444)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>pdu_utils_pack_unpack_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>mode</key>
+      <value>pdu_utils.MODE_PACK_BYTE</value>
+    </param>
+  </block>
+  <block>
+    <key>pdu_utils_tags_to_pdu_X</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>boost_time</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>cfg_port</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>eob_alignment</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>eob_offset</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>pub_det</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>end_tag</key>
+      <value>"ignore_rx_eob"</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(3352, 444)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>pdu_utils_tags_to_pdu_X_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>max_pdu_size</key>
+      <value>2048</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>b</value>
+    </param>
+    <param>
+      <key>prepend</key>
+      <value>[]</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>samp_rate_5</value>
+    </param>
+    <param>
+      <key>start_tag</key>
+      <value>"oz4cub"</value>
+    </param>
+    <param>
+      <key>start_time</key>
+      <value>0.0</value>
+    </param>
+    <param>
+      <key>tail_size</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -4858,7 +5051,7 @@ the correlate access code block</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(3944, 588)</value>
+      <value>(3504, 588)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -5154,7 +5347,7 @@ the correlate access code block</value>
     </param>
     <param>
       <key>tr_mode</key>
-      <value>qtgui.TRIG_MODE_NORM</value>
+      <value>qtgui.TRIG_MODE_TAG</value>
     </param>
     <param>
       <key>tr_slope</key>
@@ -5162,7 +5355,7 @@ the correlate access code block</value>
     </param>
     <param>
       <key>tr_tag</key>
-      <value>""</value>
+      <value>"oz4cub"</value>
     </param>
     <param>
       <key>type</key>
@@ -5305,6 +5498,12 @@ the correlate access code block</value>
     </param>
   </block>
   <connection>
+    <source_block_id>aausat_aausat4_fec_0</source_block_id>
+    <sink_block_id>aausat_aausat4_beacon_parser_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
     <source_block_id>analog_quadrature_demod_cf_0</source_block_id>
     <sink_block_id>blocks_delay_1</sink_block_id>
     <source_key>0</source_key>
@@ -5318,7 +5517,7 @@ the correlate access code block</value>
   </connection>
   <connection>
     <source_block_id>blocks_char_to_float_0</source_block_id>
-    <sink_block_id>fir_filter_xxx_0</sink_block_id>
+    <sink_block_id>qtgui_time_sink_x_2</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -5366,13 +5565,19 @@ the correlate access code block</value>
   </connection>
   <connection>
     <source_block_id>digital_binary_slicer_fb_0</source_block_id>
-    <sink_block_id>digital_correlate_access_code_bb_0</sink_block_id>
+    <sink_block_id>digital_correlate_access_code_tag_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>digital_correlate_access_code_bb_0</source_block_id>
+    <source_block_id>digital_correlate_access_code_tag_xx_0</source_block_id>
     <sink_block_id>blocks_char_to_float_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_correlate_access_code_tag_xx_0</source_block_id>
+    <sink_block_id>pdu_utils_tags_to_pdu_X_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -5447,12 +5652,6 @@ the correlate access code block</value>
     <sink_block_id>nwr_burst_detect_and_tag_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>1</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fir_filter_xxx_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_2</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>fir_filter_xxx_1</source_block_id>
@@ -5549,5 +5748,23 @@ the correlate access code block</value>
     <sink_block_id>qtgui_time_sink_x_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>pdu_utils_pack_unpack_0</source_block_id>
+    <sink_block_id>aausat_aausat4_fec_0</sink_block_id>
+    <source_key>pdu_out</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>pdu_utils_pack_unpack_0</source_block_id>
+    <sink_block_id>blocks_message_debug_0</sink_block_id>
+    <source_key>pdu_out</source_key>
+    <sink_key>print_pdu</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>pdu_utils_tags_to_pdu_X_0</source_block_id>
+    <sink_block_id>pdu_utils_pack_unpack_0</sink_block_id>
+    <source_key>pdu_out</source_key>
+    <sink_key>pdu_in</sink_key>
   </connection>
 </flow_graph>
